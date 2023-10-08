@@ -1,40 +1,40 @@
 import numpy as onp
 import jax.numpy as np
 
-from jax import grad, jit, vmap, value_and_grad
+from jax import grad, jit, vmap
 from jax import random
 
 import time
 
 key = random.PRNGKey(1)
 
-x = random.uniform(key, (1000, 1000))
+X = random.uniform(key, (1000, 1000))
 
 t = time.time()
-onp.dot(x, x)
+onp.dot(X, X)
 print("Time: {} s".format(time.time() - t))
 t = time.time()
-np.dot(x, x)
+np.dot(X, X)
 print("Time: {} s".format(time.time() - t))
 t = time.time()
-np.dot(x, x).block_until_ready()
+np.dot(X, X).block_until_ready()
 print("Time: {} s".format(time.time() - t))
 
 
-def ReLU(x):
+def relu(x):
     """ Rectified Linear Unit (ReLU) activation function """
     return np.maximum(0, x)
 
 
-jit_ReLU = jit(ReLU)
+jit_ReLU = jit(relu)
 
 
 def finite_diff_grad(x):
     """ Compute the finite difference derivative approx for the ReLU"""
-    return np.array((ReLU(x + 1e-3) - ReLU(x - 1e-3)) / (2 * 1e-3))
+    return np.array((relu(x + 1e-3) - relu(x - 1e-3)) / (2 * 1e-3))
 
 
-print("Jax Grad: ", jit(grad(jit(ReLU)))(2.))
+print("Jax Grad: ", jit(grad(jit(relu)))(2.))
 print("FD Gradient:", finite_diff_grad(2.))
 
 
@@ -47,19 +47,18 @@ X = random.normal(key, (batch_dim, feature_dim))
 params = [random.normal(key, (feature_dim, hidden_dim)), random.normal(key, (hidden_dim,))]
 
 
-def relu_layer(params, x):
-    w, b = params
-    return ReLU(np.dot(x, w) + b)
+def relu_layer(theta, x):
+    w, b = theta
+    return relu(np.dot(x, w) + b)
 
 
-def vmap_relu(params, x):
-    return jit(vmap(relu_layer, in_axes=(None, 0), out_axes=0))(params, x)
+def vmap_relu(theta, x):
+    return jit(vmap(relu_layer, in_axes=(None, 0), out_axes=0))(theta, x)
 
 
-out = np.stack([relu_layer(params, X[i, :]) for i in range(X.shape[0])])
-out = vmap_relu(params, X)
-
-from jax.scipy.special import logsumexp
-from jax.example_libraries.optimizers import adam
-
-
+t = time.time()
+np.stack([relu_layer(params, X[i, :]) for i in range(X.shape[0])])
+print("Time: {} s".format(time.time() - t))
+t = time.time()
+vmap_relu(params, X)
+print("Time: {} s".format(time.time() - t))
