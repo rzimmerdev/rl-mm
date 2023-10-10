@@ -1,0 +1,12 @@
+A pesquisa tem como objetivo central a criação de uma estratégia de market making para mercados financeiros de alta frequência. Nesse contexto, planejamos obter um método de otimização de um agente capaz de inserir ofertas de compra e venda no livro de ofertas, considerando as restrições do mercado, os valores do bid-ask spread e as limitações de tempo e liquidez. A otimização buscará uma política ótima de minimização do risco overnight com a maximização do potencial de lucro.
+
+Em termos quantitativos, o objetivo do agente pode ser modelado pela seguinte equação para todos os negócios $e=1,...,N$ (onde $q_e$ é negativo para compras e positivo para vendas) ocorridos no dia
+\begin{equation*}
+    \max V_T := \sum_{e=1}^N q_e \cdot p_e, 0 \le e \leq T, 
+\end{equation*}
+sob a restrição que a quantidade final em estoque esteja zero: $q_T:= \sum_{e=1}^N q_e = 0$
+
+A pesquisa focará em aplicações de técnicas de aprendizado de reforço para modelar o comportamento do agente de market making e obter a política ótima. Isso inclui a definição de modelos de estado, ação e recompensa, bem como uma política de escolha de ações que orientará as decisões do agente em função do estado do livro de ordens ao longo do tempo. 
+Em cenários onde a calibragem de parâmetros for necessária, investigaremos como esses parâmetros podem ser ajustados dinamicamente ao longo do tempo, levando em consideração as condições do mercado e as expectativas do agente.
+
+Como conclusão da pesquisa, pretendemos realizar uma avaliação abrangente do desempenho da estratégia de market making, incluindo mas não limitado a análise do retorno da carteira ao longo do tempo, levando em consideração custos de transação e flutuações nos preços dos ativos. Avaliaremos também a eficácia da estratégia na minimização do risco \textit{overnight} e o impacto das ordens geradas para zerar a carteira na liquidez do mercado. Após treinamento do agente, realizaremos também uma análise comparativa entre a estratégia de market making desenvolvida com técnicas de aprendizado por reforço e estratégias tradicionais de mercado, especificamente de \textit{price-taking}. Isso nos permitirá destacar as vantagens e desvantagens da abordagem de aprendizado de reforço e comparar os resultados obtidos quantitativamente.

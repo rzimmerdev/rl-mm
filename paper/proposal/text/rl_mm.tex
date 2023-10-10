@@ -1,0 +1,35 @@
+\subsection{Aprendizado por Reforço}
+O Aprendizado por Reforço (RL) é um paradigma de aprendizado de máquina que se baseia em princípios da psicologia comportamental e se concentra em formalizar agentes autônomos capazes de tomar decisões em ambientes dinâmicos. Simplificadamente, trata-se de uma política de controle que interage com um ambiente de modo a maximizar uma recompensa cumulativa ao longo do tempo.
+
+O processo de RL é análogo ao modo como os seres humanos aprendem por tentativa e erro. O agente explora diferentes ações, observa as consequências dessas ações no ambiente e ajusta sua estratégia com base nas recompensas obtidas. O objetivo final é desenvolver uma política de decisão que leve a ações que maximizem a recompensa esperada.
+
+Essencialmente, um agente é composto por três elementos principais:
+
+Política (\textit{Policy}): A política define a estratégia do agente, ou seja, como ele escolhe ações em resposta às observações do ambiente. Pode ser uma estratégia determinística ou estocástica.
+
+Recompensa (\textit{Reward}): A recompensa é uma medida numérica que informa ao agente o quão boa ou ruim foi uma ação específica em um determinado estado do ambiente. O objetivo do agente é maximizar a recompensa cumulativa ao longo do tempo.
+
+Modelo do Ambiente (\textit{Environment Model}): O modelo do ambiente representa as interações entre o agente e o ambiente. Ele descreve como as ações do agente afetam o estado do ambiente e como o ambiente responde às ações.
+
+O RL é aplicado em diversos domínios, dá robótica até jogos e finanças. No contexto deste projeto, o RL desempenha um papel central na criação de um agente de market making capaz de tomar decisões inteligentes e adaptáveis em tempo real, minimizando o risco associado às operações de market making durante o período noturno.
+
+\subsection{Market Making}
+O princípio mais simples para obter lucro em atividades de negociação (\textit{trading}) consiste em tentar comprar um ativo num preço baixo e vendê-lo num preço maior.
+Como os preços nos mercados são definidos por demanda e oferta e cada agente no mercado tem sua utilidade subjetiva em relação ao valor de um ativo, pode-se observar um livro de ofertas de compras e vendas nos mercados organizados, o \textit{limit order book} (LOB). 
+
+Neste chamado "livro" são registradas todas as ofertas por prioridade de preço e tempo: as ofertas de compra de melhor preço ficam no topo do livro de compras, e se houver ofertas com o mesmo preço, a oferta que chegou primeiro tem prioridade. No lado das vendas, o livro é organizada com a mesma regra, porém, visualizada de forma invertida: a oferta de venda com o menor preço está no topo de livro, as ofertas de maior preço, no fundo.
+
+Em caso de haver uma ou mais ofertas de compras com preço maior ou igual às ofertas de venda anunciadas, uma transação ocorrerá. Hoje em dia, nas bolsas de valores digitais a execução de uma transação é automática e executado por um sistema chamado de \textit{matching engine} - ou seja, um motor de pareamento de ordens.
+Como consequência, a bolsa anuncia o fechamento de uma ordem e as ofertas relacionadas são removidas dos livros.
+O market making é uma estratégia frequentemente usada nos mercados financeiros, fornecendo liquidez ao mercado.
+O market maker é um participante do mercado que se fornece preços de compra (bid) e venda (ask) contínuos para um ativo financeiro específicopor meio de ordens de limite, acima ou abaixo do melhor preço de compra ou venda, respectivamente. Sua função é comprar ativos dos vendedores e vender ativos aos compradores, garantindo que sempre haja liquidez disponível no mercado.
+
+Os principais elementos do market making incluem, mas não se limitam à:
+
+Spread: É a diferença entre o preço de compra (bid) e o preço de venda (ask) oferecidos pelo market maker. O market maker lucra com a diferença entre esses preços.
+
+Livro de Ordens de Limite: O market maker gerencia um livro de ordens de limite, onde as ordens de compra e venda dos participantes são registradas. Ele ajusta os preços de compra e venda com base nas mudanças nas condições do mercado para equilibrar a oferta e a demanda.
+
+Gestão de Risco: O market maker enfrenta riscos, incluindo risco de inventário e risco de mercado. O risco de inventário ocorre quando o market maker mantém uma posição desequilibrada entre ativos comprados e vendidos, enquanto o risco de mercado está relacionado às flutuações nos preços dos ativos.
+
+No contexto deste projeto, o market making é o foco da pesquisa, especificamente a minimização do risco associado às posições mantidas durante o período noturno. Isso envolve o desenvolvimento de estratégias inteligentes e adaptáveis para gerenciar o livro de ordens de limite e otimizar a alocação de recursos, enquanto se equilibra a busca de lucros com a redução do risco. O Aprendizado por Reforço (RL) é a abordagem escolhida para treinar um agente capaz de realizar essa tarefa de forma ótima.
