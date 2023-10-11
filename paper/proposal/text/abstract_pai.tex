@@ -1,0 +1,23 @@
+Este projeto de pesquisa tem como foco a análise de uma estratégia de \textit{Market-Making} (MM) no mercado financeiro usando técnicas de Aprendizado por Reforço (RL). 
+
+Uma estratégia de MM insere uma oferta de compra no topo da lista das compras (\textit{Bid}) e uma oferta de venda no topo da lista de vendas (\textit{Ask}), sendo que o preço de compra sempre é menor que o preço de venda, i.e. o \textit{Bid-Ask-Spread} (BAS) é positivo.
+
+Se as duas ordens fossem executadas sem movimentação de preço, o agente financeiro lucra o BAS menos os custos de transação. 
+O agente financeiro tem como objetivo executar essa transação de compra-venda diversas vezes durante o dia e acabar o dia, no final do pregão, sem posição remanescente.
+
+O risco associado com essa estratégia é que não há garantia que o agente consiga executar a ponta de compra e a de venda imediatamente.
+Dependendo do processo de chegada de ofertas de compras e vendas, não só pode ser que o agente fecha um cíclo com um resultado negativo, muitas vezes pode ser impossível fechar os ciclos.
+
+Ao longo do tempo, o agente financeiro corre o risco de acumular posições compradas ou vendidas, especialmente se o mercado se movimenta numa única direção. Para não perder dinheiro, ele vai ter que gerenciar seu estoque de posições, tomando ao longo do tempo decisões sobre como e com qual quantidade ele quer ofertar compras ou vendas.
+
+A presente pequisa aplica RL para otimizar o controle do estoque do agente financeiro, levando em conta seu objetivo de maximizar lucro, e considerando a restrição que no final do dia o estoque tem que ser zero. 
+
+Além disso, incluímos alguns aspectos adicionais que são relevantes para a aplicação real.
+Primeiro, analisamos como um estratégia de MM pode ser calibrada e testada no mercado, já que o agente interfere no mercado - ou seja, ele não é um tomador de preço (\textit{price-taker}), mas o formador de preço (\textit{price-maker}). Portanto, ele muda a amostra histórica disponível para \textit{backtests}.
+Segundo, o agente normalmente opera com diversos ativos em paralelo, ou seja ele controla um estoque de ativos que têm uma estrutura multi-dimensional, com alguma estrutura de dependência entre as distribuições de retornos. Essa estrutura pode ser usada para uma gestão mais eficiente do risco do estoque.
+
+Ao final deste estudo, esperamos desenvolver um agente de RL capaz de definir uma estratégia dinâmica de oferta de compra e vendas em múltiplos ativos, que se adapte aos processos de chegada de ofertas e execuções do mercado, controlando o risco associado às posições mantidas após o fechamento do mercado.
+
+Um aspecto desafiador adicional na nossa pesquisa é o fato que os dados do mercado para analisar são de alta frequência o que demanda um pré-tratamento dos dados históricos custos. A velocidade da chegada dos dados impacta também na solução da estratégia ótima de gestão de estoque, já que o intervalo entre chegada de um novo dado e tomada de decisão é limitado.
+
+Este projeto representa uma contribuição valiosa para a área de finanças quantitativas, oferecendo uma abordagem inovadora para abordar um portfólio de operações de \textit{Market Making}. A aplicação de técnicas de RL nesse contexto pode fornecer soluções práticas e eficazes para a gestão de portfólio em ambientes de alto risco.

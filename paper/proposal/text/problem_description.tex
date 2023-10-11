@@ -14,7 +14,7 @@ sendo que quaisquer ordens criadas não devem iniciam novas transações.
 
 Para ilustrar melhor o funcionamento do livro de ordens, imagine que um agente qualquer de \textit{MM} tenha em aberto uma oferta de venda pelo preço $a^{mm}_{t}$. Caso surja uma nova oferta de compra com preço $b^{n}_{t} \geq a^{mm}_{t}$ (note que caso isso ocorra também valerá $b^{n}_{t} \geq b^{0}_{t}$, pois o preço da oferta do agente de \textit{MM} sempre está atrás da melhor oferta, que é a oferta $b_{t}^{0}$), isso acarretará em um negócio entre os dois agentes, e a remoção de ambas ofertas $b_{t}^{n} \text{ e } a_{t}^{mm}$ do livro de ordens. Em seguida, o agente tem sua posição $V_{t}$ ajustada:
 \begin{equation}
-    V_{t + 1} \leftarrow V_{t} + a^{mm}_{t}\cdot q,
+    V_{t + 1}:= V_{t} + a^{mm}_{t}\cdot q,
 \end{equation}
 sendo $V_{t + 1}$ a nova posição do agente e $q$ a quantidade de ativos ofertada em questão.
 

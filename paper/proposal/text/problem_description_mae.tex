@@ -1,0 +1,89 @@
+\subsection{Definição formal do \textit{market making}}
+
+Os mercados normalmente definem uma quantidade mínima de ações por lote ofertado (e.g de 100 em 100 ações como no mercado padrão da B3), sendo que as quantidades ofertadas podem variar de bolsa para bolsa e como período de ofereta. Considere a situação em que um vendedor quer dispor de 100 ações e um comprador quer adquirir 200 ações. Se os preços ofertados permitirem a execução de um negócio, a transação se limitaria à máxima quantidade possível, ou seja 100 ações nesse caso. O restante da oferta de compra, i.e. 100 ações, continuaria no livro de oferta de compras, enquanto do lado da venda, a próxima oferta de maior preferência ficaria no topo do livro.
+
+Como o \textit{matching engine} da bolsa de valores correlaciona todas as ofertas de compra e venda que tenham preços cruzados - preços de compra maiores que preços de vendas - ele apenas efetuaria a negociação quando todos os preços de compras estiverem menores que todos os preços de venda. 
+
+\textbf{ARRUME O PRÓXIMO PARAGRAFO ESTA SEM SENTIDO}
+
+S\textbf{e definirmos como $a^{0}_{t}$ a oferta de venda com menor preço\footnote{A melhor oferta estaria na posição 0 da fila, decrescente para vendas e crescente para compras.} no instante $t$ e $b^{0}_{t}$ como o mais alto preço ofertado na compra, então para um mercado sem oportunidade de negócio, tem-se que $a^{j}_{t} > b^{i}_{t}$. Além disso, a diferença entre as melhores ofertas $a^{0}_{t} - b^{0}_{t} = \mathbf{bas}_t$ é chamado de \textit{spread} no momento $t$.}
+
+O objetivo de uma estratégia de \textit{market making} (MM), nesse contexto, é inserir ordens no livro de ofertas no momento atual $t$, podendo ser: 
+
+\begin{itemize}
+    \item oferta de venda representada por $a^{mm}_{t} < a^{0}_{t}$; ou 
+    \item oferta de compra com $b^{mm}_{t} > b^{0}_{t}$;
+\end{itemize}
+sendo que quaisquer ordens criadas não devem iniciar novas transações.
+
+Para ilustrar melhor nosso ponto, imagine que um agente qualquer de \textit{MM} tenha em aberto uma oferta de venda pelo preço $a^{mm}_{t}$. Caso surja uma nova oferta de compra com preço $b^{n}_{t} \geq a^{mm}_{t}$ - note que caso isso ocorra também valerá $b^{n}_{t} \geq b^{0}_{t}$) - um negócio será fechado e as duas ofertas são retiradas do livro de ofertas. Em seguida, o agente teria sua posição $V_{t}$ ajustada:
+\begin{equation}
+    V_{t + 1}:= V_{t} + a^{mm}_{t}\cdot q,
+\end{equation}
+uma vez que $V_{t + 1}$ seja a nova posição do agente e $q$ seja  a quantidade de ativos ofertada em questão 
+
+O agente pode então escolher realizar uma das seguintes ações:
+\begin{enumerate}
+    \item inserir uma nova oferta de venda substituindo a oferta $a_t^{mm}$ anterior;
+    \item inserir ou ajustar uma oferta de compra existente no livro de ofertas de compras;
+\end{enumerate}
+
+A decisão do agente irá depender de sua expectativa sobre a evolução do mercado, sendo incluído, mas não limitado à
+\begin{itemize}
+    \item a probabilidade de chegar uma oferta de compra com preço superior $b_{t + s}^{n} > b_{t}^{mm}$, $s > 0$; \footnote{\label{agent}\textit{n} é outro agente ativo no mercado}
+    \item a probabilidade de chegar uma oferta de venda com preço inferior $a_{t + s}^{n} \leq a_{t}^{mm}$, $s > 0$; \footref{agent}
+    \item o risco futuro da posição ultrapassar os limites estabelecidos pelas instituições as quais controlam a negociação.
+\end{itemize}
+
+Por exemplo, um agente esperando a chegada de uma oferta de venda que possa combinar com sua oferta de compra $b_{t}^{mm}$ decide não ajustar a sua ordem atual e aguardar a execução lucrando assim o \textit{BAS}, após serem descontados os custos de transação:
+\begin{equation*}
+    v_{t + s} = q \cdot \left(a_t^{mm} - b_t^{mm}\right) - c, s > 0,
+\end{equation*}
+considerando que $q > 0$ é a quantidade de ações negociadas em questão, e $v_{t + s}, s > 0$ representa o resultado das operações do agente, após a execução de uma ordem e que $c$ é o custo por transação.\footnote{Os custos de transação incluem tipicamente os custos da corretora e emolumentos das bolsas. Os custos de custódia de terceiros não pertencem aos cálculos, já que o agente não pretende manter a posição depois do fechamento do pregão.} Além disso, nem sempre é possível esperar que uma venda ocorra em sequência a uma compra (e vice-versa), ou que as execuções ocorram imediatamente.
+
+Portanto, o agente de \textit{MM} não observa o resultado individual da última operação, mas sim a sua posição total $V_{t}$ que pode ser reconstruída a partir das operações de compra $b\in B_t$ e operações de venda $a\in A_t$ executadas até o momento \textit{t}: \footnote{Para fins expositivos, usamos a notação $P_s^{ask_0}$ para representar o melhor preço de venda e $P_s^{bid_0}$, mas o leitor deve se atentar para a possibilidade que a quantidade negociada ($q_b$, $q_a$) possa ultrapassar a quantidade exposta no livro. Nessa situação, o preço executado seria um preço médio das operações realizadas até a execução total da quantidade. }
+\begin{equation}
+    V_{t} := \sum_{b \in B_t} q_{b_{t}} \cdot b_{t}^{0} - \sum_{a \in A_t} q_{a_{t}} \cdot a_t^{0} - c
+\end{equation}
+sendo que $\sum_{b=1}^{B_t} q_b \cdot P_s^{ask} $ representa o valor das posições compradas, avaliadas na data $s$  usando o preço de venda observado no instante; $\sum_{a=1}^{A_t} q_a \cdot P_s^{bid}$ representaria o valor das posições vendidas na data $s$, usando o possível preço de recompra no instante, e $C_s$ seria o processo de consumo, que se compõe pelos custos de compra, as receitas das vendas e os custos de transação:
+\begin{equation}
+    C_t := -\sum_{b=1}^{B_t} q_b \cdot P_b + \sum_{a=1}^{A_t} q_a \cdot P_a.
+\end{equation}
+$P_a$ e $P_b$ representam os preços de compra e venda, respetivamente, que foram executados nas diversas operações.
+
+\subsection{Definição do objetivo do agente MM}
+O objetivo principal do agente de \textit{MM} é maximizar o valor da sua carteira (portfólio). Isso é feito pelas etapas intermediárias de maximizar o \textit{BAS} e a quantidade de transações realizadas:
+
+\begin{equation}
+    \max_{\left\{q_b \right\}_{b \in B_T}, \left\{q_a \right\}_{a \in A_T}, \left\{P_b \right\}_{b \in B_T}, \left\{P_a \right\}_{a \in A_T} 
+    } V_T \label{eq:target_fct}
+\end{equation}
+
+O agente também tem uma restrição adicional que impõe que ao final do dia não esteja exposto a nenhum risco de mercado. 
+Existem algumas alternativas para formalizar essa restrição:
+\begin{enumerate}
+    \item No final do dia, o agente não pode ter nenhum ativo em posição: 
+    \begin{equation}
+        \sum_{b=1}^{B_T} q_b  - \sum_{a=1}^{A_T} q_a = 0, t=T. \label{eq:eod_restriction}
+    \end{equation}
+    \item No final do dia, se houver alguma posição, o agente precisaria \textit{headgear} a exposição ao risco, comprando (vendendo) futuros ou outros derivativos, dependendo da posição remanescente.\footnote{A atividade de \textit{hedge}, de maneira informal, consiste em comprar ou vender ativos que tenham uma exposição ao risco. de tal forma que compense os riscos da carteira atual.}
+\end{enumerate}
+
+\subsection{\textit{Market making} simultâneo}
+ Ao considerarmos a situação que o MM aplica a sua estratégia básica em diversos mercados simultaneamente, observamos um aumento da complexidade, mas também das oportunidades de como lidar com os riscos envolvidos - chamamos essa situação de MM \textbf{simultâneo} ou \textbf{multivariado}.
+
+ O valor da posição do agente passa a ser a soma de todos $N$ ativos:
+ \begin{eqnarray*}
+     V_t &:=& \sum_{i=1}^N V_{t,i}\\
+     V_{t,i} &:=& \sum_{b_{i}=1}^{B_{i}} q_{b_{i}} \cdot b_{t}^{0} - \sum_{a_{i}=1}^{A_{i}} q_{a_{i}} \cdot a_{t}^{0} - c
+ \end{eqnarray*}
+
+O objetivo principal (\ref{eq:target_fct}) continua o mesmo, e mantém-se a restrição (\ref{eq:eod_restriction}). Contudo, surgem novas alternativas para proteção de carteiras durante a noite:
+
+\begin{enumerate}
+    \item O agente pode avaliar o risco global da carteira e incluir um único ativo de proteção ao risco global, no final do dia.
+    \item Se o ativo for negociado em outras bolsas (chamado também de ativo \textit{colisted}), o agente poderá, após o fechamento de uma bolsa, continuar a negociação deste em outra.
+\end{enumerate}
+
+A situação de \textit{colisting} permite então a criação de estratégias mais sofisticadas, que considerem essas novas alternativas.
+ 

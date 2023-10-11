@@ -1,0 +1,35 @@
+A pesquisa sobre a minimização de risco overnight usando Aprendizado por Reforço (RL) para estratégias de market making está inserida em um contexto mais amplo de estudos que exploram a aplicação do RL em finanças quantitativas. Nesta seção, levantamos uma lista inicial de trabalhos relacionados que ajudaram a moldar e fundamentar a proposta deste projeto de pesquisa.
+
+A pesquisa formal do problema do \textit{Market Making} (MM) foi iniciada pelo estudo de  Marco Avellaneda e Sasha Stoikov, em seu trabalho seminal de 2008 \citep{Avellaneda2008}. Eles abordaram o problema do MM sob certas suposições relacionadas aos processos de chegada de ordens de compra e venda. No entanto, é importante observar que, no cenário investigado, eles não impuseram a restrição de que o inventário do \textit{market maker}, no final do dia, fosse diferente de zero, ou seja, $q_T \neq 0$.
+
+Em seus resultados, Avellaneda e Stoikov, conseguiram definir uma estratégia ótima para o MM, que se baseia em um cálculo cuidadoso das cotações de compra e venda, em resposta às chegadas de ordens de mercado. A estratégia foi derivada dentro de um quadro teórico e matemático bem definido, oferecendo uma proposta clara sobre como um \textit{market maker} pode otimizar seu desempenho em um livro de ordens.
+
+Ao longo do tempo, diversos autores começaram a relaxar algumas das hipóteses feitas por Avellaneda e Stoikov, tornando o cenário de MM mais genérico e realista. Esse avanço na literatura expandiu as possibilidades de modelagem e análise de estratégias de MM em ambientes mais complexos e dinâmicos. Alguns exemplos são:
+\begin{itemize}
+    \item "Optimal Market Making with Limited Risk" \citep{Gueant2017}: Este estudo aborda, especificamente, o problema do market making sob a perspectiva da minimização do risco. Os autores desenvolveram um modelo de market making que leva em consideração restrições de risco e investigam como otimizar a estratégia de market making enquanto limitam o risco associado.
+    \item "High-frequency trading in a limit order book" \citep{Avellaneda2008}: Este estudo investiga as estratégias de trading de alta frequência em um livro de ordens de limite. Embora não aborde diretamente o uso do RL, fornece insights valiosos sobre o funcionamento de mercados eletrônicos e os desafios enfrentados pelos market makers, incluindo a gestão de risco e a necessidade de ajustar os preços rapidamente.
+\end{itemize}
+
+
+Nos últimos anos, conseguimos observar mais trabalhos que incluem o método de RL para chegar em soluções de tomada de decisão, como "Reinforcement Learning: A Survey" \citep{Kaelbling1996}. Este artigo é uma introdução abrangente ao campo do RL e fornece uma base teórica sólida para compreender os princípios subjacentes ao Aprendizado por Reforço. Ele destaca a relevância do RL na resolução de problemas de tomada de decisão em ambientes complexos, o que é essencial para a aplicação deste método em finanças.
+
+Aplicações específicas do método de RL no estudo de MM foram elaborados por alguns autores recentemente:
+\begin{itemize}
+    \item "Reinforcement Learning Approaches to Optimal Market Making" \citep{Gasperov2021}: Este estudo fornece uma visão abrangente das aplicações do Aprendizado por Reforço em market making. Os autores demonstram como o RL pode ser usado para ajustar dinamicamente os preços de compra e venda, em resposta às condições do mercado. Eles destacam a eficácia do RL em otimizar o retorno ajustado ao risco em comparação com estratégias tradicionais.
+    \item "Reinforcement Learning for Market Making in a Multi-agent Dealer Market" \citep{Ganesh2019}: Este artigo oferece uma visão detalhada de como o RL pode ser aplicado em um ambiente de mercado com vários agentes, semelhante ao cenário do mundo real. Os autores demonstraram que um agente de RL pode aprender a adaptar suas estratégias de market making em resposta às ações de outros agentes e às condições do mercado, incluindo a gestão de risco.
+\end{itemize}
+
+
+Ao revisar esses trabalhos relacionados, foi possível observar que, apesar dos tratamentos teóricos bem elaborados, a situação real do uso do MM não se encaixa nas limitações impostas pela pesquisa. É necessário considerarmos que:
+
+\begin{itemize}
+    \item nos mercados financeiros reais, os agentes operam de uma forma mais complexa que assumido nas pesquisas: quase todos usam estratégias MM simultâneas;
+    \item as alternativas de proteção e as restrições de posicionamento, especialmente numa estratégia simultânea, são bem mais abrangentes que na literatura atual. 
+\end{itemize}
+
+Em situações menos restritivas, e.g como em \citet{Avellaneda2008}, não é possível encontrar uma estratégia ótima de forma analítica. As estratégias propostas geralmente incluem parâmetros que precisam ser calibrados com base em dados observados.
+Fica evidente que a aplicação do RL em estratégias de market making oferece um potencial significativo para melhorar a eficiência das operações financeiras e mitigar os riscos associados, especialmente o risco overnight. 
+
+Em resumo, entendemos que no nosso objetivo principal de pesquisa, a aplicação de RL para a tomada de decisão nas estratégias MM simultânea permite evoluir as pesquisas existentes em ambientes mais realísticas. 
+Adicionalmente, por tratar alguns aspectos adicionais, como o tratamento de \textit{backtesting} esperamos oferecer novas ideias e soluções para o campo de metodologia de finanças quantitativas.
+
