@@ -2,21 +2,21 @@
 
 Os mercados normalmente definem uma quantidade mínima por lote ofertado, diferente em cada bolsa (e.g de 100 em 100 ações como no mercado padrão da B3). Um vendedor pode consequentemente enviar uma ordem de venda de 100 ações, mas não de 50. Se os preços ofertados no momento permitirem a execução de um negócio, a transação ocorrerá em cima da quantidade disponível, ou seja, se o mesmo vendedor que oferta a venda de 100 ações fecha um negócio com um comprador buscando 200 ações por exemplo, a quantidade negociada será de apenas 100. O restante da oferta de compra, i.e. 100 ações, continua no livro de oferta de compras, enquanto no lado da venda, a próxima oferta de maior preferência ficará no topo do livro. 
 
-Se definirmos como $a^{0}_{t}$ a oferta de venda com menor preço\footnote{A melhor oferta está na posição 0 da fila, decrescente para vendas e crescente para compras.} no instante $t$ e $b^{0}_{t}$ como a oferta de compra com maior preço, então para um mercado sem oportunidade de negócio no mesmo instante $t$, tem-se que $a^{j}_{t} > b^{i}_{t}$. Além disso, a diferença entre as ofertas $a^{0}_{t} - b^{0}_{t} = \mathbf{bas}_t$ é chamado de \textit{spread} no momento $t$.
+Se definirmos como $a^{0}_{t}$ a oferta de venda com menor preço\footnote{A melhor oferta está na posição 0 da fila, decrescente para vendas e crescente para compras.} no instante $t$ e $b^{0}_{t}$ como a oferta de compra com maior preço, então no cenário em que não ocorre uma transação exatamente no instante $t$, tem-se que $a^{j}_{t} > b^{i}_{t} \ \forall i ,j \in \mathbb{N}$. Além disso, a diferença entre as ofertas $a^{0}_{t} - b^{0}_{t} = \mathbf{\Delta}_t$ é chamado de \textit{spread} no momento $t$.
 
-O objetivo de uma estratégia de \textit{market making} (MM) nesse contexto é inserir ordens no livro de ofertas no momento atual $t$, podendo ser: 
+O objetivo de uma estratégia de \textit{market making} (\textit{MM}) nesse contexto é criar ofertas: 
 
 \begin{itemize}
-    \item ofertas de venda representada por $a^{mm}_{t} < a^{0}_{t}$; ou 
-    \item ofertas de compra com $b^{mm}_{t} > b^{0}_{t}$;
+    \item de venda, representadas por $a^{mm}_{t} < a^{0}_{t}$; ou 
+    \item de compra, representadas por $b^{mm}_{t} > b^{0}_{t}$;
 \end{itemize}
-sendo que quaisquer ordens criadas não devem iniciam novas transações.
+ou seja, quaisquer ordens criadas pelo agente não geram novas transações no instante \textit{t + 1}.
 
-Para ilustrar melhor o funcionamento do livro de ordens, imagine que um agente qualquer de \textit{MM} tenha em aberto uma oferta de venda pelo preço $a^{mm}_{t}$. Caso surja uma nova oferta de compra com preço $b^{n}_{t} \geq a^{mm}_{t}$ (note que caso isso ocorra também valerá $b^{n}_{t} \geq b^{0}_{t}$, pois o preço da oferta do agente de \textit{MM} sempre está atrás da melhor oferta, que é a oferta $b_{t}^{0}$), isso acarretará em um negócio entre os dois agentes, e a remoção de ambas ofertas $b_{t}^{n} \text{ e } a_{t}^{mm}$ do livro de ordens. Em seguida, o agente tem sua posição $V_{t}$ ajustada:
+Para ilustrar melhor o funcionamento do livro de ordens, imagine que um agente qualquer de \textit{MM} tenha em aberto uma oferta de venda pelo preço $a^{mm}_{t}$. Caso surja uma nova oferta de compra com preço $b^{n}_{t} \geq a^{mm}_{t}$ (note que caso isso ocorra também valerá $b^{n}_{t} \geq b^{0}_{t}$, pois o preço da oferta do agente de \textit{MM} sempre está atrás da melhor oferta, que neste caso é $b_{t}^{0}$), isso acarretará em um negócio entre $b^{n}$ e $a^{mm}$ no instante $t$, e a remoção de ambas ofertas do livro de ordens. Em seguida, o agente tem sua posição $r_{t}$ ajustada:
 \begin{equation}
-    V_{t + 1}:= V_{t} + a^{mm}_{t}\cdot q,
+    r_{t + 1}:= r_{t} + a^{mm}_{t}\cdot q,
 \end{equation}
-sendo $V_{t + 1}$ a nova posição do agente e $q$ a quantidade de ativos ofertada em questão.
+sendo $r_{t + 1}$ a nova posição do agente e $q$ a quantidade de ativos ofertada em questão.
 
 O agente então escolhe esperar ou realizar uma das ações abaixo:
 \begin{enumerate}
@@ -26,52 +26,53 @@ O agente então escolhe esperar ou realizar uma das ações abaixo:
 
 A decisão do agente irá depender de sua expectativa sobre a evolução do mercado, incluindo, mas não limitado à
 \begin{itemize}
-    \item probabilidade de chegar uma oferta de compra com preço superior $b_{t + s}^{n} > b_{t}^{mm}$, $s > 0$; \footnote{\label{agent}\textit{n} é outro agente ativo no mercado}
-    \item probabilidade de chegar uma oferta de venda com preço inferior $a_{t + s}^{n} \leq a_{t}^{mm}$, $s > 0$; \footref{agent}
+    \item probabilidade de chegar uma oferta de compra com preço superior $Pr(b_{t + s}^{n} > b_{t}^{mm})$, $s > 0$; \footnote{\label{agent}\textit{n} é outro agente ativo no mercado}
+    \item probabilidade de chegar uma oferta de venda com preço inferior $Pr(a_{t + s}^{n} \leq a_{t}^{mm})$, $s > 0$; \footref{agent}
     \item risco futuro da posição ultrapassar os limites estabelecidos pelas corretoras.
 \end{itemize}
 
-Por exemplo, um agente esperando a chegada de uma oferta de venda que possa casar com sua oferta de compra $b_{t}^{mm}$ decide não ajustar a sua ordem atual e aguardar a execução, lucrando assim o \textit{BAS} menos os custos de transação:
+O retorno $r$ obtido pelo agente após um período $s$ em cima de preços de compra $a$ e $b$ é dado por
 \begin{equation*}
-    v_{t + s} = q \cdot \left(a_t^{mm} - b_t^{mm}\right) - c, s > 0,
+    r_{t + s}^{a, b} = q_{t + s}a_{t + s} - q_{t}b_{t} - c, s > 0,
 \end{equation*}
-sendo que $q > 0$ a quantidade de ações negociadas em questão, e $v_{t + s}, s > 0$ representa o resultado das operações do agente após a execução de uma ordem e $c$ o custo por transação.\footnote{Os custos de transação incluem tipicamente os custos da corretora e emolumentos das bolsas. Custos de custódio de terceiros não pertencem aos cálculos, já que o agente não pretende manter a posição depois do fechamento do pregão.} Além disso, nem sempre pode-se esperar que uma venda ocorre em sequência a uma compra (e vice-versa), ou que as execuções ocorram imediatamente.
-
-Portanto, o agente de \textit{MM} não observa o resultado individual da última operação, mas sim a sua posição total $V_{t}$, que pode ser reconstruída a partir das operações de compra $b\in B_t$ e operações de venda $a\in A_t$ executadas até o momento \textit{t}: \footnote{Para fins expositivos, usamos a notação $P_s^{ask_0}$ para representar o melhor preço de venda e $P_s^{bid_0}$, mas o leitor deve se atender à possibilidade que a quantidade negociada ($q_b$, $q_a$) poderia ultrapassar a quantidade exposta no livro. Nessa situação, o preço executado seria um preço médio das operações realizadas até a execução total da quantidade. }
+sendo $q_{t}$ a quantidade de ações inicialmente compradas, $q_{s + t}$ a quantidade de ações que foram vendidas e $c$ é o custo por transação\footnote{Os custos de transação incluem tipicamente os custos da corretora e emolumentos das bolsas. Custos de custódio de terceiros não pertencem aos cálculos, já que o agente não pretende manter a posição depois do fechamento do pregão.}. Note que $b_{t} = b_{t}^{mm}$ e $a_{t} = a_{t}^{mm}$ representam os preços de compra e venda, respectivamente, que foram executados nas diversas operações. 
+O agente de \textit{MM}, por fim, não observa apenas o retorno individual da última operação, mas sim da sua posição acumulada $R_{T}$, que pode ser reconstruída a partir das operações de compra $b\in B_t$ e de venda $a\in A_t$ executadas no instante \textit{t}:
 \begin{equation}
-    V_{t} := \sum_{b \in B_t} q_{b_{t}} \cdot b_{t}^{0} - \sum_{a \in A_t} q_{a_{t}} \cdot a_t^{0} - c
+    R_{T} = \sum_{t=0}^{T} \sum_{a \in A_t, b \in B_t} r_t
 \end{equation}
-sendo que $\sum_{b=1}^{B_t} q_b \cdot b_{t}^{mm} $ representa o valor das posições compradas, avaliadas na data $t$  usando o preço de compra observado no instante; $\sum_{a=1}^{A_t} q_a \cdot a_{t}^{mm}$ representa o valor das posições vendidas na data $t$, usando o possível preço de recompra no instante, e $V_t$ é o processo de consumo, que se compõe pelos custos de compra, as receitas das vendas e os custos de transação. Note que $b_{t}^{mm}$ e $a_{t}^{mm}$ representam os preços de compra e venda, respetivamente, que foram executados nas diversas operações. 
+Define-se matematicamente o valor da posição $R_T$ como o processo de consumo, composto pelos custos de compra, as receitas das vendas e os custos de transação. 
 
 \subsection{Definição do objetivo do agente de MM}
-O objetivo principal do agente de \textit{MM} é maximizar o valor da sua carteira (portfólio). Isso é feito pelas etapas intermediárias de maximizar o \textit{BAS} e a quantidade de transações realizadas:
+O objetivo principal do agente de \textit{MM} é maximizar o valor esperado da sua carteira (portfólio). Isso é feito pelas etapas intermediárias de maximizar o \textit{bid-ask spread} $\Delta_{t}$ e a quantidade esperada $q_{t}$ de transações realizadas em cima desse \textit{spread}:
 
 \begin{equation}
-\begin{aligned}
-\max_{b \in B_{t}, a \in A_{t}} \quad & V_T \label{eq:target_fct}\\
-% \textrm{s.t.} \quad & y_{i}(w\phi(x_{i}+b))+\xi_{i}-1\\
-  % &\xi\geq0    \\
-\end{aligned}
+	\begin{aligned}
+		\max_{b \in B_{t}, a \in A_{t}} \quad &  \ \sum_{t=0}^{T} \sum_{a \in A_t, b \in B_t} \mathbb{E} \ [q_{t + s}]a_{t + s} - \mathbb{E} [ q_{t} ] b_{t} - c \\
+		= \max_{b \in B_{t}, a \in A_{t}} \quad &  \mathbb{E} \ [R_T] 	\label{eq:target_fct}\\
+	\end{aligned}
 \end{equation}
 
-O agente também tem uma restrição adicional, de que ao final do dia não esteja exposto a nenhum risco de mercado. 
-Existem algumas alternativas para formalizar essa restrição:
+Dada a equação acima que define uma função objetivo estocástica para  o problema de maximização do retorno do agente, uma política $\pi$ de escolha de preços será considerada ótima quando dado uma trajetória (histórico de $T$ observações) do livro de ordens $\tau$, consiga maximizar o retorno $R_{T}$ esperado. Este problema pode ser modelado pelo paradigma de Aprendizado por Reforço, especificamente a busca por uma função de valor ótimo a partir do estado atual $s$ do livro de ordens limite:
+\begin{equation}
+	V^{*}(s) = \underset{\pi}{\max} \ \mathbb{E}_{\tau \sim \pi} \left[ V(\tau) \, | \, s_0 = s \right]
+\end{equation}
+
+De modo a tornar o agente adverso ao risco noturno, insere-se também uma restrição adicional, de que ao final do dia não haja exposição a riscos de mercado. 
+Existem algumas alternativas para formalizar matematicamente essa restrição:
 \begin{enumerate}
     \item No final do dia, o agente não pode ter nenhum ativo em posição: 
     \begin{equation}
         \sum_{b=1}^{B_t} q_b  - \sum_{a=1}^{A_t} q_a = 0\label{eq:eod_restriction}
     \end{equation}
-    \item No final do dia, se houver alguma posição, o agente precisa \textit{headgear} a exposição ao risco, comprando (vendendo) futuros ou outros derivativos, dependendo da posição remanescente.\footnote{A atividade de \textit{hedge}, de forma informal, consiste em comprar ou vender ativos que tenham uma exposição ao risco de tal forma que compense os riscos da carteira atual.}
+    \item No final do dia, se houver alguma posição, o agente precisa \textit{headgear} a exposição ao risco, comprando (vendendo) futuros ou outros derivativos, dependendo da posição remanescente.\footnote{De maneira simplificada, o \textit{hedge} consiste em comprar ou vender ativos que tenham uma exposição ao risco oposta aos riscos da carteira atual, de modo a equilibrar a posição.}
 \end{enumerate}
 
 \subsection{\textit{Market making} simultâneo}
 Ao considerarmos a situação em que o MM aplica a sua estratégia em diversos mercados simultaneamente observamos um aumento da complexidade, mas também das alternativas para lidar com riscos envolvidos - chamamos essa situação de MM \textbf{simultâneo} ou \textbf{multivariado}.
 
-O valor da posição do agente passa a ser a soma de todos $N$ ativos:
+Para tal, a posição $V_{T}$ do agente passa a ser a soma de todas posições parciais $V_{T, k}$, onde $k$ é uma bolsa onde o agente possui ações:
 \begin{eqnarray*}
-    V_t &:=& \sum_{i=1}^N V_{t,i}\\
-    V_{t,i} &:=& \sum_{b_{i}=1}^{B_{i}} q_{b_{i}} \cdot b_{t}^{0} 
-    \sum_{a_{i}=1}^{A_{i}} q_{a_{i}} \cdot a_{t}^{0} - c
+    V_t &=& \sum_{k=1}^N V_{T, k}\\
 \end{eqnarray*}
 
 O objetivo principal (\ref{eq:target_fct}) continua o mesmo, e mantém-se a restrição (\ref{eq:eod_restriction}). Contudo, surgem novas alternativas para proteção da carteira durante a noite:

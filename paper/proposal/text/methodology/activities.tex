@@ -1,44 +1,35 @@
 
-A execução do projeto será dividida nas seguintes etapas sequenciais:
+A execução do projeto será dividida nas seguintes etapas:
 
 \begin{enumerate}
 
 \item Pesquisa Bibliográfica \label{item:bibliography_review}
 
-Realizar uma revisão abrangente da literatura relacionada a Aprendizado por Reforço (RL), market making e estratégias de minimização de risco em finanças quantitativas.
-Identificar os principais conceitos, algoritmos e abordagens utilizados em pesquisas anteriores.
+Realizar uma revisão abrangente da literatura relacionada a Aprendizado por Reforço (RL), market making e estratégias de minimização de risco em finanças quantitativas além das referências iniciais, usando bancos de dados de periódicos, como o CAFe e Arxiv.
+Realizar uma análise estatística dos principais algoritmos, políticas de aprendizado e bancos de dados utilizados em pesquisas anteriores.
 Compreender as tendências atuais e os desafios enfrentados na aplicação do \textit{RL} em estratégias de \textit{trading}.
 
 \item Coleta e Processamento de Dados \label{item:data}
 
-Coletar dados históricos do mercado financeiro relevantes para o estudo.
-Garantir a qualidade, assim como o formato correto para uso nos modelos e a consistência.
+Coletar dados históricos do mercado financeiro relevantes para o estudo tendo como referência as bases de dados divulgadas na literatura.
+Adaptar os dados para o formato do paradigma de Aprendizado por Reforço.
 
 \item Definição do Ambiente de Simulação \label{item:environment}
 
-Criar um ambiente de simulação que represente com precisão as condições do mercado, incluindo a dinâmica do livro de ordens, a volatilidade e outros fatores relevantes. Introduzir a noção de risco overnight no ambiente de simulação. Analisar o framework mais adequado à tarefa (\textit{OpenAI Gym}, \textit{RLlib}, \textit{garage}, etc.).
+A partir dos dados obtidos e bibliotecas de simulação, preparar um ambiente de que represente com precisão as condições do mercado de alta frequência, incluindo a dinâmica do motor do livro de ordens, a volatilidade e o processo de chegada de ofertas. Analisar o framework de simulação mais adequado à tarefa (\textit{OpenAI Gym}, \textit{RLlib}, \textit{garage}, etc.).
 
-\item Escolha e Implementação de Algoritmos de Aprendizado por Reforço \label{item:agent}
+\item Escolha do algoritmo de Aprendizado por Reforço \label{item:agent}
 
-Selecionar algoritmos de \textit{RL} adequados para a tarefa de market making e minimização de risco overnight, com base na revisão da literatura. Implementar os algoritmos escolhidos em um ambiente de desenvolvimento.
+Selecionar algoritmos de \textit{RL} adequados para a tarefa de market making e restrições adicionais (especificamente a minimização do risco), com base na revisão da literatura e na taxonomia dos algoritmos existentes (baseado em modelo, livre de modelo, entre outros).
 
 \item Treinamento do Agente de \textit{RL} \label{item:training}
 
-Iniciar o treinamento do agente de \textit{RL} em ambiente simulado. Definir as recompensas e as métricas de desempenho relevantes para a minimização do risco overnight. Monitorar o progresso do treinamento e ajustar os hiperparâmetros conforme necessário.
+Iniciar o treinamento do agente de \textit{RL} no ambiente simulado. Definir as funções de recompensa e as métricas de desempenho relevantes para a minimização do risco overnight. Monitorar o progresso do treinamento e ajustar os hiperparâmetros conforme necessário.
 
 \item Avaliação do Desempenho \label{item:evaluation}
 
-Avaliar o desempenho do agente de \textit{RL} em cenários de simulação.
-Realizar análises estatísticas para medir a eficácia na minimização de risco e na geração de lucro.
-Comparar o desempenho do agente com estratégias de mercado tradicionais.
-
-\item Ajuste e Otimização \label{item:adjustments}
-
+Avaliar o desempenho do agente de \textit{RL} em cenários de simulação, e realizar análises estatísticas em cima dos hiperparâmetros usados. Comparar o desempenho do agente com estratégias de mercado tradicionais.
 Realizar ajustes no agente de \textit{RL} com base nos resultados da avaliação de desempenho. Otimizar a estratégia de market making para alcançar um equilíbrio entre lucro e minimização de risco.
-
-\item Documentação e Relatórios \label{item:reports}
-
-Documentar todo o processo, desde a escolha dos algoritmos até os resultados do treinamento. Escrever relatórios técnicos e científicos que descrevam os métodos e resultados obtidos durante a pesquisa.
 
 \item Divulgação e Publicação \label{item:publishing}
 
