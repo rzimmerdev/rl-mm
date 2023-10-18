@@ -1,16 +1,14 @@
+A análise dos resultados da estratégia de \textit{market making} será  realizada diretamente em cima dos retornos obtidos pelo agente, diários e acumulados, assim como a volatilidade do portfólio e impacto de mercado das operações para zerar a carteira até o fechamento do pregão. A avaliação das decisões tomadas pelo agente ao longo do tempo e seus impactos na carteira de ativos incluem mas não se limitam à:
 
-A análise dos resultados da estratégia de Market Making (MM) envolve uma avaliação abrangente das decisões tomadas pelo agente ao longo do tempo e seus impactos na carteira de ativos. Algumas das formas de análise incluem:
+\textbf{Desempenho}: Avaliar o valor da carteira ao longo do tempo, considerando todas as transações, incluindo custos de transação e flutuações nos preços dos ativos.
+A estratégia deve maximizar o valor da carteira do agente ao final do dia, levando em conta todas as transações, custos de transação e flutuações nos preços dos ativos.
 
-\textbf{Desempenho Financeiro}: Avaliar o valor da carteira ao longo do tempo, considerando todas as transações, incluindo custos de transação e flutuações nos preços dos ativos.
+\textbf{Minimização do Risco Overnight}: Ao mesmo tempo, a estratégia deve minimizar o risco overnight, mantendo exposições limitadas a movimentos adversos de preços após o fechamento do mercado.
 
-\textbf{Minimização do Risco Overnight}: Avaliar a eficácia da estratégia em minimizar a exposição a movimentos adversos de preços após o fechamento do mercado.
+Além disso, a estratégia deve contribuir positivamente para a liquidez do mercado, facilitando a execução de negócios para outros participantes buscando lucro. Isso, no entanto, deve ser equilibrado com considerações de custos de transação, incluindo comissões de corretagem e outros custos associados à execução de negócios.
 
-\textbf{Decisões de Inserção e Ajuste}: Analisar as decisões do agente MM em relação à inserção e ajuste das ofertas de compra e venda, considerando a adaptação às expectativas de mercado.
+\textbf{Decisões de Inserção e Ajuste}: Analisar as decisões do agente MM em relação à inserção e ajuste das ofertas de compra e venda, considerando a adaptação às expectativas de mercado. O agente deve levar em consideração as distribuições de quantidades executadas dado determinados preços. Serão utilizados testes estatísticos para verificar se o grafo de transições obtido pelo agente efetivamente reflete os processos do mercado real.
 
-\textbf{Impacto na Liquidez do Mercado}: Examinar como a estratégia MM afeta a liquidez do mercado, incluindo a capacidade de execução de outros participantes.
 
-\textbf{Comparação com Estratégias Tomadoras de Preço}: Comparar o desempenho da estratégia MM com estratégias que não inserem ofertas no livro de ofertas (price-taking), destacando vantagens ou desvantagens.
+\textbf{Comparação com Estratégias Tomadoras de Preço}: Comparar as métricas de desempenho mencionadas da estratégia MM com estratégias que não inserem ofertas limite no livro de ordens (também chamadas de estratégias de \textit{price-taking}), destacando desempenho melhora ou não com relação ao agente desenvolvido.
 
-\textbf{Calibragem de Parâmetros}: Em cenários onde a calibragem de parâmetros é necessária, analisar como esses parâmetros são ajustados ao longo do tempo e como isso afeta o desempenho global da estratégia.
-
-\textbf{Mercado Multidimensional}: Na segunda parte da pesquisa, estender a análise para estratégias de MM em mercados multidimensionais, considerando a alocação de recursos entre diferentes ativos e a gestão do risco global da carteira.
