@@ -1,54 +1,75 @@
 \subsection{Definição formal do \textit{market making}}
 
-Os mercados normalmente definem uma quantidade mínima por lote ofertado, diferente em cada bolsa (e.g de 100 em 100 ações como no mercado padrão da B3). Um vendedor pode consequentemente enviar uma ordem de venda de 100 ações, mas não de 50. Se os preços ofertados no momento permitirem a execução de um negócio, a transação ocorrerá em cima da quantidade disponível, ou seja, se o mesmo vendedor que oferta a venda de 100 ações fecha um negócio com um comprador buscando 200 ações por exemplo, a quantidade negociada será de apenas 100. O restante da oferta de compra, i.e. 100 ações, continua no livro de oferta de compras, enquanto no lado da venda, a próxima oferta de maior preferência ficará no topo do livro. 
+Os mercados normalmente definem uma quantidade mínima por lote ofertado. Se uma bolsa determina um mínimo de 100 ações um vendedor não poderia criar uma oferta de 50 ações. Se os preços ofertados no momento permitirem a execução de um negócio, a transação ocorrerá em cima da menor quantidade entre as duas ofertas, ou seja, se uma ordem de venda de 100 ações fecha um negócio com uma ordem de compra de 200 ações por exemplo, a quantidade negociada será de apenas 100. O restante da oferta de compra, i.e. 100 ações, continua no livro de oferta de compras, enquanto no lado da venda, a próxima oferta de maior preferência vai para o topo do livro. 
 
-Se definirmos como $a^{0}_{t}$ a oferta de venda com menor preço\footnote{A melhor oferta está na posição 0 da fila, decrescente para vendas e crescente para compras.} no instante $t$ e $b^{0}_{t}$ como a oferta de compra com maior preço, então no cenário em que não ocorre uma transação exatamente no instante $t$, tem-se que $a^{j}_{t} > b^{i}_{t} \ \forall i ,j \in \mathbb{N}$. Além disso, a diferença entre as ofertas $a^{0}_{t} - b^{0}_{t} = \mathbf{\Delta}_t$ é chamado de \textit{spread} no momento $t$.
+Definimos como $a^{i}_{t}$ o preço de uma determinada oferta $i$ de venda com \footnote{A melhor oferta está na posição $i = 0$ da fila decrescente para vendas, e crescente para compras.} no instante $t$ e $b^{j}_{t}$ como uma oferta $j$ de compra, onde $i$ e $j$ são as posições de cada oferta em seus respectivos lados, então para tais ofertas no instante $t$, haverá uma transação se $a^{j}_{t} <= b^{i}_{t}$. Além disso, a diferença entre as ofertas $a^{0}_{t} - b^{0}_{t} = \mathbf{\Delta}_t$ é chamado de \textit{spread} no momento $t$.
 
-O objetivo de uma estratégia de \textit{market making} (\textit{MM}) nesse contexto é criar ofertas: 
+O objetivo de uma estratégia de \textit{market making} (\textit{MM}) nesse contexto é criar ofertas de compra com valor maior que as já existentes, ou menor para ofertas de venda
 
 \begin{itemize}
     \item de venda, representadas por $a^{mm}_{t} < a^{0}_{t}$; ou 
     \item de compra, representadas por $b^{mm}_{t} > b^{0}_{t}$;
 \end{itemize}
-ou seja, quaisquer ordens criadas pelo agente não geram novas transações no instante \textit{t + 1}.
+ou seja, quaisquer ordens criadas por um agente de \textit{MM} não geram novas transações no instante \textit{t}.
 
-Para ilustrar melhor o funcionamento do livro de ordens, imagine que um agente qualquer de \textit{MM} tenha em aberto uma oferta de venda pelo preço $a^{mm}_{t}$. Caso surja uma nova oferta de compra com preço $b^{n}_{t} \geq a^{mm}_{t}$ (note que caso isso ocorra também valerá $b^{n}_{t} \geq b^{0}_{t}$, pois o preço da oferta do agente de \textit{MM} sempre está atrás da melhor oferta, que neste caso é $b_{t}^{0}$), isso acarretará em um negócio entre $b^{n}$ e $a^{mm}$ no instante $t$, e a remoção de ambas ofertas do livro de ordens. Em seguida, o agente tem sua posição $r_{t}$ ajustada:
+Para ilustrar melhor o funcionamento do livro de ordens, imagine que um agente qualquer de \textit{MM} tenha a \textbf{única oferta de venda} pelo preço de $a^{mm}_{t}$ ou mais no mercado, em que $mm = 0$. Caso surja uma nova oferta de \textbf{compra} com melhor preço $b^{n}_{t} \geq b^{0}_{t}$ que também esteja acima do melhor preço de venda $b^{n}_{t} \geq a^{mm}_{t}$, isso acarretará em um negócio pelo preço $a^{0}$ no instante $t$ e a ordem com preço $b^{n}_{t}$ é chamada de ordem de mercado. Após o motor de transações da bolsa receber essa nova ordem, uma transação ocorre e ambas ofertas são removidas do livro de ordens. Em seguida, o agente tem sua posição $r_{t}$ ajustada:
 \begin{equation}
     r_{t + 1}:= r_{t} + a^{mm}_{t}\cdot q,
 \end{equation}
-sendo $r_{t + 1}$ a nova posição do agente e $q$ a quantidade de ativos ofertada em questão.
+sendo $r_{t}$ o valor da posição do agente no instante $t$ e $q$ a quantidade de ativos negociadas na transação em questão.
 
-O agente então escolhe esperar ou realizar uma das ações abaixo:
+O agente em seguida escolhe esperar ou realizar uma das ações abaixo:
 \begin{enumerate}
     \item inserir uma nova oferta de venda, substituindo a oferta $a_t^{mm}$ anterior;
     \item inserir ou ajustar uma oferta de compra existente no livro de ofertas de compras;
 \end{enumerate}
 
-A decisão do agente irá depender de sua expectativa sobre a evolução do mercado, incluindo, mas não limitado à
+A decisão do agente irá depender de sua expectativa sobre a evolução do mercado, assim como do processo de chegada de ordens de outros agentes, representados pelo identificador $n$, incluindo, mas não limitado à
 \begin{itemize}
-    \item probabilidade de chegar uma oferta de compra com preço superior $Pr(b_{t + s}^{n} > b_{t}^{mm})$, $s > 0$; \footnote{\label{agent}\textit{n} é outro agente ativo no mercado}
-    \item probabilidade de chegar uma oferta de venda com preço inferior $Pr(a_{t + s}^{n} \leq a_{t}^{mm})$, $s > 0$; \footref{agent}
+    \item probabilidade de chegar uma oferta de compra com preço superior $Pr(b_{t + s}^{n} > b_{t}^{mm})$, $s > 0$; 
+    \item probabilidade de chegar uma oferta de venda com preço inferior $Pr(a_{t + s}^{n} \leq a_{t}^{mm})$, $s > 0$;
+    \item liquidez esperada para o mercado a partir de $t$ até o momento de fechamento do pregão $T$;
     \item risco futuro da posição ultrapassar os limites estabelecidos pelas corretoras.
 \end{itemize}
 
-O retorno $r$ obtido pelo agente após um período $s$ em cima de preços de compra $a$ e $b$ é dado por
-\begin{equation*}
-    r_{t + s}^{a, b} = q_{t + s}a_{t + s} - q_{t}b_{t} - c, s > 0,
-\end{equation*}
-sendo $q_{t}$ a quantidade de ações inicialmente compradas, $q_{s + t}$ a quantidade de ações que foram vendidas e $c$ é o custo por transação\footnote{Os custos de transação incluem tipicamente os custos da corretora e emolumentos das bolsas. Custos de custódio de terceiros não pertencem aos cálculos, já que o agente não pretende manter a posição depois do fechamento do pregão.}. Note que $b_{t} = b_{t}^{mm}$ e $a_{t} = a_{t}^{mm}$ representam os preços de compra e venda, respectivamente, que foram executados nas diversas operações. 
-O agente de \textit{MM}, por fim, não observa apenas o retorno individual da última operação, mas sim da sua posição acumulada $R_{T}$, que pode ser reconstruída a partir das operações de compra $b\in B_t$ e de venda $a\in A_t$ executadas no instante \textit{t}:
-\begin{equation}
-    R_{T} = \sum_{t=0}^{T} \sum_{a \in A_t, b \in B_t} r_t
+De modo a simplificar as equações adiantes e utilizar uma notação mais comumente usada no contexto de ordens limite, definimos $s_{t}(a): \mathbb{R} \rightarrow \mathbb{R} = |a - p_{t}|$ como a diferença entre o preço $a$ e o preço de mercado $p$ da ação subjacente no momento $t$.
+A função $S_{t}(a, q): \mathbb{R}^{2} \rightarrow \mathbb{R} = s_{t}(a) \cdot q$ mapeia o impacto de $q$ ações negociadas na carteira do agente sob o \textit{spread} parcial $s_t$.
+O retorno $r$ obtido pelo agente no momento $t$ é a diferença do impacto de todas ordens de venda executadas $A_{t}$ e todas ordens de compra executadas $B_{t}$. 
+\begin{equation} \label{return}
+	\begin{aligned}
+		r_{t} = \sum_{a \in A} S_{t}(a, q_{a, t}) \\
+		-\sum_{b \in B} S_{t}(b, q_{b, t}) \\
+		\forall t < T
+	\end{aligned}
 \end{equation}
-Define-se matematicamente o valor da posição $R_T$ como o processo de consumo, composto pelos custos de compra, as receitas das vendas e os custos de transação. 
+Note que $q_{a, t}$ e $q_{b, t}$ são as quantidades efetivamente executadas da ordem, podendo ser menor (no caso de uma ordem parcial) ou igual à $Q_{a}$ (ordem total), onde $Q$ é a quantidade inicialmente ofertada pelo agente para a ação pelo preço $a$.
+Para considerar custos de transação — que incluem tipicamente custos da corretora e emolumentos das bolsas — basta alterar a expressão para $r_{t} := r_{t} - c$, sendo $c$ o custo total de todas transações realizadas.
+
+O agente de \textit{MM}, por fim, observa a sua posição acumulada durante todo o período de negociação $T$ para decidir se obteve retorno positivo ou negativo:
+\begin{equation} \label{return_accumulated}
+    R_{T} = \sum_{t=0}^{T} r_t
+\end{equation}
+Define-se matematicamente o valor da posição $R_T$ como a agregação das receitas de vendas, e dos custos de compra e de transações até o momento $T$. 
 
 \subsection{Definição do objetivo do agente de MM}
-O objetivo principal do agente de \textit{MM} é maximizar o valor esperado da sua carteira (portfólio). Isso é feito pelas etapas intermediárias de maximizar o \textit{bid-ask spread} $\Delta_{t}$ e a quantidade esperada $q_{t}$ de transações realizadas em cima desse \textit{spread}:
+O objetivo principal do agente de \textit{MM} é decidir dentro do intervalo de preços possíveis o valor que proporcione o maior retorno para o menor risco associado à ação \citep{markowitz1952}. O agente também pode decidir a quantidade de ações ofertadas por determinado preço, mas não tem controle direto sobre quantas ações são efetivamente negociadas. Ou seja, a quantidade executada $q$ é uma variável estocástica, tal que $P(q = Q)$ é a probabilidade de que uma oferta de $Q$ ações seja executada por completo em uma ordem. 
+
+O objetivo do agente é portanto separado em duas etapas: maximização do \textit{bid-ask spread} $\Delta_{t}(a, b) = s_{t}(a) - s_{t}(b) = |a - b|$  para uma mesma ação; maximização da quantidade executada esperada $\mathbb{E} [q_{a, t}]$ e $\mathbb{E} [q_{b, t}]$ de ordens de venda e compra realizadas em cima do \textit{spread} $\Delta_{t}(a, b)$. O agente pode inicialmente ser representado por um processo de decisão de Markov, onde as variáveis de decisão são os preços $a$ de venda e $b$ de compra e as quantidades ofertadas $Q$, que formam o conjunto de ofertas $A = \{(a_{0}, Q_{0}), ..., (a_{n}, Q_{n})\}$, onde cada elemento é uma oferta pelo preço $a_{i}$ e quantidade $Q_{i}$ para a ação $i$. A função que mapeia as recompensas da cadeia de decisão é o valor esperado do retorno acumulado até o final do pregão, considerando a incerteza da quantidade executada $q_{a, t} \leq Q_{a}$ por ordem, onde cada estado atual é um momento $t$ no tempo:
+
+\begin{equation} \label{return}
+	\begin{aligned}
+		r_{t} = \sum_{a \in A} S_{t}(a, \mathbb{E}[q_{a, t}]) \\
+		-\sum_{b \in B} S_{t}(b, \mathbb{E}[q_{b, t}]) \\
+		\forall t < T
+	\end{aligned}
+\end{equation}
+
+
+E o agente de \textit{MM} se interessa em atribuir valores aos \textit{spreads} e às quantidades $Q$ que maximizem o retorno diário acumulado esperado considerando a incerteza na quantidade $q$ que será efetivamente executada (note que o agente não decide o valor de $q_{i, t}$, apenas o valor de $Q_{i, t}$):
 
 \begin{equation}
 	\begin{aligned}
-		\max_{b \in B_{t}, a \in A_{t}} \quad &  \ \sum_{t=0}^{T} \sum_{a \in A_t, b \in B_t} \mathbb{E} \ [q_{t + s}]a_{t + s} - \mathbb{E} [ q_{t} ] b_{t} - c \\
-		= \max_{b \in B_{t}, a \in A_{t}} \quad &  \mathbb{E} \ [R_T] 	\label{eq:target_fct}\\
+		\max_{A, B} \quad & \mathbb{E} \ [R_T]
 	\end{aligned}
 \end{equation}
 
