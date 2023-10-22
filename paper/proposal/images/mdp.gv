@@ -1,0 +1,3 @@
+digraph MDP {
+	S_{t} -> S_{t1}
+}
