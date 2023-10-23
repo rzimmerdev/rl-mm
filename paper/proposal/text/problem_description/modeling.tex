@@ -1,0 +1,93 @@
+O objetivo principal do agente de \textit{MM} é decidir dentro do intervalo de preços possíveis para uma ação o valor que proporcione o maior retorno para o menor risco associado, de acordo com a fronteira do mercado eficiente \citep{markowitz1952}. O agente também pode decidir a quantidade de ações ofertadas por determinado preço, mas não tem controle direto sobre as quantidades efetivamente negociadas. Ou seja, a quantidade executada $q$ é uma variável estocástica, tal que $P(q = Q), \ \forall q <= Q$ é a probabilidade de que uma oferta de $Q$ ações seja executada por completo em uma ordem. 
+
+Podemos consequentemente modelar o agente como um problema de otimização estocástica com restrições (também chamado de programação estocástica), onde o objetivo inicial do agente é separado em duas etapas: 
+
+\begin{enumerate}[]
+	\item maximização do \textit{bid-ask spread} $\mathbf{\Delta}_{t,i} = \delta_{t, i}(p^{a}) + \delta_{t, i}(p^{b}) = |p^{a} - p^{b}|$  para todos ativos;
+	
+	\item maximização da quantidade executada esperada $\mathbb{E} [q_{t, i}^{a}]$ e $\mathbb{E} [q_{t, i}^{b}]$ de ordens de venda e compra realizadas em cima do maior \textit{bid-ask spread} $\mathbf{\Delta}_{t, i}$, garantindo que a negociação ocorra na fronteira eficiente.
+\end{enumerate}
+
+As variáveis de decisão são as combinações possíveis de ofertas de venda e compra — ou seja, combinações do conjunto de ofertas do agente $o_{t}$\footnote{\ Note que o agente não decide a quantidade executada $q$, apenas a quantidade ofertada $Q$}. A função objetivo do problema é o valor esperado do retorno diário, considerando a incerteza da quantidade executada $q_{t, i} \leq Q_{t, i}$ por ordem. Substituindo o valor de $q$ na equação \ref{return} pelo seu valor esperado:
+
+\begin{equation}
+	\begin{aligned}
+		\mathbb{E} [r_{t}] = 
+		\sum_{i = 0}^{n} \delta_{t}(\ p_{t, i}^{a}\ ,\ \mathbb{E} [\ q_{t, i}^{a}\ ]) \\
+		-\sum_{i = 0}^{m} \delta_{t}(\ p_{t, i}^{b}\ ,\ \mathbb{E} [\ q_{t, i}^{b}\ ]) \\
+		\forall t < T
+	\end{aligned}
+\end{equation}
+
+e o retorno diário acumulado da equação \ref{return_accumulated} é utilizado como função objetiva que se deseja maximizar:
+\begin{equation}
+	\begin{aligned}
+		\max_{A, B} \quad & \sum_{t=0}^{T} \ \mathbb{E} [r_{t}]
+	\end{aligned}
+\end{equation}
+
+De modo a obter uma solução para a otimização estocástica definimos o agente como um processo de decisão de Markov $(\mathcal{S}, \mathcal{A}, T, r)$, buscando modelar o problema para o paradigma de Aprendizado por Reforço:
+
+\begin{description}
+	\item[$\mathcal{S}$] 
+	é o espaço de estados possíveis, representado pelo conjunto $\{o_{t}, L_{t}) \ | \ t < T\}$, onde cada estado $s \in \mathcal{S}$ é uma combinação possível de ofertas do agente $o$, e o livro de ordens limite $L$ no momento $t$;
+	
+	\item[$\mathcal{A}$] é o espaço de ações que o agente pode realizar, ou seja, a combinação de novos \textit{spreads} $\delta(p_{t + 1})$ e novas quantidades $Q_{t+1}$ para cada tupla $(p, Q)$ do conjunto $o_{t}$ de ofertas de venda e compra existentes;
+	
+	\item[\textit{T}] são as transições possíveis entre estados dado uma ação tomada pelo agente. São representadas pela função de transição $T :  \mathcal{S} \times \mathcal{A} \times \mathcal{S} \rightarrow [0, 1]$, que mapeia o estado atual e a ação tomada para a probabilidade de ir para um estado subjacente. No caso do agente de \textit{market-making}, a função $T$ recebe o estado atual $s$ e a ação $a$ tomada pelo agente (conjunto de \textit{spreads} e quantidades ofertadas atualizadas). Em seguida recebe um possível estado futuro $s' \in \mathcal{S}$ e retorna a probabilidade de transição $T(s, a, s') = Pr(S_{t+1} = s' \ | \ S_{t} = s, A = a)$;
+	
+	\item[\textit{r}] é a função de recompensa da cadeia aleatória, que mapeia o estado atual e a ação do agente para a probabilidade de uma recompensa ocorrer caso a transição para um determinado estado seguinte ocorra. No caso do agente de \textit{MM}, a função de recompensa é o próprio retorno $r_{t+1}$ do agente.
+\end{description}
+
+Utilizando a definição do agente como um Processo de Decisão de Markov (MDP), podemos empregar uma abordagem de Aprendizado por Reforço (RL) para simular o ambiente e encontrar uma política de decisão de preços ótimas. Esta seção explora em detalhes como o Aprendizado por Reforço é aplicado a esse contexto desafiador e por que essa abordagem é crucial.
+
+\begin{itemize}
+	\item Trajetória ($\tau$): é a sequência de estados observados e ações tomadas ao longo do tempo. No contexto de \textit{MM}, uma trajetória consiste em uma série de estados do mercado $s_{t} = (o_{t}, L_{t})$ seguidas da ação em cima desse estado $a_{t} = \{(\delta_{t}(p_{i}), Q_{i}) \ | \ \forall i \}$. Essas trajetórias representam a jornada do agente no mercado financeiro, incluindo suas ações e interações com o ambiente.
+	
+	\[
+	\tau = (s_0, a_0, s_1, a_1, \ldots, s_T, a_T)
+	\]
+	
+	Onde \(s_t\) é o estado no tempo \(t\), e \(a_t\) é a ação tomada no tempo \(t\).
+	
+	\item Política ($\pi$): função que mapeia o estado atual (\textit{spreads} $\delta$ e quantidades $Q$) para a escolha de ações (ofertas de compra e venda). Através de algoritmos de otimização de decisão (\textit{Policy Optimization} e \textit{Q-Learning}), nosso objetivo é encontrar uma política ótima que permita ao agente tomar decisões que maximizem seus retornos no mercado. Essa política é fundamental para determinar como o agente se comporta em diferentes situações de mercado.
+	
+	\[
+	\pi(s) \rightarrow a
+	\]
+	
+	Essa função determina como o agente toma decisões em diferentes estados.
+	
+	\item Função de Valor ($V$): estima o valor esperado acumulado que o agente pode obter ao seguir a política \(\pi\) a partir de um estado inicial. No contexto do agente de market making, \(V\) depende do preço de venda \(a\) e da quantidade \(Q\), bem como da política do agente. Através do Aprendizado por Reforço, podemos calcular \(V\) para avaliar quão bom é um estado, o que orienta o agente na seleção de ações que maximizam seu desempenho global.
+	
+	\begin{equation*}
+		V(s_0) = \mathbb{E}\left[\sum_{t=0}^{T} \gamma^t \cdot r(s_t, \pi(s_t)) \right]
+		\end{equation*}
+		
+	Onde \(\gamma\) é o fator de desconto que pondera as recompensas futuras, e a expectativa é tomada sobre todas as possíveis trajetórias do agente.
+\end{itemize}
+
+
+**Por que fazer isso?**
+
+A aplicação do Aprendizado por Reforço nesse cenário é de suma importância por diversas razões:
+
+- **Tomada de Decisão Ótima:** Através da aprendizagem de uma política de decisão ótima, o agente pode aprimorar suas estratégias de negociação, maximizando seus lucros em um ambiente financeiro complexo e estocástico.
+
+- **Adaptação a Mudanças:** O Aprendizado por Reforço permite que o agente se adapte a mudanças nas condições de mercado ao longo do tempo, tornando-o mais resiliente a flutuações e incertezas.
+
+- **Eficiência e Aplicação em Tempo Real:** Uma vez treinado, o agente pode ser usado para tomar decisões em tempo real no mercado financeiro, proporcionando uma vantagem competitiva para instituições financeiras e traders.
+
+- **Contribuição à Pesquisa:** A modelagem de um agente de market making como um MDP e a aplicação de RL contribuem para o avanço da pesquisa em finanças quantitativas e aprendizado de máquina, abrindo novas possibilidades para o desenvolvimento de estratégias de negociação mais eficientes e robustas.
+
+Essa abordagem combina os princípios do Aprendizado por Reforço com o complexo cenário do mercado financeiro, permitindo ao agente aprimorar suas habilidades de negociação e, ao mesmo tempo, contribuir para o progresso da pesquisa em finanças quantitativas.
+
+De modo a tornar o agente adverso ao risco noturno, insere-se também uma restrição adicional, de que ao final do dia não haja exposição a riscos de mercado. 
+Existem algumas alternativas para formalizar matematicamente essa restrição:
+\begin{enumerate}
+    \item No final do dia, o agente não pode ter nenhum ativo em posição: 
+    \begin{equation}
+        \sum_{b=1}^{B_t} q_b  - \sum_{a=1}^{A_t} q_a = 0\label{eq:eod_restriction}
+    \end{equation}
+    \item No final do dia, se houver alguma posição, o agente precisa \textit{headgear} a exposição ao risco, comprando (vendendo) futuros ou outros derivativos, dependendo da posição remanescente.\footnote{De maneira simplificada, o \textit{hedge} consiste em comprar ou vender ativos que tenham uma exposição ao risco oposta aos riscos da carteira atual, de modo a equilibrar a posição.}
+\end{enumerate}
