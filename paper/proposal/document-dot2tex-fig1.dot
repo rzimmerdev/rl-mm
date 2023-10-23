@@ -1,0 +1,5 @@
+\digraph[scale=0.5]{MDP}{
+rankdir=LR;
+a->b->c;
+a [label=<foo<SUP>bar</SUP>>];
+}

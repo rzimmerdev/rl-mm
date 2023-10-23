@@ -39,7 +39,15 @@ De modo a obter uma solução para a otimização estocástica definimos o agent
 	\item[\textit{r}] é a função de recompensa da cadeia aleatória, que mapeia o estado atual e a ação do agente para a probabilidade de uma recompensa ocorrer caso a transição para um determinado estado seguinte ocorra. No caso do agente de \textit{MM}, a função de recompensa é o próprio retorno $r_{t+1}$ do agente.
 \end{description}
 
+\begin{figure}
+	\centering
+	\input{files/mdp}
+	\caption{Markov Decision Process (MDP)}
+	\label{fig:mdp}
+\end{figure}
+
 Utilizando a definição do agente como um Processo de Decisão de Markov (MDP), podemos empregar uma abordagem de Aprendizado por Reforço (RL) para simular o ambiente e encontrar uma política de decisão de preços ótimas. Esta seção explora em detalhes como o Aprendizado por Reforço é aplicado a esse contexto desafiador e por que essa abordagem é crucial.
+
 
 \begin{itemize}
 	\item Trajetória ($\tau$): é a sequência de estados observados e ações tomadas ao longo do tempo. No contexto de \textit{MM}, uma trajetória consiste em uma série de estados do mercado $s_{t} = (o_{t}, L_{t})$ seguidas da ação em cima desse estado $a_{t} = \{(\delta_{t}(p_{i}), Q_{i}) \ | \ \forall i \}$. Essas trajetórias representam a jornada do agente no mercado financeiro, incluindo suas ações e interações com o ambiente.
