@@ -39,14 +39,14 @@ De modo a obter uma solução para a otimização estocástica definimos o agent
 	\item[\textit{r}] é a função de recompensa da cadeia aleatória, que mapeia o estado atual e a ação do agente para a probabilidade de uma recompensa ocorrer caso a transição para um determinado estado seguinte ocorra. No caso do agente de \textit{MM}, a função de recompensa é o próprio retorno $r_{t+1}$ do agente.
 \end{description}
 
-\begin{figure}
+\begin{figure}[H]
 	\centering
 	\input{files/mdp}
-	\caption{Markov Decision Process (MDP)}
+	\caption{Processo de Decisão de Markov com 4 estados e ações (MDP)}
 	\label{fig:mdp}
 \end{figure}
 
-Utilizando a definição do agente como um Processo de Decisão de Markov (MDP), podemos empregar uma abordagem de Aprendizado por Reforço (RL) para simular o ambiente e encontrar uma política de decisão de preços ótimas. Esta seção explora em detalhes como o Aprendizado por Reforço é aplicado a esse contexto desafiador e por que essa abordagem é crucial.
+Utilizando a definição do agente como um Processo de Decisão de Markov, podemos simular o ambiente e encontrar uma política de decisão de preços ótimas. As técnicas de Aprendizado por Reforço serão usadas para essa tarefa, e abaixo o problema inicial de otimização do agente será traduzido à notação usada na área de \textit{RL} que parte das \textit{MDPs} de modo a permitir o uso de algoritmos computacionais de otimização para \textit{market making}.
 
 
 \begin{itemize}
@@ -75,14 +75,7 @@ Utilizando a definição do agente como um Processo de Decisão de Markov (MDP),
 	Onde \(\gamma\) é o fator de desconto que pondera as recompensas futuras, e a expectativa é tomada sobre todas as possíveis trajetórias do agente.
 \end{itemize}
 
-
-**Por que fazer isso?**
-
-A aplicação do Aprendizado por Reforço nesse cenário é de suma importância por diversas razões:
-
-- **Tomada de Decisão Ótima:** Através da aprendizagem de uma política de decisão ótima, o agente pode aprimorar suas estratégias de negociação, maximizando seus lucros em um ambiente financeiro complexo e estocástico.
-
-- **Adaptação a Mudanças:** O Aprendizado por Reforço permite que o agente se adapte a mudanças nas condições de mercado ao longo do tempo, tornando-o mais resiliente a flutuações e incertezas.
+O agente passa a ser representado pela nova tupla $(\tau, \pi, \mathcal{V})$. O paradigma de Aprendizado por Reforço permite que o agente se adapte a mudanças nas condições de mercado ao longo do tempo, e que a política escolhida considere o impacto das transações do próprio agente sobre o mercado, tornando-o mais resiliente a flutuações causadas pelas próprias ações.
 
 - **Eficiência e Aplicação em Tempo Real:** Uma vez treinado, o agente pode ser usado para tomar decisões em tempo real no mercado financeiro, proporcionando uma vantagem competitiva para instituições financeiras e traders.
 
