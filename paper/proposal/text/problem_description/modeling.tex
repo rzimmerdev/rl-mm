@@ -20,7 +20,7 @@ As variáveis de decisão são as combinações possíveis de ofertas de venda e
 \end{equation}
 
 e o retorno diário acumulado da equação \ref{return_accumulated} é utilizado como função objetiva que se deseja maximizar:
-\begin{equation}
+\begin{equation} \label{objective_equation}
 	\begin{aligned}
 		\max_{A, B} \quad & \sum_{t=0}^{T} \ \mathbb{E} [r_{t}]
 	\end{aligned}
@@ -66,29 +66,21 @@ Utilizando a definição do agente como um Processo de Decisão de Markov, podem
 	
 	Essa função determina como o agente toma decisões em diferentes estados.
 	
-	\item Função de Valor ($V$): estima o valor esperado acumulado que o agente pode obter ao seguir a política \(\pi\) a partir de um estado inicial. No contexto do agente de market making, \(V\) depende do preço de venda \(a\) e da quantidade \(Q\), bem como da política do agente. Através do Aprendizado por Reforço, podemos calcular \(V\) para avaliar quão bom é um estado, o que orienta o agente na seleção de ações que maximizam seu desempenho global.
+	\item Função de Valor ($V$): estima o valor esperado acumulado que o agente pode obter ao seguir a política \(\pi\) a partir de um estado inicial. No contexto do agente de \textit{market making}, $V$ depende do preço de venda $p$ e da quantidade $q$ executada, bem como da política do agente. Através do Aprendizado por Reforço, podemos calcular \(V\) para avaliar quão bom é um estado, o que orienta o agente na seleção de ações que maximizam seu desempenho global.
 	
 	\begin{equation*}
 		V(s_0) = \mathbb{E}\left[\sum_{t=0}^{T} \gamma^t \cdot r(s_t, \pi(s_t)) \right]
 		\end{equation*}
-		
-	Onde \(\gamma\) é o fator de desconto que pondera as recompensas futuras, e a expectativa é tomada sobre todas as possíveis trajetórias do agente.
+	
+	Onde $\gamma$ é o fator de desconto que pondera as recompensas futuras e geralmente $0 < \gamma \leq 1$. A função valor considera a expectativa de retorno sobre todas as possíveis trajetórias do agente.
 \end{itemize}
 
-O agente passa a ser representado pela nova tupla $(\tau, \pi, \mathcal{V})$. O paradigma de Aprendizado por Reforço permite que o agente se adapte a mudanças nas condições de mercado ao longo do tempo, e que a política escolhida considere o impacto das transações do próprio agente sobre o mercado, tornando-o mais resiliente a flutuações causadas pelas próprias ações.
-
-- **Eficiência e Aplicação em Tempo Real:** Uma vez treinado, o agente pode ser usado para tomar decisões em tempo real no mercado financeiro, proporcionando uma vantagem competitiva para instituições financeiras e traders.
-
-- **Contribuição à Pesquisa:** A modelagem de um agente de market making como um MDP e a aplicação de RL contribuem para o avanço da pesquisa em finanças quantitativas e aprendizado de máquina, abrindo novas possibilidades para o desenvolvimento de estratégias de negociação mais eficientes e robustas.
-
-Essa abordagem combina os princípios do Aprendizado por Reforço com o complexo cenário do mercado financeiro, permitindo ao agente aprimorar suas habilidades de negociação e, ao mesmo tempo, contribuir para o progresso da pesquisa em finanças quantitativas.
-
-De modo a tornar o agente adverso ao risco noturno, insere-se também uma restrição adicional, de que ao final do dia não haja exposição a riscos de mercado. 
+O agente passa a ser representado pela nova tupla $(\tau, \pi, \mathcal{V})$ a partir de um processo estocástico atrelado $\mathbf{MDP}$. O paradigma de Aprendizado por Reforço permite que o agente se adapte a mudanças nas condições de mercado ao longo do tempo, e que a política escolhida considere o impacto das transações do próprio agente sobre o mercado, tornando-o mais resiliente a flutuações causadas pelas próprias ações. Uma vez treinado, o agente pode ser usado para tomar decisões em tempo real no mercado financeiro, proporcionando uma vantagem competitiva para instituições financeiras e o avanço da pesquisa em finanças quantitativas e aprendizado de máquina, abrindo novas possibilidades para o desenvolvimento de estratégias de negociação mais eficientes e robustas. A contribuição da pesquisa proposta será tornar o agente adverso ao risco noturno, inserindo-se também uma restrição adicional, de que ao final do dia não haja exposição a riscos de mercado. 
 Existem algumas alternativas para formalizar matematicamente essa restrição:
 \begin{enumerate}
     \item No final do dia, o agente não pode ter nenhum ativo em posição: 
-    \begin{equation}
-        \sum_{b=1}^{B_t} q_b  - \sum_{a=1}^{A_t} q_a = 0\label{eq:eod_restriction}
+    \begin{equation} \label{overnight_restriction}
+        \sum_{b=1}^{B_t} q_b  - \sum_{a=1}^{A_t} q_a = 0
     \end{equation}
-    \item No final do dia, se houver alguma posição, o agente precisa \textit{headgear} a exposição ao risco, comprando (vendendo) futuros ou outros derivativos, dependendo da posição remanescente.\footnote{De maneira simplificada, o \textit{hedge} consiste em comprar ou vender ativos que tenham uma exposição ao risco oposta aos riscos da carteira atual, de modo a equilibrar a posição.}
+    \item No final do dia, se houver alguma posição restante, o agente precisa \textit{headgear}\footnote{De maneira simplificada, o \textit{hedge} consiste em comprar ou vender ativos que tenham uma exposição ao risco oposta aos riscos da carteira atual, de modo a equilibrar a posição.} sua exposição ao risco ao participar em outros mercados abertos no momento, abordagem que chamamos de \textit{market making} \textbf{simultâneo}.
 \end{enumerate}

@@ -1,11 +1,11 @@
 Ao considerarmos a situação em que o MM aplica a sua estratégia em diversos mercados simultaneamente observamos um aumento da complexidade, mas também das alternativas para lidar com riscos envolvidos - chamamos essa situação de MM \textbf{simultâneo} ou \textbf{multivariado}.
 
-Para tal, a posição $V_{T}$ do agente passa a ser a soma de todas posições parciais $V_{T, k}$, onde $k$ é uma bolsa onde o agente possui ações:
+Para tal, a função valor $V_{T}$ do agente passa a ser a soma de todas posições parciais $V_{T, k}$, onde $k$ é uma bolsa onde o agente possui ações:
 \begin{eqnarray*}
     V_t &=& \sum_{k=1}^N V_{T, k}\\
 \end{eqnarray*}
 
-O objetivo principal (\ref{eq:target_fct}) continua o mesmo, e mantém-se a restrição (\ref{eq:eod_restriction}). Contudo, surgem novas alternativas para proteção da carteira durante a noite:
+O objetivo principal (\ref{objective_equation}) continua o mesmo, e mantém-se a restrição (\ref{overnight_restriction}). Contudo, surgem novas alternativas para proteção da carteira durante a noite:
 
 \begin{enumerate}
     \item O agente pode avaliar o risco global da carteira, e incluir um único ativo de proteção contra o risco global ao final do dia.
