@@ -82,12 +82,12 @@ Utilizando a definição do agente como um Processo de Decisão de Markov, podem
 	\label{fig:rl-agent}
 \end{figure}
 
-O agente passa a ser representado pela nova tupla $(\tau, \pi, \mathcal{V})$ a partir de um processo estocástico atrelado $\mathbf{MDP}$. O paradigma de Aprendizado por Reforço permite que o agente se adapte a mudanças nas condições de mercado ao longo do tempo, e que a política escolhida considere o impacto das transações do próprio agente sobre o mercado, tornando-o mais resiliente a flutuações causadas pelas próprias ações. Uma vez treinado, o agente pode ser usado para tomar decisões em tempo real no mercado financeiro, proporcionando uma vantagem competitiva para instituições financeiras e o avanço da pesquisa em finanças quantitativas e aprendizado de máquina, abrindo novas possibilidades para o desenvolvimento de estratégias de negociação mais eficientes e robustas. A contribuição da pesquisa proposta será tornar o agente adverso ao risco noturno, inserindo-se também uma restrição adicional, de que ao final do dia não haja exposição a riscos de mercado. 
+O agente passa a ser representado pela nova tupla $(V, \tau, \pi)$ onde $V$ e $\tau$ são dadas pelo processo $\mathbf{MDP}$. O paradigma de Aprendizado por Reforço permite que o agente se adapte a mudanças nas condições de mercado ao longo do tempo, e que a política escolhida considere o impacto das transações do próprio agente sobre o mercado, tornando-o mais resiliente a flutuações causadas pelas próprias ações. Uma vez treinado, o agente pode ser usado para tomar decisões em tempo real no mercado financeiro, proporcionando uma vantagem competitiva para instituições financeiras e o avanço da pesquisa em finanças quantitativas e aprendizado de máquina, abrindo novas possibilidades para o desenvolvimento de estratégias de negociação mais eficientes e robustas. A contribuição da pesquisa proposta será tornar o agente adverso ao risco noturno, inserindo-se também uma restrição adicional, de que ao final do dia não haja exposição a riscos de mercado. 
 Existem algumas alternativas para formalizar matematicamente essa restrição:
 \begin{enumerate}
     \item No final do dia, o agente não pode ter nenhum ativo em posição: 
     \begin{equation} \label{overnight_restriction}
-        \sum_{b=1}^{B_t} q_b  - \sum_{a=1}^{A_t} q_a = 0
+        \sum_{i = 0}^{n} q_{T, i}^{a}  = \sum_{i=0}^{m} q_{T, i}^{b} = 0
     \end{equation}
     \item No final do dia, se houver alguma posição restante, o agente precisa \textit{headgear}\footnote{De maneira simplificada, o \textit{hedge} consiste em comprar ou vender ativos que tenham uma exposição ao risco oposta aos riscos da carteira atual, de modo a equilibrar a posição.} sua exposição ao risco ao participar em outros mercados abertos no momento, abordagem que chamamos de \textit{market making} \textbf{simultâneo}.
 \end{enumerate}
