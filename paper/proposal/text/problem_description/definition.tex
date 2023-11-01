@@ -60,7 +60,7 @@ onde $p$ é o preço da oferta do agente e $P$ é a melhor oferta existente $\ma
 	\caption{Gráfico de ofertas de um livro de ordens limite $L$ qualquer}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[H]
 	\begin{center}
 		\begin{tikzpicture}
 			\begin{axis}[
@@ -99,18 +99,18 @@ onde $p$ é o preço da oferta do agente e $P$ é a melhor oferta existente $\ma
 	\caption{Gráfico de spreads de um livro de ordens limite $L$ qualquer}
 \end{figure}
 
-Para ilustrar melhor o funcionamento do livro de ordens considere a seguinte situação para um mesmo momento e ativo: um agente qualquer de \textit{MM} tem a \textbf{única oferta de venda} pelo preço de $p^{a}$ no mercado. Caso surja uma nova oferta de \textbf{compra} com melhor preço e acima do preço da oferta do agente $P^{b} \geq p^{a}$, será gerada uma transação pelo preço $p^{a}$ e a ordem de preço $P^{b}$ que gerou a transação é chamada de ordem de mercado, enquanto a ordem do agente é chamada de ordem limite. Após o motor de transações da bolsa receber a ordem com preço $P$, uma transação ocorre e ambas ofertas são removidas do livro de ordens. Em seguida, o agente tem sua posição $r_{t}$ ajustada:
+Para ilustrar melhor o funcionamento do livro de ordens considere a seguinte situação para um mesmo momento $t$ e ativo $i$: um agente qualquer de \textit{MM} tem a \textbf{única oferta de venda} pelo preço de $p^{a}$ no mercado. Caso surja uma nova oferta de \textbf{compra} com melhor preço e acima do preço da oferta do agente $P^{b} \geq p^{a}$, será gerada uma transação pelo preço $p^{a}$ e a ordem de preço $P^{b}$ que gerou a transação é chamada de ordem de mercado, enquanto a ordem do agente é chamada de ordem limite. Após o motor de transações da bolsa receber a ordem com preço $P$, uma transação ocorre e ambas ofertas são removidas do livro de ordens. Em seguida, o agente tem o valor da sua posição $r_{t}$ ajustada:
 \begin{equation}
     \begin{aligned}
-    	r_{t + 1}:= r_{t} + p^{a}q \text{ para vendas e} \\ 
-    	r_{t + 1}:= r_{t} - p^{b}q \text{ para compras}
+    	r_{t + 1}:= r_{t} + p^{a}_{t, i} \cdot q^{a}_{t, i} \text{ para vendas e} \\ 
+    	r_{t + 1}:= r_{t} - p^{b}_{t, i} \cdot q^{b}_{t, i} \text{ para compras}
     \end{aligned}
 \end{equation}
-sendo $r_{t}$ o valor da posição do agente no instante $t$ e $q$ a quantidade de ativos negociadas na transação em questão.
+onde $r_{t}$ é um valor escalar e $p$ e $q$ são os vetores de preços ofertados e quantidades negociadas.
 
-O agente em seguida escolhe esperar ou realizar uma das ações abaixo:
+Em seguida, o agente escolhe esperar ou realizar uma das ações abaixo:
 \begin{enumerate}
-    \item inserir uma nova oferta de venda, substituindo a oferta anterior;
+    \item inserir uma nova oferta de venda, substituindo ou complementando a oferta anterior;
     \item inserir ou ajustar uma oferta de compra existente no livro de ofertas de compras;
 \end{enumerate}
 
@@ -129,18 +129,18 @@ De modo a simplificar as equações adiantes e utilizar uma notação mais comum
 	
 	\item[$\delta_{t}(p, q)$:] $\mathbb{R}^{2} \rightarrow \mathbb{R} = q \cdot \delta_{t}(p)$ como a função que mapeia o impacto de $q$ ações negociadas na carteira do agente sob o \textit{spread} parcial $\delta_t$.
 	
-	\item[$r_{t}$] é o retorno obtido pelo agente no momento $t$. É calculado pela soma do impacto de todos ativos, onde $o_{t} = \{(p_{t, 0}^{a}, Q_{t, 0}^{a}), ..., (p_{t, n}^{a}, Q_{t, n}^{a}), (p_{t, 0}^{b}, Q_{t, 0}^{b}), ..., (p_{t, m}^{b}, Q_{t, m}^{b})\}$ é o conjunto de ofertas do agente para todos ativos no momento $t$. Cada oferta é uma tupla $(p, Q)$ de preço por ativo e quantidade de ativos ofertada.
+	\item[$r_{t}$] é o retorno obtido pelo agente no momento $t$. É calculado pela soma do impacto de todos ativos, onde $o_{t} = \{(p_{t, 0}^{a}, Q_{t, 0}^{a}), ..., (p_{t, n}^{a}, Q_{t, n}^{a}), (p_{t, 0}^{b}, Q_{t, 0}^{b}), ..., (p_{t, m}^{b}, Q_{t, m}^{b})\}$ é o conjunto de ofertas do agente para todos ativos no momento $t$. Cada oferta é uma tupla $(p, Q)$ de preço por ativo e quantidade de ativos ofertada. O retorno no momento $t$ é definido como a soma de todas os \textit{spreads} de venda $\delta_{t}(p^{a}_{t, i}, q^{a}_{t, i})$ menos todos os \textit{spreads} de compra $\delta_{t}(p^{b}_{t, j}, q^{a}_{t, j})$.
 	
 	\begin{equation} \label{return}
 		\begin{aligned}
 			r_{t} = \sum_{i = 0}^{n} \delta_{t}(p_{t, i}^{a}, q_{t, i}^{a}) \\
-			-\sum_{i = 0}^{m} \delta_{t}(p_{t, i}^{b}, q_{t, i}^{b}) \\
+			-\sum_{j = 0}^{m} \delta_{t}(p_{t, j}^{b}, q_{t, j}^{b}) \\
 			\forall t < T
 		\end{aligned}
 	\end{equation}
 \end{description}
 
-Onde os valores de  $q$ são as quantidades efetivamente executadas da ordem, podendo ser menor (no caso de uma ordem parcial) ou igual à $Q$ (ordem total), onde $Q$ é a quantidade inicialmente ofertada pelo agente.
+onde os valores de  $q$ são as quantidades efetivamente executadas da ordem, podendo ser menor (no caso de uma ordem parcial) ou igual à $Q$ (ordem total), onde $Q$ é a quantidade inicialmente ofertada pelo agente.
 Para considerar custos de transação — que incluem tipicamente custos da corretora e emolumentos das bolsas — basta alterar a expressão para $r_{t} := r_{t} - c$, sendo $c$ o custo total de todas transações realizadas.
 
 O agente de \textit{MM}, por fim, observa a sua posição acumulada durante todo o período de negociação $T$ para decidir se obteve retorno positivo ou negativo:

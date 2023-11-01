@@ -1,14 +1,17 @@
-O objetivo principal do agente de \textit{MM} é decidir dentro do intervalo de preços possíveis para uma ação o valor que proporcione o maior retorno para o menor risco associado, de acordo com a fronteira do mercado eficiente \citep{markowitz1952}. O agente também pode decidir a quantidade de ações ofertadas por determinado preço, mas não tem controle direto sobre as quantidades efetivamente negociadas. Ou seja, a quantidade executada $q$ é uma variável estocástica, tal que $P(q = Q), \ \forall q <= Q$ é a probabilidade de que uma oferta de $Q$ ações seja executada por completo em uma ordem. 
+O objetivo principal do agente de \textit{MM} é decidir dentro do intervalo de preços possíveis para uma ação o valor que proporcione o maior retorno para o menor risco associado, de acordo com a fronteira eficiente de execução ótima \citep{almgren2000}. O agente também pode decidir a quantidade de ações ofertadas por determinado preço, mas não tem controle direto sobre as quantidades efetivamente negociadas. Ou seja, a quantidade executada $q$ é uma variável aleatória, dado que não é possível determinar de antemão quanto o agente agressor irá negociar com o agente de \textit{market-making}. Sabe-se apenas que a quantidade negociada é menor ou igual à ofertada ($q \leq Q$). Definimos como $P(q_{t, i} = Q_{t, i})$ a probabilidade de que uma oferta de $Q_{t, i}$ ações $i$ seja executada por completo em apenas uma ordem com quantidade $q_{t, i}$ no momento $t$.
 
-Podemos consequentemente modelar o agente como um problema de otimização estocástica com restrições (também chamado de programação estocástica), onde o objetivo inicial do agente é separado em duas etapas: 
+Podemos consequentemente modelar o agente como um problema de otimização estocástica com restrições, onde o objetivo inicial do agente é separado em duas etapas: 
 
 \begin{enumerate}[]
 	\item maximização do \textit{bid-ask spread} $\mathbf{\Delta}_{t,i} = \delta_{t, i}(p^{a}) + \delta_{t, i}(p^{b}) = |p^{a} - p^{b}|$  para todos ativos;
 	
-	\item maximização da quantidade executada esperada $\mathbb{E} [q_{t, i}^{a}]$ e $\mathbb{E} [q_{t, i}^{b}]$ de ordens de venda e compra realizadas em cima do maior \textit{bid-ask spread} $\mathbf{\Delta}_{t, i}$, garantindo que a negociação ocorra na fronteira eficiente.
+	\item maximização da quantidade executada esperada $\mathbb{E} [q_{t, i}^{a}]$ e $\mathbb{E} [q_{t, i}^{b}]$ de ordens de venda e compra realizadas em cima do maior \textit{bid-ask spread} $\mathbf{\Delta}_{t, i}$, garantindo que a negociação ocorra na fronteira eficiente de execução.
 \end{enumerate}
 
-As variáveis de decisão são as combinações possíveis de ofertas de venda e compra — ou seja, combinações do conjunto de ofertas do agente $o_{t}$\footnote{\ Note que o agente não decide a quantidade executada $q$, apenas a quantidade ofertada $Q$}. A função objetivo do problema é o valor esperado do retorno diário, considerando a incerteza da quantidade executada $q_{t, i} \leq Q_{t, i}$ por ordem. Substituindo o valor de $q$ na equação \ref{return} pelo seu valor esperado:
+As variáveis de decisão são as combinações possíveis de ofertas de venda e compra — ou seja, o conjunto de combinações de pares de preços e quantidades ofertadas $o_{t}$\footnote{\ Note que o agente decide a quantidade ofertada $Q$, e não tem controle direto sobre a quantidade executada $q$, pois é uma variável aleatória.}:
+\begin{equation}
+	o_{t} = \{(p_{t, 0}^{a}, Q_{t, 0}^{a}), ..., (p_{t, n}^{a}, Q_{t, n}^{a}), (p_{t, 0}^{b}, Q_{t, 0}^{b}), ..., (p_{t, m}^{b}, Q_{t, m}^{b})\}
+\end{equation} A função objetivo do problema é o valor esperado do retorno diário, considerando a incerteza da quantidade executada $q_{t, i} \leq Q_{t, i}$ por ordem. Substituindo o valor de $q$ na equação (\ref{return}) pelo seu valor esperado:
 
 \begin{equation}
 	\begin{aligned}
@@ -19,10 +22,10 @@ As variáveis de decisão são as combinações possíveis de ofertas de venda e
 	\end{aligned}
 \end{equation}
 
-e o retorno diário acumulado da equação \ref{return_accumulated} é utilizado como função objetiva que se deseja maximizar:
+e o retorno diário acumulado da equação \ref{return_accumulated} é utilizado como função objetiva que se deseja maximizar em relação à variável $o$ de ofertas do agente:
 \begin{equation} \label{objective_equation}
 	\begin{aligned}
-		\max_{A, B} \quad & \sum_{t=0}^{T} \ \mathbb{E} [r_{t}]
+		\max_{o} \quad & \mathbb{E} [\sum_{t=0}^{T} \ r_{t}]
 	\end{aligned}
 \end{equation}
 
@@ -30,11 +33,11 @@ De modo a obter uma solução para a otimização estocástica definimos o agent
 
 \begin{description}
 	\item[$\mathcal{S}$] 
-	é o espaço de estados possíveis, representado pelo conjunto $\{o_{t}, L_{t}) \ | \ t < T\}$, onde cada estado $s \in \mathcal{S}$ é uma combinação possível de ofertas do agente $o$, e o livro de ordens limite $L$ no momento $t$;
+	é o espaço de estados possíveis, representado pelo conjunto $\{o_{t}, L_{t}) \ | \ t < T\}$, onde cada estado $s \in \mathcal{S}$ é uma combinação possível de ofertas do agente $o$, e a observação do livro de ordens limite $L$ no momento $t$;
 	
-	\item[$\mathcal{A}$] é o espaço de ações que o agente pode realizar, ou seja, a combinação de novos \textit{spreads} $\delta(p_{t + 1})$ e novas quantidades $Q_{t+1}$ para cada tupla $(p, Q)$ do conjunto $o_{t}$ de ofertas de venda e compra existentes;
+	\item[$\mathcal{A}$] é o espaço de ações que o agente pode realizar, ou seja, a combinação de preços $p_{t + 1}$ e novas quantidades $Q_{t+1}$ para cada tupla $(p_{t}, Q_{t})$ do conjunto $o_{t}$ de ofertas de venda e compra existentes;
 	
-	\item[\textit{T}] são as transições possíveis entre estados dado uma ação tomada pelo agente. São representadas pela função de transição $T :  \mathcal{S} \times \mathcal{A} \times \mathcal{S} \rightarrow [0, 1]$, que mapeia o estado atual e a ação tomada para a probabilidade de ir para um estado subjacente. No caso do agente de \textit{market-making}, a função $T$ recebe o estado atual $s$ e a ação $a$ tomada pelo agente (conjunto de \textit{spreads} e quantidades ofertadas atualizadas). Em seguida recebe um possível estado futuro $s' \in \mathcal{S}$ e retorna a probabilidade de transição $T(s, a, s') = Pr(S_{t+1} = s' \ | \ S_{t} = s, A = a)$;
+	\item[\textit{T}] são as transições possíveis entre estados dado uma ação tomada pelo agente. São representadas pela função de transição $T :  \mathcal{S} \times \mathcal{A} \times \mathcal{S} \rightarrow [0, 1]$, que mapeia o estado atual e a ação tomada para a probabilidade de ir para um estado subjacente. No caso do agente de \textit{market-making}, a função $T$ recebe o estado atual $s$ e a ação $a$ tomada pelo agente (conjunto de \textit{spreads} e quantidades ofertadas atualizadas). Em seguida recebe um possível estado futuro $s' \in \mathcal{S}$ e retorna a probabilidade de transição $T(s, a, s') = Pr(S_{t+1} = s' \ | \ S_{t} = s, A = a)$. O valor dessa função não é conhecida, a não ser para sistemas muito simples, portanto é comum utilizar técnicas de programação dinâmica ou aprendizado por reforço para estimar a sua distribuição, como \textit{Q-Learning} e \textit{Proximal Policy Optimization};
 	
 	\item[\textit{r}] é a função de recompensa da cadeia aleatória, que mapeia o estado atual e a ação do agente para a probabilidade de uma recompensa ocorrer caso a transição para um determinado estado seguinte ocorra. No caso do agente de \textit{MM}, a função de recompensa é o próprio retorno $r_{t+1}$ do agente.
 \end{description}
