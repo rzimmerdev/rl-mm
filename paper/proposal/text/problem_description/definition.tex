@@ -1,6 +1,6 @@
 Os mercados normalmente definem uma quantidade mínima por lote ofertado. Se uma bolsa determina um mínimo de 100 ações um vendedor não poderia criar uma oferta de 50 ações. Se os preços ofertados no momento permitirem a execução de um negócio, a transação ocorrerá em cima da menor quantidade entre as duas ofertas, ou seja, se uma ordem de venda de 100 ações fecha um negócio com uma ordem de compra de 200 ações por exemplo, a quantidade negociada será de apenas 100. O restante da oferta de compra, i.e. 100 ações, continua no livro de oferta de compras, enquanto no lado da venda, a próxima oferta de maior preferência vai para o topo do livro. 
 
-Definimos como $p^{a}$ a matriz de preços de venda para um agente qualquer, chamados de \textit{ask prices} em inglês e $p^{b}$ para compras, ou \textit{bid prices} em inglês. A matriz tem em suas $t \leq T$ linhas as diferentes ofertas do agente a cada momento, e em suas $i \in I$ colunas as ofertas para cada ativo $i$: 
+Definimos como $p^{a}$ a matriz de preços de venda para um agente qualquer, chamados de \textit{ask prices} em inglês e $p^{b}$ para compras, ou \textit{bid prices} em inglês. A matriz tem em suas $t \leq T, \  \forall t \in \mathbb{N}$\footnote{o tempo $t$ é comumente discretizado e sua unidade é representada em milissegundos.} linhas as diferentes ofertas do agente a cada momento, e em suas $i \in I$ colunas as ofertas para cada ativo $i$: 
 \begin{equation*}
 	\begin{aligned}
 		p^{a}_{t, i} \text{ para ofertas de venda e}  \\
@@ -20,7 +20,7 @@ O objetivo de uma estratégia de \textit{market making} (\textit{MM}) nesse cont
 onde $p$ é o preço da oferta do agente e $P$ é a melhor oferta existente $\mathbf{pos}_{t, i}^{a}(P) = \mathbf{pos}_{t, i}^{b}(P) = 0$.
 É importante notar que quaisquer ordens criadas por um agente de \textit{MM} não geram novas transações no instante \textit{t} (indicado por $p^{a} > P^{b}$ e $p^{b} < P^{a}$ para um mesmo ativo). A seguir um exemplo da reta de preços para um momento $t$ e um ativo $i$ qualquer, onde $p^{b, k}$ é tal que $\mathbf{pos}^{b}(p^{b, k}) = k$:
 
-\begin{figure}
+\begin{figure}[H]
 	\begin{center}
 		\begin{tikzpicture}
 			\begin{axis}[

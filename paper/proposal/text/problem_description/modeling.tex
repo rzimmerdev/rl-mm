@@ -38,7 +38,7 @@ De modo a obter uma solução para a otimização estocástica definimos o agent
 	\item[$\mathcal{A}$] é o espaço de ações que o agente pode realizar, ou seja, a combinação de preços $p_{t + 1}$ e novas quantidades $Q_{t+1}$ para cada tupla $(p_{t}, Q_{t})$ do conjunto $o_{t}$ de ofertas de venda e compra existentes;
 	
 	\item[\textit{T}] são as transições possíveis entre estados dado uma ação tomada pelo agente. São representadas pela função de transição $T :  \mathcal{S} \times \mathcal{A} \times \mathcal{S} \rightarrow [0, 1]$, que mapeia o estado atual e a ação tomada para a probabilidade de ir para um estado subjacente. No caso do agente de \textit{market-making}, a função $T$ recebe o estado atual $s$ e a ação $a$ tomada pelo agente (conjunto de \textit{spreads} e quantidades ofertadas atualizadas). Em seguida recebe um possível estado futuro $s' \in \mathcal{S}$ e retorna a probabilidade de transição $T(s, a, s') = Pr(S_{t+1} = s' \ | \ S_{t} = s, A = a)$. O valor dessa função não é conhecido a não ser para sistemas muito simples, o que requer o uso de técnicas de programação dinâmica ou aprendizado por reforço para estimar a sua distribuição, como o método tabular \textit{Q-Learning} e \textit{Proximal Policy Optimization};
-	
++++	
 	\item[\textit{r}] é a função de recompensa da cadeia aleatória, que mapeia o estado atual e a ação do agente para a probabilidade de uma recompensa ocorrer caso a transição para um determinado estado seguinte ocorra. No caso do agente de \textit{MM}, a função de recompensa é o próprio retorno $r_{t+1}$ do agente.
 \end{description}
 
