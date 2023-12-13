@@ -151,7 +151,7 @@ We describe how the ESN can form the basis for novel and computationally efficie
   year     = {2018},
   abstract = {Market making is a fundamental trading problem in which an agent provides liquidity by continually offering to buy and sell a security. The problem is challenging due to inventory risk, the risk of accumulating an unfavourable position and ultimately losing money. In this paper, we develop a high-fidelity simulation of limit order book markets, and use it to design a market making agent using temporal-difference reinforcement learning. We use a linear combination of tile codings as a value function approximator, and design a custom reward function that controls inventory risk. We demonstrate the effectiveness of our approach by showing that our agent outperforms both simple benchmark strategies and a recent online learning approach from the literature.},
   eprint   = {arXiv:1804.04216},
-  keywords = {rank4},
+  keywords = {rank5},
 }
 
 @Article{2211.00496,
@@ -447,7 +447,7 @@ We describe how the ESN can form the basis for novel and computationally efficie
   affiliation   = {Gasperov, B (Corresponding Author), Univ Zagreb, Fac Elect Engn \& Comp, Lab Financial \& Risk Analyt, Zagreb 10000, Croatia. Gasperov, Bruno; Kostanjcar, Zvonko, Univ Zagreb, Fac Elect Engn \& Comp, Lab Financial \& Risk Analyt, Zagreb 10000, Croatia.},
   author-email  = {bruno.gasperov@fer.hr zvonko.kostanjcar@fer.hr},
   doi           = {10.1109/LCSYS.2022.3166446},
-  keywords      = {Reinforcement learning; Process control; Kernel; Aerospace electronics; Optimal control; Microstructure; Mathematical models; Finance; neural networks; stochastic optimal control, rank3},
+  keywords      = {Reinforcement learning; Process control; Kernel; Aerospace electronics; Optimal control; Microstructure; Mathematical models; Finance; neural networks; stochastic optimal control, rank4},
   keywords-plus = {EMPIRICAL-ANALYSIS; CALIBRATION; RISK},
   times-cited   = {4},
   type          = {Article},
