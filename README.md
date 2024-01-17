@@ -24,3 +24,5 @@ To run the code, run:
 ```bash
 python main.py
 ```
+
+References:
