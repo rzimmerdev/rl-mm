@@ -1,3 +1,4 @@
+# Author: Rafael Zimmer
 import numpy as np
 import pandas as pd
 from plotly import express as px
