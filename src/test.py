@@ -3,7 +3,7 @@ import numpy as np
 def main():
     n = 4
     grid = np.ones((n * n))
-    grid *= -2
+    grid *= -1
 
     # Upper Right
     grid[n - 1] = 5
@@ -55,7 +55,9 @@ def main():
                 Q[s] = np.array([get_transition(s, a)[1] + gamma * V[get_transition(s, a)[0]] for a in range(4)])
                 V[s] = np.max(Q[s])
 
-            if np.max(np.abs(v - V)) < 1e-4:
+            delta = np.max(np.abs(v - V))
+            print(delta)
+            if delta < 1e-4:
                 break
 
         # Policy improvement
@@ -74,6 +76,7 @@ def main():
     arrows = np.array(['↑→↓←'[np.argmax(policy[s])] for s in range(n * n)])
     arrows = arrows.reshape((n, n))
     print(arrows)
+    print(V.reshape((n, n)))
 
 if __name__ == "__main__":
    main()
