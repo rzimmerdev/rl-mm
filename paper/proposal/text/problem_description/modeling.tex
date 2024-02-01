@@ -1,56 +1,79 @@
-O objetivo principal do agente de \textit{MM} é decidir dentro do intervalo de preços possíveis para uma ação o valor que proporcione o maior retorno para o menor risco associado, de acordo com a fronteira eficiente de execução ótima \citep{almgren2000}. O agente também pode decidir a quantidade de ações ofertadas por determinado preço, mas não tem controle direto sobre as quantidades efetivamente negociadas. Ou seja, a quantidade executada $q$ é uma variável aleatória, dado que não é possível determinar de antemão quanto o agente agressor irá negociar com o agente de \textit{market-making}. Sabe-se apenas que a quantidade negociada é menor ou igual à ofertada ($q \leq Q$). 
+O objetivo principal do agente de \textit{MM} é decidir dentro do intervalo de preços possíveis para o ativo o que proporcione um maior retorno financeiro para o menor risco associado, de acordo com a fronteira eficiente de execução ótima \citep{almgren2000}. O agente também pode decidir a quantidade $Q$ de ações ofertadas por determinado preço $p$, mas não tem controle direto sobre as quantidades efetivamente negociadas. Ou seja, a quantidade executada $N \leq Q$ é uma variável aleatória, dado que não é possível determinar de antemão quanto o agente agressor irá negociar com o agente de \textit{market-making} \citep{rao2020stochastic}.
 
-Podemos consequentemente modelar o agente como um problema de otimização estocástica com restrições, onde o objetivo inicial do agente é separado em duas etapas: 
+É possível representar essa dinâmica na forma de um problema de otimização estocástica com restrições, onde o objetivo do agente (ou controle) consiste em obter uma aproximação ótima da equação de valores-estados de Bellman $Q^*(s, a) = \mathbb{E} \left[ R_{t+1} + \gamma \cdot \max_{a'} Q^*(S_{t+1}, a') \mid S_t = s, A_t = a \right]$ para um processo de decisão de Markov (ou \textit{Markov Decision Process} em inglês).
 
-\begin{enumerate}[]
-	\item maximização do \textit{bid-ask spread} $\mathbf{\Delta}_{t,i} = \delta_{t, i}(p^{a}) + \delta_{t, i}(p^{b}) = |p^{a} - p^{b}|$  para todos ativos;
-	
-	\item maximização da quantidade executada esperada $\mathbb{E} [q_{t, i}^{a}]$ e $\mathbb{E} [q_{t, i}^{b}]$ de ordens de venda e compra realizadas em cima do maior \textit{bid-ask spread} $\mathbf{\Delta}_{t, i}$, garantindo que a negociação ocorra na fronteira eficiente de execução.
-\end{enumerate}
-
-As variáveis de decisão são as combinações possíveis de ofertas de venda e compra — ou seja, o conjunto de combinações de pares de preços e quantidades ofertadas $o_{t}$\footnote{\ Note que o agente decide a quantidade ofertada $Q$, e não tem controle direto sobre a quantidade executada $q$, pois é uma variável aleatória.} (em termos computacionais, $o_{t}$ é usualmente representado por uma lista de tuplas representando as ofertas):
-\begin{equation}
-	o_{t} = \{(p_{t, 0}^{a}, Q_{t, 0}^{a}), ..., (p_{t, n}^{a}, Q_{t, n}^{a}), (p_{t, 0}^{b}, Q_{t, 0}^{b}), ..., (p_{t, m}^{b}, Q_{t, m}^{b})\}
-\end{equation} A função objetivo do problema é o valor esperado do retorno diário, considerando a incerteza da quantidade executada $q_{t, i} \leq Q_{t, i}$ por ordem. Substituindo o valor de $q$ na equação (\ref{return}) pelo seu valor esperado:
-
-\begin{equation}
-	\begin{aligned}
-		\mathbb{E} [r_{t}] = 
-		\sum_{i = 0}^{n} \delta_{t}(\ p_{t, i}^{a}\ ,\ \mathbb{E} [\ q_{t, i}^{a}\ ]) \\
-		-\sum_{i = 0}^{m} \delta_{t}(\ p_{t, i}^{b}\ ,\ \mathbb{E} [\ q_{t, i}^{b}\ ]) \\
-		\forall t < T
-	\end{aligned}
-\end{equation}
-
-e o retorno diário acumulado da equação \ref{return_accumulated} é utilizado como função objetiva que se deseja maximizar em relação à variável $o$ de ofertas do agente:
-\begin{equation} \label{objective_equation}
-	\begin{aligned}
-		\max_{o} \quad & \mathbb{E} [\sum_{t=0}^{T} \ r_{t}]
-	\end{aligned}
-\end{equation}
-
-De modo a obter uma solução para a otimização estocástica definimos o agente como um processo de decisão de Markov $(\mathcal{S}, \mathcal{A}, T, r)$, buscando modelar o problema para o paradigma de Aprendizado por Reforço:
+De modo a obter a solução para a equação, definimos o processo de decisão de Markov $(\mathcal{S}, \mathcal{A}, T_{a}, R_{a})$ a seguir:
 
 \begin{description}
 	\item[$\mathcal{S}$] 
-	é o espaço de estados possíveis, representado pelo conjunto $\{o_{t}, L_{t}) \ | \ t < T\}$, onde cada estado $s \in \mathcal{S}$ é uma combinação possível de ofertas do agente $o$, e a observação do livro de ordens limite $L$ no momento $t$;
+	é o espaço de estados possíveis, representado pelo conjunto $\{t, P_{t}, W_{t}, I_{t} \ | \ t < T\}$, onde cada estado $s \in \mathcal{S}$ é uma combinação possível da observação da dinâmica do livro de ordens limite $L$ no momento $t$;
 	
-	\item[$\mathcal{A}$] é o espaço de ações que o agente pode realizar, ou seja, a combinação de preços $p_{t + 1}$ e novas quantidades $Q_{t+1}$ para cada tupla $(p_{t}, Q_{t})$ do conjunto $o_{t}$ de ofertas de venda e compra existentes;
+	\item[$\mathcal{A}$] é o espaço de ações que o agente pode realizar, ou seja, a combinação de preços $p^{(a)}_{t + 1}$ e $p^{(b)}_{t + 1}$ e novas quantidades $Q^{(a)}_{t+1}$ e $Q^{(b)}_{t+1}$ para as ofertas de venda e compra existentes;
 	
-	\item[\textit{T}] são as transições possíveis entre estados dado uma ação tomada pelo agente. São representadas pela função de transição $T :  \mathcal{S} \times \mathcal{A} \times \mathcal{S} \rightarrow [0, 1]$, que mapeia o estado atual e a ação tomada para a probabilidade de ir para um estado subjacente. No caso do agente de \textit{market-making}, a função $T$ recebe o estado atual $s$ e a ação $a$ tomada pelo agente (conjunto de \textit{spreads} e quantidades ofertadas atualizadas). Em seguida recebe um possível estado futuro $s' \in \mathcal{S}$ e retorna a probabilidade de transição $T(s, a, s') = Pr(S_{t+1} = s' \ | \ S_{t} = s, A = a)$. O valor dessa função não é conhecido a não ser para sistemas muito simples, o que requer o uso de técnicas de programação dinâmica ou aprendizado por reforço para estimar a sua distribuição, como o método tabular \textit{Q-Learning} e \textit{Proximal Policy Optimization};
-+++	
-	\item[\textit{r}] é a função de recompensa da cadeia aleatória, que mapeia o estado atual e a ação do agente para a probabilidade de uma recompensa ocorrer caso a transição para um determinado estado seguinte ocorra. No caso do agente de \textit{MM}, a função de recompensa é o próprio retorno $r_{t+1}$ do agente.
+	\item[\textit{T}] são as transições possíveis entre estados dado uma ação tomada pelo agente. São representadas pela função de transição $T :  \mathcal{S} \times \mathcal{A} \times \mathcal{S} \rightarrow [0, 1]$, que mapeia o estado atual e a ação tomada para a probabilidade de ir para um estado subjacente. No caso do agente de \textit{market-making}, a função $T$ recebe o estado atual $s$ e a ação $a$ tomada pelo agente (conjunto de preços e quantidades ofertadas atualizadas). Em seguida recebe um possível estado futuro $s' \in \mathcal{S}$ e retorna a probabilidade de transição $T(s, a, s') = Pr(S_{t+1} = s' \ | \ S_{t} = s, A = a)$. O valor dessa função não é conhecido a não ser para sistemas muito simples, o que requer o uso de técnicas de programação dinâmica ou aprendizado por reforço para estimar a sua distribuição, como o método tabular \textit{Q-Learning} e \textit{Proximal Policy Optimization}, que serão analizados abaixo;
+
+	\item[\textit{R}] é a função de recompensa da cadeia aleatória, que mapeia o estado atual e a ação do agente para a probabilidade de uma recompensa ocorrer caso a transição para um determinado estado seguinte ocorra. No caso do agente de \textit{MM}, a função de recompensa é o próprio retorno $r_{t+1}$ do agente.
 \end{description}
 
 \begin{figure}[H]
 	\centering
 	\input{files/mdp}
-	\caption{Processo de Decisão de Markov com 4 estados e ações (MDP)}
+	\caption{Processo de Decisão de Markov com 4 estados e 4 ações (MDP)}
 	\label{fig:mdp}
 \end{figure}
 
-Utilizando a definição do agente como um Processo de Decisão de Markov, podemos simular o ambiente e encontrar uma política de decisão de preços ótimas. As técnicas de Aprendizado por Reforço serão usadas para essa tarefa, e abaixo o problema inicial de otimização do agente será traduzido à notação usada na área de \textit{RL} que parte das \textit{MDPs} de modo a permitir o uso de algoritmos computacionais de otimização para \textit{market making}.
+Tendo tal definição do agente como um Processo de Decisão de Markov (MDP), podemos simular o ambiente e encontrar uma política de decisão de preços ótimas. Há várias formas de obter a solução para o MDP, como:
 
+
+\begin{itemize}
+	\item \textbf{Soluções Analíticas:}
+	\begin{itemize}
+		\item \textbf{Avellaneda e Stoikov (2008):} Apresentam soluções analíticas para problemas de \textit{market making}, fornecendo insights valiosos, embora a aplicação direta possa ser limitada pela complexidade do modelo.
+		\item \textbf{Rao (2020):} Contribui com análise analítica sobre controle estocástico para \textit{market making}, expandindo o conhecimento no campo.
+	\end{itemize}
+	
+	\item \textbf{Métodos Iterativos, usando Programação Dinâmica (ou DP):}
+	\begin{itemize}
+		\item Consistem em aproximar os valores para as probabilidades de transição da política (\textit{policy-iteration}) ou da função valor (\textit{value-iteration}) por iterações consecutivas do ambiente.
+		\item Poderosos, mas podem enfrentar desafios em cenários complexos.
+	\end{itemize}
+	
+	\item \textbf{Métodos de Monte Carlo:}
+	\begin{itemize}
+		\item Consistem em simular episódios do ambiente e usar as médias dos episódios como retorno esperado.
+		\item Efetivos, mas podem exigir um grande número de simulações para convergir, tornando-os computacionalmente intensivos.
+	\end{itemize}
+	
+	\item \textbf{Aprendizado por Reforço - Temporal Difference Learning:}
+	\begin{itemize}
+		\item O TD learning é uma técnica de aprendizado por reforço que visa aprender a função valor de um estado ou ação de forma incremental com base nas diferenças temporais entre as estimativas sucessivas.
+		\item A atualização típica do TD learning para um estado \(s\) é dada por \(V(s) \leftarrow V(s) + \alpha \cdot (R + \gamma \cdot V(s') - V(s))\), onde \(R\) é a recompensa imediata, \(\gamma\) é o fator de desconto, \(s'\) é o próximo estado, e \(\alpha\) é a taxa de aprendizado.
+	\end{itemize}
+	
+	\item \textbf{Aprendizado por Reforço - Q-Learning:}
+	
+	\begin{itemize}
+		\item O Q-Learning é um método de aprendizado por reforço que visa aprender a função Q, que representa a qualidade de tomar uma ação específica em um determinado estado.
+		\item A regra de atualização típica do Q-valor é \(Q(s, a) \leftarrow Q(s, a) + \alpha \cdot (R + \gamma \cdot \max_{a'} Q(s', a') - Q(s, a))\), onde \(s'\) é o próximo estado, \(R\) é a recompensa, \(\gamma\) é o fator de desconto e \(\alpha\) é a taxa de aprendizado.
+	\end{itemize}
+	
+	\item \textbf{Aprendizado por Reforço - Actor-Critic Learning:}
+	
+	\begin{itemize}
+		\item O AC-learning envolve duas partes principais: o crítico (critic) que avalia as ações, e o ator (actor) que escolhe as ações. O objetivo é otimizar a política do ator com base nas avaliações do crítico.
+		\item O crítico aprende uma função de valor como no TD learning, enquanto o ator atualiza a política para maximizar os valores de ação estimados pelo crítico.
+	\end{itemize}
+	
+	\item \textbf{Aprendizado por Reforço - Deep Q-Learning (DQL):}
+	
+	\begin{itemize}
+		\item O DQL é uma extensão do Q-Learning que incorpora redes neurais profundas para lidar com espaços de estados e ações contínuos ou de alta dimensionalidade.
+		\item \textbf{Redes Neurais:} A função Q é aproximada por uma rede neural profunda. O algoritmo utiliza a experiência passada armazenada em um buffer de repetição para realizar atualizações mais estáveis.
+		\item A atualização do Q-valor torna-se \(Q(s, a) \leftarrow Q(s, a) + \alpha \cdot (R + \gamma \cdot \max_{a'} Q(s', a'; \theta^-) - Q(s, a; \theta))\), onde \(\theta\) são os parâmetros da rede neural, e \(\theta^-\) representa os parâmetros da rede no passo anterior.
+	\end{itemize}
+\end{itemize}
+
+Técnicas mais simples para obter políticas com retorno ótimo requerem um modelo perfeito do ambiente, ou então necessitam de grande uso de memória para armazenar valores de Q intermediários, mas o uso de redes neurais para aproximar os valores de Q são uma solução eficiente para minimi
 
 \begin{itemize}
 	\item Trajetória ($\tau$): é a sequência de estados observados e ações tomadas ao longo do tempo. No contexto de \textit{MM}, uma trajetória consiste em uma série de estados do mercado $s_{t} = (o_{t}, L_{t})$ seguidas da ação em cima desse estado $a_{t} = \{(\delta_{t}(p_{i}), Q_{i}) \ | \ \forall i \}$. Essas trajetórias representam a jornada do agente no mercado financeiro, incluindo suas ações e interações com o ambiente.
@@ -69,7 +92,7 @@ Utilizando a definição do agente como um Processo de Decisão de Markov, podem
 	
 	Essa função determina como o agente toma decisões em diferentes estados.
 	
-	\item Função de Valor ($V$): estima o valor esperado acumulado que o agente pode obter ao seguir a política \(\pi\) a partir de um estado inicial. No contexto do agente de \textit{market making}, $V$ depende do preço de venda $p$ e da quantidade $q$ executada, bem como da política do agente. Através do Aprendizado por Reforço, podemos calcular \(V\) para avaliar quão bom é um estado, o que orienta o agente na seleção de ações que maximizam seu desempenho global.
+	\item Função de Ação-Valor ($Q$): estima o valor esperado acumulado que o agente pode obter tomando a ação $a$ e em sequência seguir a política \(\pi\) a partir de um estado inicial $s$. No contexto do agente de \textit{Market Making}, $Q$ depende do preço de venda $p$ e da quantidade $N$ executada, bem como da política do agente. Através do Aprendizado por Reforço, podemos obter $V$ \(Q\) e obter $V$ a  para avaliar quão bom é um estado, o que orienta o agente na seleção de ações que maximizam seu desempenho global.
 	
 	\begin{equation*}
 		V(s_0) = \mathbb{E}\left[\sum_{t=0}^{T} \gamma^t \cdot r(s_t, \pi(s_t)) \right]
@@ -85,7 +108,7 @@ Utilizando a definição do agente como um Processo de Decisão de Markov, podem
 	\label{fig:rl-agent}
 \end{figure}
 
-O agente passa a ser representado pela nova tupla $(V, \tau, \pi)$ onde $V$ e $\tau$ são dadas pelo processo $\mathbf{MDP}$. O paradigma de Aprendizado por Reforço permite que o agente se adapte a mudanças nas condições de mercado ao longo do tempo, e que a política escolhida considere o impacto das transações do próprio agente sobre o mercado, tornando-o mais resiliente a flutuações causadas pelas próprias ações. Uma vez treinado, o agente pode ser usado para tomar decisões em tempo real no mercado financeiro, proporcionando uma vantagem competitiva para instituições financeiras e o avanço da pesquisa em finanças quantitativas e aprendizado de máquina, abrindo novas possibilidades para o desenvolvimento de estratégias de negociação mais eficientes e robustas. A contribuição da pesquisa proposta será tornar o agente adverso ao risco noturno, inserindo-se também uma restrição adicional, de que ao final do dia não haja exposição a riscos de mercado. 
+O problema passa a ser representado pela nova tupla $(V, \tau, \pi)$ onde $V$ e $\tau$ são observados como saída do ambiente. O paradigma de Aprendizado por Reforço permite que o agente se adapte a mudanças nas condições de mercado ao longo do tempo, e que a política escolhida considere o impacto das transações do próprio agente sobre o mercado, tornando-o mais resiliente a flutuações causadas pelas próprias ações. Uma vez treinado, o agente pode ser usado para tomar decisões em tempo real no mercado financeiro, proporcionando uma vantagem competitiva para instituições financeiras e o avanço da pesquisa em finanças quantitativas e aprendizado de máquina, abrindo novas possibilidades para o desenvolvimento de estratégias de negociação mais eficientes e robustas. A contribuição da pesquisa proposta será tornar o agente adverso ao risco noturno, inserindo-se também uma restrição adicional, de que ao final do dia não haja exposição a riscos de mercado. 
 Existem algumas alternativas para formalizar matematicamente essa restrição:
 \begin{enumerate}
     \item No final do dia, o agente não pode ter nenhum ativo em posição: 

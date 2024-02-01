@@ -1,6 +1,6 @@
 \subsection{Market Making}
-O market-making é uma forma de negociação (\textit{trading} em inglês)  que de forma simplificada consiste em comprar certo ativo a um determinado preço e vender-lo a um preço maior.
-Como os preços de compra e venda dos ativos são afetados pela demanda e oferta no momento, cada agente no mercado exerce certa influência sobre o valor de um ativo, a depender das ofertas que o mesmo mantém para tal ativo no livro de ordens limite (\textit{limit order book}, ou \textit{LOB}). 
+O market-making é uma forma de negociação (\textit{trading} em inglês) que de forma simplificada consiste em comprar certo ativo a um determinado preço e vender-lo a um preço maior.
+Como os preços de compra e venda dos ativos são afetados pela demanda e oferta no momento, cada agente no mercado exerce certa influência sobre o valor de um ativo, a depender das ofertas que o mesmo mantém para tal ativo no livro de ordens limite (\textit{limit order book}, ou \textit{LOB} em inglês). 
 
 No \textit{LOB} os registros se dão primeiramente por ordem de preço, e em segundo por data de criação: as ofertas com melhor preço (tanto para compra como para venda) ficam no topo do livro, e caso tenham o mesmo valor entre si tem sua posição desempatada pela ordem temporal de chegada. No livro de compras, a melhor oferta é a que oferece o maior preço, e o contrário vale para o livro de vendas.
 
@@ -8,25 +8,29 @@ Nas bolsas de valores digitais a execução de uma transação é automática e 
 
 Em suma, os principais elementos do market making incluem, mas não se limitam à:
 
-Spread: É a diferença entre o preço de compra (\textit{bid} em inglês) e o preço de venda (\textit{ask} em inglês) entre duas ofertas. O market maker busca lucrar com a diferença entre esses preços.
+\begin{itemize}
+	\item Spread: É a diferença entre o preço de compra (\textit{bid} em inglês) e o preço de venda (\textit{ask} em inglês) entre duas ofertas. O market maker busca obter os melhores valores para esses preços, e eventualmente lucrar com a diferença entre eles.
+	
+	\item Livro de Ordens Limite: É um conjunto ordenado onde as ofertas de compra e venda são registradas. Também é permitido o ajuste dos preços de compra e venda de ofertas existentes por parte dos agentes.
+	
+	\item Gestão de Risco: Todos \textit{market-makers} enfrentam riscos em suas negociações, entre eles o risco de inventário e risco de mercado. O risco de inventário ocorre quando o market maker mantém uma posição desequilibrada entre ativos comprados e vendidos, enquanto o risco de mercado está relacionado às flutuações nos preços dos ativos.
+\end{itemize}
 
-Livro de Ordens Limite: É o conjunto ordenado onde as ofertas de compra e venda são registradas. Também é permitido o ajuste dos preços de compra e venda de ofertas existentes por parte dos agentes.
-
-Gestão de Risco: Todos \textit{market-makers} enfrentam riscos em suas negociações, entre eles o risco de inventário e risco de mercado. O risco de inventário ocorre quando o market maker mantém uma posição desequilibrada entre ativos comprados e vendidos, enquanto o risco de mercado está relacionado às flutuações nos preços dos ativos.
-
-No contexto deste projeto, o foco da pesquisa será a otimização de uma estratégia de \textit{market-making} que minimize o risco de inventário durante a noite. A estratégia será composta por um agente responsável pela interação com o mercado e alocação de preços sob políticas para redução de risco. O Aprendizado por Reforço (RL) foi a abordagem escolhida para obter um agente ótimo capaz de realizar essa tarefa.
+No contexto deste projeto, o foco da pesquisa será a otimização de uma estratégia de \textit{market-making} que minimize o risco de inventário durante a noite. A estratégia será composta por um agente responsável pela interação com o mercado e alocação de preços sob políticas para redução de risco. Mais adiante, será apresentado a modelagem do problema como uma Cadeia de Recompensas de Markov. Tendo definido o espaço de ações possíveis para o agente e de observações possíveis do mercado, modelaremos a equação de otimalidade de Bellman para os estados do mercado, e discutiremos os algoritmos de Aprendizado por Reforço (RL) que foram escolhidos como abordagem para obter um agente ótimo capaz de aproximar numericamente os preços ótimos.
 
 \subsection{Aprendizado por Reforço}
-O Aprendizado por Reforço (RL) é um paradigma de aprendizado de máquina baseado em princípios da psicologia comportamental e em otimização estocástica, especificamente tarefas de controle ótimo. Simplificadamente, trata-se de uma técnica para modelagem, simulação e treino de um agente capaz de interagir com um ambiente dinâmico de modo a maximizar uma recompensa cumulativa ao longo do tempo.
+O Aprendizado por Reforço (RL) é um paradigma de aprendizado de máquina baseado em princípios da psicologia comportamental e em otimização estocástica, especificamente tarefas de controle e sistemas dinâmicos. Simplificadamente, trata-se de uma técnica para modelagem, simulação e treino de um agente capaz de interagir com um ambiente de modo a maximizar uma recompensa cumulativa ao longo do tempo, chamada de "retorno" (note que no contexto de \textit{AR}, o retorno é diferente do retorno financeiro em si).
 
-O processo de RL é análogo ao modo como os seres humanos aprendem por tentativa e erro. Um agente explora diferentes ações, observa as consequências dessas ações no ambiente e ajusta sua estratégia com base nas recompensas obtidas e no novo estado do ambiente. O objetivo final é a obtenção de uma política que maximize a recompensa esperada.
+O processo de \textit{AR} é análogo ao modo como os seres humanos aprendem por tentativa e erro. Um agente explora diferentes ações, observa as consequências dessas ações no ambiente e ajusta sua estratégia com base nas recompensas obtidas e no novo estado do ambiente. O objetivo final é a obtenção de uma política que maximize a recompensa esperada.
 
 Essencialmente, um agente consiste de três componentes:
 
-Política (ou \textit{Policy}): Define o processo de tomada de decisões do agente, ou seja, como ele escolhe ações em resposta às observações do ambiente. Pode ser uma estratégia determinística ou estocástica.
+\begin{itemize}
+\item Política (ou \textit{Policy}, também chamado de "Controle"): Define o processo de tomada de decisões do agente, ou seja, como ele escolhe ações em resposta às observações do ambiente. Pode ser uma estratégia determinística ou estocástica.
 
-Recompensa (ou \textit{Reward}): É uma medida numérica que permite ao agente interpretar quão boa ou ruim foi uma ação específica em função do estado atual do ambiente. O objetivo do agente é maximizar a recompensa cumulativa ao longo do tempo.
+\item Recompensa (ou \textit{Reward}): É uma medida numérica que permite ao agente interpretar quão boa ou ruim foi uma ação específica em função do estado atual do ambiente, assim como atribuir valores numéricos à qualidade dos estados observados ao longo do tempo. O objetivo do agente é então maximizar a recompensa cumulativa ao longo do tempo ao tomar ações que levem para estados com valores altos.
 
-Modelo do Ambiente (ou \textit{Environment}): Representa e simula o estado do ambiente real, assim como as possíveis ações que o agente possa realizar. É uma descrição quantitativa de elementos do ambiente e como as ações tomadas pela política afetam o ambiente em si.
+\item Ambiente (ou \textit{Environment}): Representa e simula o estado do ambiente real, assim como as possíveis ações que o agente possa realizar. É uma descrição quantitativa de elementos do ambiente e como as ações tomadas pela política resultam em mudanças no ambiente.
+\end{itemize}
 
-O RL pode ser aplicado à diversos domínios, da robótica, jogos à finanças e no contexto deste projeto será o paradigma central na idealização e modelagem da estratégia de \textit{market-making}.
+Técnicas de \textit{AR} podem ser aplicadas à diversos domínios, da robótica, jogos à finanças e no contexto deste projeto será o paradigma central na idealização e modelagem da estratégia de \textit{market-making}. Na próxima seção será realizada uma descrição inicial do ambiente e da modelagem do sistema à ser realizada.

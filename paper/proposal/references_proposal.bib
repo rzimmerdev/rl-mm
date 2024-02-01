@@ -1,4 +1,5 @@
 % Encoding: UTF-8
+
 @Article{Gerald1995,
   author     = {Tesauro, Gerald},
   journal    = {Commun. ACM},
@@ -151,6 +152,209 @@ benchmark strategy.},
   eprint        = {2008.12275},
   primaryclass  = {q-fin.PR},
   url           = {https://arxiv.org/pdf/2008.12275.pdf},
+}
+
+@Article{rao2020stochastic,
+  author     = {Ashwin Rao},
+  journal    = {Commun. ACM},
+  title      = {Stochastic Control for Optimal Market-Making},
+  year       = {2020},
+  address    = {Stanford, CA, USA},
+  issue_date = {December 2020},
+  numpages   = {30},
+  publisher  = {Stanford University},
+  url        = {https://cme241.github.io/},
+}
+
+@Article{WOS:000718533100001,
+  author         = {Gasperov, Bruno and Begusic, Stjepan and Posedel Simovic, Petra and Kostanjcar, Zvonko},
+  journal        = {MATHEMATICS},
+  title          = {Reinforcement Learning Approaches to Optimal Market Making},
+  year           = {2021},
+  month          = {NOV},
+  number         = {21},
+  volume         = {9},
+  abstract       = {Market making is the process whereby a market participant, called a
+   market maker, simultaneously and repeatedly posts limit orders on both
+   sides of the limit order book of a security in order to both provide
+   liquidity and generate profit. Optimal market making entails dynamic
+   adjustment of bid and ask prices in response to the market maker's
+   current inventory level and market conditions with the goal of
+   maximizing a risk-adjusted return measure. This problem is naturally
+   framed as a Markov decision process, a discrete-time stochastic
+   (inventory) control process. Reinforcement learning, a class of
+   techniques based on learning from observations and used for solving
+   Markov decision processes, lends itself particularly well to it. Recent
+   years have seen a very strong uptick in the popularity of such
+   techniques in the field, fueled in part by a series of successes of deep
+   reinforcement learning in other domains. The primary goal of this paper
+   is to provide a comprehensive and up-to-date overview of the current
+   state-of-the-art applications of (deep) reinforcement learning focused
+   on optimal market making. The analysis indicated that reinforcement
+   learning techniques provide superior performance in terms of the
+   risk-adjusted return over more standard market making strategies,
+   typically derived from analytical models.},
+  affiliation    = {Gasperov, B (Corresponding Author), Univ Zagreb, Fac Elect Engn \& Comp, Lab Financial \& Risk Analyt, Zagreb 10000, Croatia. Gasperov, Bruno; Begusic, Stjepan; Kostanjcar, Zvonko, Univ Zagreb, Fac Elect Engn \& Comp, Lab Financial \& Risk Analyt, Zagreb 10000, Croatia. Posedel Simovic, Petra, Univ Zagreb, Fac Agr, Dept Informat \& Math, Zagreb 10000, Croatia.},
+  article-number = {2689},
+  author-email   = {bruno.gasperov@fer.hr stjepan.begusic@fer.hr pposedel@agr.hr zvonko.kostanjcar@fer.hr},
+  doi            = {10.3390/math9212689},
+  keywords       = {deep reinforcement learning; reinforcement learning; finance; market making; machine learning; deep learning; survey; literature review},
+  keywords-plus  = {LIMIT; MODEL; RISK},
+  ranking        = {rank5},
+  times-cited    = {6},
+  type           = {Review},
+  unique-id      = {WOS:000718533100001},
+}
+
+@Article{WOS:000747190900001,
+  author        = {Sun, Tianyuan and Huang, Dechun and Yu, Jie},
+  journal       = {IEEE ACCESS},
+  title         = {Market Making Strategy Optimization via Deep Reinforcement Learning},
+  year          = {2022},
+  pages         = {9085-9093},
+  volume        = {10},
+  abstract      = {Optimization of market making strategy is a vital issue for participants
+   in security markets. Traditional strategies are mostly designed
+   manually, and orders are mechanically issued according to rules based on
+   predefined market conditions. On one hand, market conditions cannot be
+   well represented by arbitrarily defined indicators, and on the other
+   hand, rule-based strategies cannot fully capture relations between the
+   market conditions and strategies' actions. Therefore, it is worthwhile
+   to investigate how to incorporate deep reinforcement learning model to
+   address those issues. In this paper, we propose an end-to-end deep
+   reinforcement learning market making model, i.e., Deep Reinforcement
+   Learning Market Making. It exploits long short-term memory network to
+   extract temporal patterns of the market directly from limit order books,
+   and it learns state-action relations via a reinforcement learning
+   approach. In order to control inventory risk and information asymmetry,
+   a deep Q-network is introduced to adaptively select different action
+   subsets and train the market making agent according to the inventory
+   states. Experiments are conducted on a six-month Level-2 data set,
+   including 10 stock, from Shanghai Stock Exchange in China. Our model is
+   compared with a conventional market making baseline and a
+   state-of-the-art market making model. Experimental results show that our
+   approach outperforms the benchmarks over 10 stocks by at least 10.63\%.},
+  affiliation   = {Yu, J (Corresponding Author), Hohai Univ, Business Sch, Nanjing 211100, Peoples R China. Sun, Tianyuan; Huang, Dechun; Yu, Jie, Hohai Univ, Business Sch, Nanjing 211100, Peoples R China.},
+  author-email  = {yujiehhu@126.com},
+  doi           = {10.1109/ACCESS.2022.3143653},
+  keywords      = {Reinforcement learning; Adaptation models; Neural networks; Deep learning; Optimization; Stock markets; Engines; Deep reinforcement learning; LSTM; market making; stock market},
+  keywords-plus = {LEVEL; LIMIT},
+  ranking       = {rank5},
+  times-cited   = {3},
+  type          = {Article},
+  unique-id     = {WOS:000747190900001},
+}
+
+@Article{Gueant2012,
+  author    = {Guéant, Olivier and Lehalle, Charles-Albert and Fernandez-Tapia, Joaquin},
+  journal   = {Mathematics and Financial Economics},
+  title     = {Dealing with the inventory risk: a solution to the market making problem},
+  year      = {2012},
+  issn      = {1862-9660},
+  month     = sep,
+  number    = {4},
+  pages     = {477–507},
+  volume    = {7},
+  doi       = {10.1007/s11579-012-0087-0},
+  publisher = {Springer Science and Business Media LLC},
+  url       = {http://dx.doi.org/10.1007/s11579-012-0087-0},
+}
+
+@Article{WOS:000903090100001,
+  author          = {Barzykin, Alexander and Bergault, Philippe and Gueant, Olivier},
+  journal         = {MATHEMATICAL FINANCE},
+  title           = {Algorithmic market making in dealer markets with hedging and market impact},
+  year            = {2023},
+  month           = {JAN},
+  number          = {1},
+  pages           = {41-79},
+  volume          = {33},
+  abstract        = {In dealer markets, dealers provide prices at which they agree to buy and
+   sell the assets and securities they have in their scope. With ever
+   increasing trading volume, this quoting task has to be done
+   algorithmically in most markets such as foreign exchange (FX) markets or
+   corporate bond markets. Over the last 10 years, many mathematical models
+   have been designed that can be the basis of quoting algorithms in dealer
+   markets. Nevertheless, in most (if not all) models, the dealer is a pure
+   internalizer, setting quotes and waiting for clients. However, on many
+   dealer markets, dealers also have access to an interdealer market or
+   even public trading venues where they can hedge part of their inventory.
+   In this paper, we propose a model taking this possibility into account
+   therefore allowing dealers to externalize part of their risk. The model
+   displays an important feature well known to practitioners that within a
+   certain inventory range, the dealer internalizes the flow by
+   appropriately adjusting the quotes and starts externalizing outside of
+   that range. The larger the franchise, the wider is the inventory range
+   suitable for pure internalization. The model is illustrated numerically
+   with realistic parameters for USDCNH spot market.},
+  affiliation     = {Guéant, O (Corresponding Author), Univ Paris 1 Pantheon Sorbonne, Ctr Econ Sorbonne, 106 Blvd Hosp, F-75642 Paris 13, France. Barzykin, Alexander, HSBC, 8 Canada Sq, London, England. Bergault, Philippe, Ecole Polytech, CMAP, Palaiseau, France. Gueant, Olivier, Univ Paris 1 Pantheon Sorbonne, Ctr Econ Sorbonne, 106 Blvd Hosp, F-75642 Paris 13, France.},
+  author-email    = {olivier.gueant@univ-paris1.fr},
+  doi             = {10.1111/mafi.12367},
+  earlyaccessdate = {DEC 2022},
+  keywords        = {algorithmic trading; dealer markets; market making; stochastic optimal control; viscosity solutions},
+  keywords-plus   = {FREQUENCY; LIMIT; RISK; ASK},
+  ranking         = {rank5},
+  times-cited     = {3},
+  type            = {Article},
+  unique-id       = {WOS:000903090100001},
+}
+
+@Article{WOS:000963297000001,
+  author          = {Hambly, Ben and Xu, Renyuan and Yang, Huining},
+  journal         = {MATHEMATICAL FINANCE},
+  title           = {Recent advances in reinforcement learning in finance},
+  year            = {2023},
+  month           = {JUL},
+  number          = {3},
+  pages           = {437-503},
+  volume          = {33},
+  abstract        = {The rapid changes in the finance industry due to the increasing amount
+   of data have revolutionized the techniques on data processing and data
+   analysis and brought new theoretical and computational challenges. In
+   contrast to classical stochastic control theory and other analytical
+   approaches for solving financial decision-making problems that heavily
+   reply on model assumptions, new developments from reinforcement learning
+   (RL) are able to make full use of the large amount of financial data
+   with fewer model assumptions and to improve decisions in complex
+   financial environments. This survey paper aims to review the recent
+   developments and use of RL approaches in finance. We give an
+   introduction to Markov decision processes, which is the setting for many
+   of the commonly used RL approaches. Various algorithms are then
+   introduced with a focus on value- and policy-based methods that do not
+   require any model assumptions. Connections are made with neural networks
+   to extend the framework to encompass deep RL algorithms. We then discuss
+   in detail the application of these RL algorithms in a variety of
+   decision-making problems in finance, including optimal execution,
+   portfolio optimization, option pricing and hedging, market making, smart
+   order routing, and robo-advising. Our survey concludes by pointing out a
+   few possible future directions for research.},
+  affiliation     = {Hambly, B (Corresponding Author), Univ Oxford, Math Inst, Oxford, England. Hambly, Ben; Yang, Huining, Univ Oxford, Math Inst, Oxford, England. Xu, Renyuan, Univ Southern Calif, Epstein Dept Ind \& Syst Engn, Los Angeles, CA USA.},
+  author-email    = {renyuanx@usc.edu},
+  doi             = {10.1111/mafi.12382},
+  earlyaccessdate = {APR 2023},
+  keywords-plus   = {FITTED-Q-ITERATION; PORTFOLIO SELECTION; LIMIT; OPTIONS; MARKET; RISK; INFORMATION; ALGORITHMS; VALUATION; MODELS},
+  ranking         = {rank5},
+  times-cited     = {2},
+  type            = {Article},
+  unique-id       = {WOS:000963297000001},
+}
+
+@Misc{2306.17179,
+  author   = {Jiafa He and Cong Zheng and Can Yang},
+  title    = {Integrating Tick-level Data and Periodical Signal for High-frequency Market Making},
+  year     = {2023},
+  abstract = {We focus on the problem of market making in high-frequency trading. Market making is a critical function in financial markets that involves providing liquidity by buying and selling assets. However, the increasing complexity of financial markets and the high volume of data generated by tick-level trading makes it challenging to develop effective market making strategies. To address this challenge, we propose a deep reinforcement learning approach that fuses tick-level data with periodic prediction signals to develop a more accurate and robust market making strategy. Our results of market making strategies based on different deep reinforcement learning algorithms under the simulation scenarios and real data experiments in the cryptocurrency markets show that the proposed framework outperforms existing methods in terms of profitability and risk management.},
+  eprint   = {arXiv:2306.17179},
+  ranking  = {rank5},
+}
+
+@Article{almgren2000,
+  author  = {Almgren, Robert and Chriss, Neil},
+  journal = {Journal of Risk},
+  title   = {Optimal Execution of Portfolio Transactions},
+  year    = {2000},
+  pages   = {5--39},
+  volume  = {3},
 }
 
 @Comment{jabref-meta: databaseType:bibtex;}

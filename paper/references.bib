@@ -6,7 +6,7 @@
   year     = {2023},
   abstract = {Automated Market Makers (AMMs) are major centers of matching liquidity supply and demand in Decentralized Finance. Their functioning relies primarily on the presence of liquidity providers (LPs) incentivized to invest their assets into a liquidity pool. However, the prices at which a pooled asset is traded is often more stale than the prices on centralized and more liquid exchanges. This leads to the LPs suffering losses to arbitrage. This problem is addressed by adapting market prices to trader behavior, captured via the classical market microstructure model of Glosten and Milgrom. In this paper, we propose the first optimal Bayesian and the first model-free data-driven algorithm to optimally track the external price of the asset. The notion of optimality that we use enforces a zero-profit condition on the prices of the market maker, hence the name ZeroSwap. This ensures that the market maker balances losses to informed traders with profits from noise traders. The key property of our approach is the ability to estimate the external market price without the need for price oracles or loss oracles. Our theoretical guarantees on the performance of both these algorithms, ensuring the stability and convergence of their price recommendations, are of independent interest in the theory of reinforcement learning. We empirically demonstrate the robustness of our algorithms to changing market conditions.},
   eprint   = {arXiv:2310.09413},
-  keywords = {rank3},
+  ranking  = {rank3},
 }
 
 @Misc{2308.08918,
@@ -15,7 +15,7 @@
   year     = {2023},
   abstract = {Market making (MM) has attracted significant attention in financial trading owing to its essential function in ensuring market liquidity. With strong capabilities in sequential decision-making, Reinforcement Learning (RL) technology has achieved remarkable success in quantitative trading. Nonetheless, most existing RL-based MM methods focus on optimizing single-price level strategies which fail at frequent order cancellations and loss of queue priority. Strategies involving multiple price levels align better with actual trading scenarios. However, given the complexity that multi-price level strategies involves a comprehensive trading action space, the challenge of effectively training profitable RL agents for MM persists. Inspired by the efficient workflow of professional human market makers, we propose Imitative Market Maker (IMM), a novel RL framework leveraging both knowledge from suboptimal signal-based experts and direct policy interactions to develop multi-price level MM strategies efficiently. The framework start with introducing effective state and action representations adept at encoding information about multi-price level orders. Furthermore, IMM integrates a representation learning unit capable of capturing both short- and long-term market trends to mitigate adverse selection risk. Subsequently, IMM formulates an expert strategy based on signals and trains the agent through the integration of RL and imitation learning techniques, leading to efficient learning. Extensive experimental results on four real-world market datasets demonstrate that IMM outperforms current RL-based market making strategies in terms of several financial criteria. The findings of the ablation study substantiate the effectiveness of the model components.},
   eprint   = {arXiv:2308.08918},
-  keywords = {rank4},
+  ranking  = {rank4},
 }
 
 @Misc{2307.01816,
@@ -24,7 +24,7 @@
   year     = {2023},
   abstract = {The over-the-counter (OTC) market is characterized by a unique feature that allows market makers to adjust bid-ask spreads based on order size. However, this flexibility introduces complexity, transforming the market-making problem into a high-dimensional stochastic control problem that presents significant challenges. To address this, this paper proposes an innovative solution utilizing reinforcement learning techniques to tackle the OTC market-making problem. By assuming a linear inverse relationship between market order arrival intensity and bid-ask spreads, we demonstrate the optimal policy for bid-ask spreads follows a Gaussian distribution. We apply two reinforcement learning algorithms to conduct a numerical analysis, revealing the resulting return distribution and bid-ask spreads under different time and inventory levels.},
   eprint   = {arXiv:2307.01816},
-  keywords = {rank4},
+  ranking  = {rank4},
 }
 
 @Misc{2307.01814,
@@ -33,7 +33,7 @@
   year     = {2023},
   abstract = {Market making of options with different maturities and strikes is a challenging problem due to its high dimensional nature. In this paper, we propose a novel approach that combines a stochastic policy and reinforcement learning-inspired techniques to determine the optimal policy for posting bid-ask spreads for an options market maker who trades options with different maturities and strikes. When the arrival of market orders is linearly inverse to the spreads, the optimal policy is normally distributed.},
   eprint   = {arXiv:2307.01814},
-  keywords = {rank2},
+  ranking  = {rank2},
 }
 
 @Misc{2306.17179,
@@ -42,7 +42,7 @@
   year     = {2023},
   abstract = {We focus on the problem of market making in high-frequency trading. Market making is a critical function in financial markets that involves providing liquidity by buying and selling assets. However, the increasing complexity of financial markets and the high volume of data generated by tick-level trading makes it challenging to develop effective market making strategies. To address this challenge, we propose a deep reinforcement learning approach that fuses tick-level data with periodic prediction signals to develop a more accurate and robust market making strategy. Our results of market making strategies based on different deep reinforcement learning algorithms under the simulation scenarios and real data experiments in the cryptocurrency markets show that the proposed framework outperforms existing methods in terms of profitability and risk management.},
   eprint   = {arXiv:2306.17179},
-  keywords = {rank5},
+  ranking  = {rank5},
 }
 
 @Misc{2305.07466,
@@ -51,7 +51,7 @@
   year     = {2023},
   abstract = {Applications of Reinforcement Learning in the Finance Technology (Fintech) have acquired a lot of admiration lately. Undoubtedly Reinforcement Learning, through its vast competence and proficiency, has aided remarkable results in the field of Fintech. The objective of this systematic survey is to perform an exploratory study on a correlation between reinforcement learning and Fintech to highlight the prediction accuracy, complexity, scalability, risks, profitability and performance. Major uses of reinforcement learning in finance or Fintech include portfolio optimization, credit risk reduction, investment capital management, profit maximization, effective recommendation systems, and better price setting strategies. Several studies have addressed the actual contribution of reinforcement learning to the performance of financial institutions. The latest studies included in this survey are publications from 2018 onward. The survey is conducted using PRISMA technique which focuses on the reporting of reviews and is based on a checklist and four-phase flow diagram. The conducted survey indicates that the performance of RL-based strategies in Fintech fields proves to perform considerably better than other state-of-the-art algorithms. The present work discusses the use of reinforcement learning algorithms in diverse decision-making challenges in Fintech and concludes that the organizations dealing with finance can benefit greatly from Robo-advising, smart order channelling, market making, hedging and options pricing, portfolio optimization, and optimal execution.},
   eprint   = {arXiv:2305.07466},
-  keywords = {rank3},
+  ranking  = {rank3},
 }
 
 @Misc{2211.01346,
@@ -60,7 +60,7 @@
   year     = {2022},
   abstract = {The study proposes a quote-driven predictive automated market maker (AMM) platform with on-chain custody and settlement functions, alongside off-chain predictive reinforcement learning capabilities to improve liquidity provision of real-world AMMs. The proposed AMM architecture is an augmentation to the Uniswap V3, a cryptocurrency AMM protocol, by utilizing a novel market equilibrium pricing for reduced divergence and slippage loss. Further, the proposed architecture involves a predictive AMM capability, utilizing a deep hybrid Long Short-Term Memory (LSTM) and Q-learning reinforcement learning framework that looks to improve market efficiency through better forecasts of liquidity concentration ranges, so liquidity starts moving to expected concentration ranges, prior to asset price movement, so that liquidity utilization is improved. The augmented protocol framework is expected have practical real-world implications, by (i) reducing divergence loss for liquidity providers, (ii) reducing slippage for crypto-asset traders, while (iii) improving capital efficiency for liquidity provision for the AMM protocol. To our best knowledge, there are no known protocol or literature that are proposing similar deep learning-augmented AMM that achieves similar capital efficiency and loss minimization objectives for practical real-world applications.},
   eprint   = {arXiv:2211.01346},
-  keywords = {rank3},
+  ranking  = {rank3},
 }
 
 @Misc{2209.07823,
@@ -69,7 +69,7 @@
   year     = {2022},
   abstract = {Within the mathematical finance literature there is a rich catalogue of mathematical models for studying algorithmic trading problems -- such as market-making and optimal execution -- in limit order books. This paper introduces \mbtgym, a Python module that provides a suite of gym environments for training reinforcement learning (RL) agents to solve such model-based trading problems. The module is set up in an extensible way to allow the combination of different aspects of different models. It supports highly efficient implementations of vectorized environments to allow faster training of RL agents. In this paper, we motivate the challenge of using RL to solve such model-based limit order book problems in mathematical finance, we explain the design of our gym environment, and then demonstrate its use in solving standard and non-standard problems from the literature. Finally, we lay out a roadmap for further development of our module, which we provide as an open source repository on GitHub so that it can serve as a focal point for RL research in model-based algorithmic trading.},
   eprint   = {arXiv:2209.07823},
-  keywords = {rank5},
+  ranking  = {rank5},
 }
 
 @Misc{2205.08936,
@@ -78,7 +78,7 @@
   year     = {2022},
   abstract = {Market makers play an essential role in financial markets. A successful market maker should control inventory and adverse selection risks and provide liquidity to the market. As an important methodology in control problems, Reinforcement Learning enjoys the advantage of data-driven and less rigid assumptions, receiving great attention in the market-making field since 2018. However, although the China Commodity market has the biggest trading volume on agricultural products, nonferrous metals, and some other sectors, the study of applying RL to Market Making in China market is still rare. In this thesis, we try to fill the gap. Our contribution is threefold: We develop the Automatic Trading System and verify the feasibility of applying Reinforcement Learning in the China Commodity market. Also, we probe the agent's behavior by analyzing how it reacts to different environmental conditions.},
   eprint   = {arXiv:2205.08936},
-  keywords = {rank4},
+  ranking  = {rank4},
 }
 
 @Misc{2111.15356,
@@ -87,7 +87,7 @@
   year     = {2021},
   abstract = {With the application of artificial intelligence in the financial field, quantitative trading is considered to be profitable. Based on this, this paper proposes an improved deep recurrent DRQN-ARBR model because the existing quantitative trading model ignores the impact of irrational investor behavior on the market, making the application effect poor in an environment where the stock market in China is non-efficiency. By changing the fully connected layer in the original model to the LSTM layer and using the emotion indicator ARBR to construct a trading strategy, this model solves the problems of the traditional DQN model with limited memory for empirical data storage and the impact of observable Markov properties on performance. At the same time, this paper also improved the shortcomings of the original model with fewer stock states and chose more technical indicators as the input values of the model. The experimental results show that the DRQN-ARBR algorithm proposed in this paper can significantly improve the performance of reinforcement learning in stock trading.},
   eprint   = {arXiv:2111.15356},
-  keywords = {rank3},
+  ranking  = {rank3},
 }
 
 @Misc{2102.06258,
@@ -97,7 +97,7 @@
   abstract = {An Echo State Network (ESN) is a type of single-layer recurrent neural network with randomly-chosen internal weights and a trainable output layer. We prove under mild conditions that a sufficiently large Echo State Network can approximate the value function of a broad class of stochastic and deterministic control problems. Such control problems are generally non-Markovian.
 We describe how the ESN can form the basis for novel and computationally efficient reinforcement learning algorithms in a non-Markovian framework. We demonstrate this theory with two examples. In the first, we use an ESN to solve a deterministic, partially observed, control problem which is a simple game we call `Bee World'. In the second example, we consider a stochastic control problem inspired by a market making problem in mathematical finance. In both cases we can compare the dynamics of the algorithms with analytic solutions to show that even after only a single reinforcement policy iteration the algorithms arrive at a good policy.},
   eprint   = {arXiv:2102.06258},
-  keywords = {rank4},
+  ranking  = {rank4},
 }
 
 @Misc{2004.06985,
@@ -106,7 +106,7 @@ We describe how the ESN can form the basis for novel and computationally efficie
   year     = {2020},
   abstract = {There has been a recent surge in interest in the application of artificial intelligence to automated trading. Reinforcement learning has been applied to single- and multi-instrument use cases, such as market making or portfolio management. This paper proposes a new approach to framing cryptocurrency market making as a reinforcement learning challenge by introducing an event-based environment wherein an event is defined as a change in price greater or less than a given threshold, as opposed to by tick or time-based events (e.g., every minute, hour, day, etc.). Two policy-based agents are trained to learn a market making trading strategy using eight days of training data and evaluate their performance using 30 days of testing data. Limit order book data recorded from Bitmex exchange is used to validate this approach, which demonstrates improved profit and stability compared to a time-based approach for both agents when using a simple multi-layer perceptron neural network for function approximation and seven different reward functions.},
   eprint   = {arXiv:2004.06985},
-  keywords = {rank3},
+  ranking  = {rank3},
 }
 
 @Misc{1911.08647,
@@ -115,7 +115,7 @@ We describe how the ESN can form the basis for novel and computationally efficie
   year     = {2019},
   abstract = {This paper sets forth a framework for deep reinforcement learning as applied to market making (DRLMM) for cryptocurrencies. Two advanced policy gradient-based algorithms were selected as agents to interact with an environment that represents the observation space through limit order book data, and order flow arrival statistics. Within the experiment, a forward-feed neural network is used as the function approximator and two reward functions are compared. The performance of each combination of agent and reward function is evaluated by daily and average trade returns. Using this DRLMM framework, this paper demonstrates the effectiveness of deep reinforcement learning in solving stochastic inventory control challenges market makers face.},
   eprint   = {arXiv:1911.08647},
-  keywords = {rank3},
+  ranking  = {rank3},
 }
 
 @Misc{1910.13205,
@@ -124,7 +124,7 @@ We describe how the ESN can form the basis for novel and computationally efficie
   year     = {2019},
   abstract = {In corporate bond markets, which are mainly OTC markets, market makers play a central role by providing bid and ask prices for a large number of bonds to asset managers from all around the globe. Determining the optimal bid and ask quotes that a market maker should set for a given universe of bonds is a complex task. Useful models exist, most of them inspired by that of Avellaneda and Stoikov. These models describe the complex optimization problem faced by market makers: proposing bid and ask prices in an optimal way for making money out of the difference between bid and ask prices while mitigating the market risk associated with holding inventory. While most of the models only tackle one-asset market making, they can often be generalized to a multi-asset framework. However, the problem of solving numerically the equations characterizing the optimal bid and ask quotes is seldom tackled in the literature, especially in high dimension. In this paper, our goal is to propose a numerical method for approximating the optimal bid and ask quotes over a large universe of bonds in a model à la Avellaneda-Stoikov. Because we aim at considering a large universe of bonds, classical finite difference methods as those discussed in the literature cannot be used and we present therefore a discrete-time method inspired by reinforcement learning techniques. More precisely, the approach we propose is a model-based actor-critic-like algorithm involving deep neural networks.},
   eprint   = {arXiv:1910.13205},
-  keywords = {rank2},
+  ranking  = {rank2},
 }
 
 @Misc{1812.10252,
@@ -133,7 +133,7 @@ We describe how the ESN can form the basis for novel and computationally efficie
   year     = {2018},
   abstract = {In this paper, reinforcement learning is applied to the problem of optimizing market making. A multi-agent reinforcement learning framework is used to optimally place limit orders that lead to successful trades. The framework consists of two agents. The macro-agent optimizes on making the decision to buy, sell, or hold an asset. The micro-agent optimizes on placing limit orders within the limit order book. For the context of this paper, the proposed framework is applied and studied on the Bitcoin cryptocurrency market. The goal of this paper is to show that reinforcement learning is a viable strategy that can be applied to complex problems (with complex environments) such as market making.},
   eprint   = {arXiv:1812.10252},
-  keywords = {rank5},
+  ranking  = {rank5},
 }
 
 @Misc{1810.04383,
@@ -142,7 +142,7 @@ We describe how the ESN can form the basis for novel and computationally efficie
   year     = {2018},
   abstract = {A large proportion of market making models derive from the seminal model of Avellaneda and Stoikov. The numerical approximation of the value function and the optimal quotes in these models remains a challenge when the number of assets is large. In this article, we propose closed-form approximations for the value functions of many multi-asset extensions of the Avellaneda-Stoikov model. These approximations or proxies can be used (i) as heuristic evaluation functions, (ii) as initial value functions in reinforcement learning algorithms, and/or (iii) directly to design quoting strategies through a greedy approach. Regarding the latter, our results lead to new and easily interpretable closed-form approximations for the optimal quotes, both in the finite-horizon case and in the asymptotic (ergodic) regime.},
   eprint   = {arXiv:1810.04383},
-  keywords = {rank5},
+  ranking  = {rank5},
 }
 
 @Misc{1804.04216,
@@ -151,7 +151,7 @@ We describe how the ESN can form the basis for novel and computationally efficie
   year     = {2018},
   abstract = {Market making is a fundamental trading problem in which an agent provides liquidity by continually offering to buy and sell a security. The problem is challenging due to inventory risk, the risk of accumulating an unfavourable position and ultimately losing money. In this paper, we develop a high-fidelity simulation of limit order book markets, and use it to design a market making agent using temporal-difference reinforcement learning. We use a linear combination of tile codings as a value function approximator, and design a custom reward function that controls inventory risk. We demonstrate the effectiveness of our approach by showing that our agent outperforms both simple benchmark strategies and a recent online learning approach from the literature.},
   eprint   = {arXiv:1804.04216},
-  keywords = {rank5},
+  ranking  = {rank5},
 }
 
 @Article{2211.00496,
@@ -162,19 +162,19 @@ We describe how the ESN can form the basis for novel and computationally efficie
   doi          = {10.1145/3533271.3561685},
   eprint       = {arXiv:2211.00496},
   howpublished = {3rd ACM International Conference on AI in Finance (ICAIF'22), November 2--4, 2022, New York, NY, USA},
-  keywords     = {rank2},
+  ranking      = {rank2},
 }
 
 @InProceedings{WOS:000654942500013,
   author       = {Haider, Abbas and Wang, Hui and Scotney, Bryan and Hawe, Glenn},
-  title        = {Effect of Market Spread Over Reinforcement Learning Based Market Maker},
   booktitle    = {MACHINE LEARNING, OPTIMIZATION, AND DATA SCIENCE},
+  title        = {Effect of Market Spread Over Reinforcement Learning Based Market Maker},
   year         = {2019},
   editor       = {Nicosia, G and Pardalos, P and Umeton, R and Giuffrida, G and Sciacca, V},
-  volume       = {11943},
-  series       = {Lecture Notes in Computer Science},
-  pages        = {143-153},
   note         = {5th International Conference on Machine Learning, Optimization, and Data Science (LOD), Siena, ITALY, SEP 10-13, 2019},
+  pages        = {143-153},
+  series       = {Lecture Notes in Computer Science},
+  volume       = {11943},
   abstract     = {Market Making (also known as liquidity providing service) is a
    well-known trading problem studied in multiple disciplines including
    Finance, Economics and Artificial Intelligence. This paper examines the
@@ -192,7 +192,8 @@ We describe how the ESN can form the basis for novel and computationally efficie
   affiliation  = {Haider, A (Corresponding Author), Ulster Univ, Shore Rd, Newtownabbey, North Ireland. Haider, Abbas; Wang, Hui; Hawe, Glenn, Ulster Univ, Shore Rd, Newtownabbey, North Ireland. Scotney, Bryan, Ulster Univ, Cromore Rd, Coleraine, Londonderry, North Ireland.},
   author-email = {haider-a@ulster.ac.uk h.wang@ulster.ac.uk bw.scotney@ulster.ac.uk gi.hawe@ulster.ac.uk},
   doi          = {10.1007/978-3-030-37599-7\_13},
-  keywords     = {Market making; Market spread; Reinforcement learning; Reward function, rank5},
+  keywords     = {Market making; Market spread; Reinforcement learning; Reward function},
+  ranking      = {rank5},
   times-cited  = {1},
   type         = {Proceedings Paper},
   unique-id    = {WOS:000654942500013},
@@ -200,12 +201,12 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @Article{WOS:000718533100001,
   author         = {Gasperov, Bruno and Begusic, Stjepan and Posedel Simovic, Petra and Kostanjcar, Zvonko},
-  title          = {Reinforcement Learning Approaches to Optimal Market Making},
   journal        = {MATHEMATICS},
+  title          = {Reinforcement Learning Approaches to Optimal Market Making},
   year           = {2021},
-  volume         = {9},
-  number         = {21},
   month          = {NOV},
+  number         = {21},
+  volume         = {9},
   abstract       = {Market making is the process whereby a market participant, called a
    market maker, simultaneously and repeatedly posts limit orders on both
    sides of the limit order book of a security in order to both provide
@@ -230,8 +231,9 @@ We describe how the ESN can form the basis for novel and computationally efficie
   article-number = {2689},
   author-email   = {bruno.gasperov@fer.hr stjepan.begusic@fer.hr pposedel@agr.hr zvonko.kostanjcar@fer.hr},
   doi            = {10.3390/math9212689},
-  keywords       = {deep reinforcement learning; reinforcement learning; finance; market making; machine learning; deep learning; survey; literature review, rank5},
+  keywords       = {deep reinforcement learning; reinforcement learning; finance; market making; machine learning; deep learning; survey; literature review},
   keywords-plus  = {LIMIT; MODEL; RISK},
+  ranking        = {rank5},
   times-cited    = {6},
   type           = {Review},
   unique-id      = {WOS:000718533100001},
@@ -239,11 +241,11 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @Article{WOS:000645037600001,
   author        = {Gasperov, Bruno and Kostanjcar, Zvonko},
-  title         = {Market Making With Signals Through Deep Reinforcement Learning},
   journal       = {IEEE ACCESS},
+  title         = {Market Making With Signals Through Deep Reinforcement Learning},
   year          = {2021},
-  volume        = {9},
   pages         = {61611-61622},
+  volume        = {9},
   abstract      = {Deep reinforcement learning has recently been successfully applied to a
    plethora of diverse and difficult sequential decision-making tasks,
    ranging from the Atari games to robotic motion control. Among the
@@ -271,8 +273,9 @@ We describe how the ESN can form the basis for novel and computationally efficie
   affiliation   = {Gasperov, B (Corresponding Author), Univ Zagreb, Fac Elect Engn \& Comp, Lab Financial \& Risk Analyt, Zagreb 10000, Croatia. Gasperov, Bruno; Kostanjcar, Zvonko, Univ Zagreb, Fac Elect Engn \& Comp, Lab Financial \& Risk Analyt, Zagreb 10000, Croatia.},
   author-email  = {bruno.gasperov@fer.hr},
   doi           = {10.1109/ACCESS.2021.3074782},
-  keywords      = {Reinforcement learning; Task analysis; Security; Aerospace electronics; Uncertainty; Mathematical model; Analytical models; Deep reinforcement learning; genetic algorithms; high-frequency trading; machine learning; market making; stochastic control, rank5},
+  keywords      = {Reinforcement learning; Task analysis; Security; Aerospace electronics; Uncertainty; Mathematical model; Analytical models; Deep reinforcement learning; genetic algorithms; high-frequency trading; machine learning; market making; stochastic control},
   keywords-plus = {LIMIT},
+  ranking       = {rank5},
   times-cited   = {9},
   type          = {Article},
   unique-id     = {WOS:000645037600001},
@@ -280,13 +283,13 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @Article{WOS:001019914800010,
   author          = {Vicente, Oscar Fernandez and Fernandez, Fernando and Garcia, Javier},
-  title           = {Automated market maker inventory management with deep reinforcement learning},
   journal         = {APPLIED INTELLIGENCE},
+  title           = {Automated market maker inventory management with deep reinforcement learning},
   year            = {2023},
-  volume          = {53},
+  month           = {OCT},
   number          = {19},
   pages           = {22249-22266},
-  month           = {OCT},
+  volume          = {53},
   abstract        = {Stock markets are the result of the interaction of multiple
    participants, and market makers are one of them. Their main goal is to
    provide liquidity and market depth to the stock market by streaming bids
@@ -311,7 +314,8 @@ We describe how the ESN can form the basis for novel and computationally efficie
   author-email    = {oscar.f.vicente@alumnos.uc3m.es ffernand@inf.uc3m.es franciscojavier.garcia.polo@usc.es},
   doi             = {10.1007/s10489-023-04647-9},
   earlyaccessdate = {JUN 2023},
-  keywords        = {Reinforcement learning; Market-making; Stock markets; Inventory risk management; Stochastic dynamic control; Artificial intelligence, rank4},
+  keywords        = {Reinforcement learning; Market-making; Stock markets; Inventory risk management; Stochastic dynamic control; Artificial intelligence},
+  ranking         = {rank4},
   times-cited     = {0},
   type            = {Article},
   unique-id       = {WOS:001019914800010},
@@ -319,11 +323,11 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @Article{WOS:000747190900001,
   author        = {Sun, Tianyuan and Huang, Dechun and Yu, Jie},
-  title         = {Market Making Strategy Optimization via Deep Reinforcement Learning},
   journal       = {IEEE ACCESS},
+  title         = {Market Making Strategy Optimization via Deep Reinforcement Learning},
   year          = {2022},
-  volume        = {10},
   pages         = {9085-9093},
+  volume        = {10},
   abstract      = {Optimization of market making strategy is a vital issue for participants
    in security markets. Traditional strategies are mostly designed
    manually, and orders are mechanically issued according to rules based on
@@ -348,8 +352,9 @@ We describe how the ESN can form the basis for novel and computationally efficie
   affiliation   = {Yu, J (Corresponding Author), Hohai Univ, Business Sch, Nanjing 211100, Peoples R China. Sun, Tianyuan; Huang, Dechun; Yu, Jie, Hohai Univ, Business Sch, Nanjing 211100, Peoples R China.},
   author-email  = {yujiehhu@126.com},
   doi           = {10.1109/ACCESS.2022.3143653},
-  keywords      = {Reinforcement learning; Adaptation models; Neural networks; Deep learning; Optimization; Stock markets; Engines; Deep reinforcement learning; LSTM; market making; stock market, rank5},
+  keywords      = {Reinforcement learning; Adaptation models; Neural networks; Deep learning; Optimization; Stock markets; Engines; Deep reinforcement learning; LSTM; market making; stock market},
   keywords-plus = {LEVEL; LIMIT},
+  ranking       = {rank5},
   times-cited   = {3},
   type          = {Article},
   unique-id     = {WOS:000747190900001},
@@ -357,14 +362,14 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @InProceedings{WOS:000772650800027,
   author       = {Haider, Abbas and Hawe, I, Glenn and Wang, Hui and Scotney, Bryan},
-  title        = {Multi-Asset Market Making via Multi-Task Deep Reinforcement Learning},
   booktitle    = {MACHINE LEARNING, OPTIMIZATION, AND DATA SCIENCE (LOD 2021), PT II},
+  title        = {Multi-Asset Market Making via Multi-Task Deep Reinforcement Learning},
   year         = {2022},
   editor       = {Nicosia, G and Ojha, V and LaMalfa, E and LaMalfa, G and Jansen, G and Pardalos, PM and Giuffrida, G and Umeton, R},
-  volume       = {13164},
-  series       = {Lecture Notes in Computer Science},
-  pages        = {353-364},
   note         = {7th International Conference on Machine Learning, Optimization, and Data Science (LOD) / 1st Symposium on Artificial Intelligence and Neuroscience (ACAIN), ELECTR NETWORK, OCT 04-08, 2021},
+  pages        = {353-364},
+  series       = {Lecture Notes in Computer Science},
+  volume       = {13164},
   abstract     = {Market making (MM) is a trading activity by an individual market
    participant or a member firm of an exchange that buys and sells same
    securities with the primary goal of profiting on the bid-ask spread,
@@ -388,7 +393,8 @@ We describe how the ESN can form the basis for novel and computationally efficie
   affiliation  = {Haider, A (Corresponding Author), Ulster Univ, Sch Comp, Newtownabbey, North Ireland. Haider, Abbas; Hawe, Glenn, I; Wang, Hui; Scotney, Bryan, Ulster Univ, Sch Comp, Newtownabbey, North Ireland.},
   author-email = {haider-a@ulster.ac.uk gi.hawe@ulster.ac.uk h.wang@ulster.ac.uk bw.scotney@ulster.ac.uk},
   doi          = {10.1007/978-3-030-95470-3\_27},
-  keywords     = {Multi-Asset Market Making; Multi-Task Deep Reinforcement Learning; Tile-Codings; Deep Q Networks, rank5},
+  keywords     = {Multi-Asset Market Making; Multi-Task Deep Reinforcement Learning; Tile-Codings; Deep Q Networks},
+  ranking      = {rank5},
   times-cited  = {0},
   type         = {Proceedings Paper},
   unique-id    = {WOS:000772650800027},
@@ -396,11 +402,11 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @InProceedings{WOS:001046198700086,
   author            = {Guo, Hong and Lin, Jianwu and Huang, Fanlin},
-  title             = {Market Making with Deep Reinforcement Learning from Limit Order Books},
   booktitle         = {2023 INTERNATIONAL JOINT CONFERENCE ON NEURAL NETWORKS, IJCNN},
+  title             = {Market Making with Deep Reinforcement Learning from Limit Order Books},
   year              = {2023},
-  series            = {IEEE International Joint Conference on Neural Networks (IJCNN)},
   note              = {International Joint Conference on Neural Networks (IJCNN), Broadbeach, AUSTRALIA, JUN 18-23, 2023},
+  series            = {IEEE International Joint Conference on Neural Networks (IJCNN)},
   abstract          = {Market making (MM) is an important research topic in quantitative
    finance, the agent needs to continuously optimize ask and bid quotes to
    provide liquidity and make profits. The limit order book (LOB) contains
@@ -420,7 +426,8 @@ We describe how the ESN can form the basis for novel and computationally efficie
   author-email      = {guoh20@mails.tsinghua.edu.cn Lin.Jianwu@sz.tsinghua.edu.cn fanlinghuang@microsoft.com},
   book-group-author = {IEEE},
   doi               = {10.1109/IJCNN54540.2023.10191123},
-  keywords          = {market making; reinforcement learning; quantitative finance; high frenquency trading, rank5},
+  keywords          = {market making; reinforcement learning; quantitative finance; high frenquency trading},
+  ranking           = {rank5},
   times-cited       = {0},
   type              = {Proceedings Paper},
   unique-id         = {WOS:001046198700086},
@@ -428,11 +435,11 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @Article{WOS:000784184700001,
   author        = {Gasperov, Bruno and Kostanjcar, Zvonko},
-  title         = {Deep Reinforcement Learning for Market Making Under a Hawkes Process-Based Limit Order Book Model},
   journal       = {IEEE CONTROL SYSTEMS LETTERS},
+  title         = {Deep Reinforcement Learning for Market Making Under a Hawkes Process-Based Limit Order Book Model},
   year          = {2022},
-  volume        = {6},
   pages         = {2485-2490},
+  volume        = {6},
   abstract      = {The stochastic control problem of optimal market making is among the
    central problems in quantitative finance. In this letter, a deep
    reinforcement learning-based controller is trained on a weakly
@@ -447,8 +454,9 @@ We describe how the ESN can form the basis for novel and computationally efficie
   affiliation   = {Gasperov, B (Corresponding Author), Univ Zagreb, Fac Elect Engn \& Comp, Lab Financial \& Risk Analyt, Zagreb 10000, Croatia. Gasperov, Bruno; Kostanjcar, Zvonko, Univ Zagreb, Fac Elect Engn \& Comp, Lab Financial \& Risk Analyt, Zagreb 10000, Croatia.},
   author-email  = {bruno.gasperov@fer.hr zvonko.kostanjcar@fer.hr},
   doi           = {10.1109/LCSYS.2022.3166446},
-  keywords      = {Reinforcement learning; Process control; Kernel; Aerospace electronics; Optimal control; Microstructure; Mathematical models; Finance; neural networks; stochastic optimal control, rank4},
+  keywords      = {Reinforcement learning; Process control; Kernel; Aerospace electronics; Optimal control; Microstructure; Mathematical models; Finance; neural networks; stochastic optimal control},
   keywords-plus = {EMPIRICAL-ANALYSIS; CALIBRATION; RISK},
+  ranking       = {rank4},
   times-cited   = {4},
   type          = {Article},
   unique-id     = {WOS:000784184700001},
@@ -456,13 +464,13 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @Article{WOS:000555624400001,
   author          = {Baldacci, Bastien and Bergault, Philippe and Gueant, Olivier},
-  title           = {Algorithmic market making for options},
   journal         = {QUANTITATIVE FINANCE},
+  title           = {Algorithmic market making for options},
   year            = {2021},
-  volume          = {21},
+  month           = {JAN 2},
   number          = {1},
   pages           = {85-97},
-  month           = {JAN 2},
+  volume          = {21},
   abstract        = {In this article, we tackle the problem of a market maker in charge of a
    book of options on a single liquid underlying asset. By using an
    approximation of the portfolio in terms of its vega, we show that the
@@ -478,8 +486,9 @@ We describe how the ESN can form the basis for novel and computationally efficie
   author-email    = {olivier.gueant@univ-paris1.fr},
   doi             = {10.1080/14697688.2020.1766099},
   earlyaccessdate = {AUG 2020},
-  keywords        = {Market making; Algorithmic trading; Options; Stochastic optimal control, rank1},
+  keywords        = {Market making; Algorithmic trading; Options; Stochastic optimal control},
   keywords-plus   = {FREQUENCY; LIMIT},
+  ranking         = {rank1},
   times-cited     = {5},
   type            = {Article},
   unique-id       = {WOS:000555624400001},
@@ -487,12 +496,12 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @InProceedings{WOS:000764196704097,
   author       = {Spooner, Thomas and Savani, Rahul},
-  title        = {Robust Market Making via Adversarial Reinforcement Learning},
   booktitle    = {PROCEEDINGS OF THE TWENTY-NINTH INTERNATIONAL JOINT CONFERENCE ON ARTIFICIAL INTELLIGENCE},
+  title        = {Robust Market Making via Adversarial Reinforcement Learning},
   year         = {2020},
   editor       = {Bessiere, C},
-  pages        = {4590-4596},
   note         = {29th International Joint Conference on Artificial Intelligence, ELECTR NETWORK, JAN 07-15, 2021},
+  pages        = {4590-4596},
   abstract     = {We show that adversarial reinforcement learning (ARL) can be used to
    produce market marking agents that are robust to adversarial and
    adaptively-chosen market conditions. To apply ARL, we turn the
@@ -511,7 +520,7 @@ We describe how the ESN can form the basis for novel and computationally efficie
    simplified single-stage game.},
   affiliation  = {Spooner, T (Corresponding Author), Univ Liverpool, Dept Comp Sci, Liverpool, Merseyside, England. Spooner, Thomas; Savani, Rahul, Univ Liverpool, Dept Comp Sci, Liverpool, Merseyside, England.},
   author-email = {t.spooner@liverpool.ac.uk rahul.savani@liverpool.ac.uk},
-  keywords     = {rank5},
+  ranking      = {rank5},
   times-cited  = {7},
   type         = {Proceedings Paper},
   unique-id    = {WOS:000764196704097},
@@ -519,14 +528,14 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @InProceedings{WOS:000876373600031,
   author       = {Ciampi, Michele and Ishaq, Muhammad and Magdon-Ismail, Malik and Ostrovsky, Rafail and Zikas, Vassilis},
-  title        = {FairMM: A Fast and Frontrunning-Resistant Crypto Market-Maker},
   booktitle    = {CYBER SECURITY, CRYPTOLOGY, AND MACHINE LEARNING},
+  title        = {FairMM: A Fast and Frontrunning-Resistant Crypto Market-Maker},
   year         = {2022},
   editor       = {Dolev, S and Katz, J and Meisels, A},
-  volume       = {13301},
-  series       = {Lecture Notes in Computer Science},
-  pages        = {428-446},
   note         = {6th International Symposium on Cyber Security Cryptography and Machine Learning (CSCML), Beer Sheva, ISRAEL, JUN 30-JUL 01, 2022},
+  pages        = {428-446},
+  series       = {Lecture Notes in Computer Science},
+  volume       = {13301},
   abstract     = {Frontrunning is a major problem in DeFi applications, such as
    blockchain-based exchanges. Albeit, existing solutions are not practical
    and/or they make external trust assumptions. In this work we propose a
@@ -547,7 +556,8 @@ We describe how the ESN can form the basis for novel and computationally efficie
   affiliation  = {Ishaq, M (Corresponding Author), Purdue Univ, W Lafayette, IN 47907 USA. Ciampi, Michele, Univ Edinburgh, Edinburgh, Midlothian, Scotland. Ishaq, Muhammad; Zikas, Vassilis, Purdue Univ, W Lafayette, IN 47907 USA. Magdon-Ismail, Malik, Rensselaer Polytech Inst RPI, Troy, NY USA. Ostrovsky, Rafail, Univ Calif Los Angeles UCLA, Los Angeles, CA USA.},
   author-email = {michele.ciampi@ed.ac.uk ishaqm@cs.purdue.edu rafail@cs.ucla.edu vzikas@cs.purdue.edu},
   doi          = {10.1007/978-3-031-07689-3\_31},
-  keywords     = {Front-running; Market maker; Blockchain; Fairness, rank1},
+  keywords     = {Front-running; Market maker; Blockchain; Fairness},
+  ranking      = {rank1},
   times-cited  = {1},
   type         = {Proceedings Paper},
   unique-id    = {WOS:000876373600031},
@@ -555,12 +565,12 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @Article{WOS:000734465000011,
   author        = {Jusselin, Paul},
-  title         = {Optimal Market Making with Persistent Order Flow},
   journal       = {SIAM JOURNAL ON FINANCIAL MATHEMATICS},
+  title         = {Optimal Market Making with Persistent Order Flow},
   year          = {2021},
-  volume        = {12},
   number        = {3},
   pages         = {1150-1200},
+  volume        = {12},
   abstract      = {We address the issue of market making on electronic markets when taking
    into account the clustering and long memory properties of market order
    flows. We consider a market model with one market maker and order flows
@@ -573,8 +583,9 @@ We describe how the ESN can form the basis for novel and computationally efficie
   affiliation   = {Jusselin, P (Corresponding Author), Ecole Polytech, F-91120 Palaiseau, France. Jusselin, Paul, Ecole Polytech, F-91120 Palaiseau, France.},
   author-email  = {paul.jusselin@polytechnique.edu},
   doi           = {10.1137/20M1376054},
-  keywords      = {Hawkes processes; market making; high frequency trading; stochastic control; partial differential equations; viscosity solutions, rank4},
+  keywords      = {Hawkes processes; market making; high frequency trading; stochastic control; partial differential equations; viscosity solutions},
   keywords-plus = {REPRESENTATION; IMPACT},
+  ranking       = {rank4},
   times-cited   = {2},
   type          = {Article},
   unique-id     = {WOS:000734465000011},
@@ -582,8 +593,8 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @Article{WOS:000955980900001,
   author          = {Baldacci, Bastien and Manziuk, Iuliia and Mastrolia, Thibaut and Rosenbaum, Mathieu},
-  title           = {Market Making and Incentives Design in the Presence of a Dark Pool: A Stackelberg Actor-Critic Approach},
   journal         = {OPERATIONS RESEARCH},
+  title           = {Market Making and Incentives Design in the Presence of a Dark Pool: A Stackelberg Actor-Critic Approach},
   year            = {2022},
   month           = {2022 DEC 7},
   abstract        = {We consider the issue of a market maker acting at the same time in the
@@ -604,8 +615,9 @@ We describe how the ESN can form the basis for novel and computationally efficie
   author-email    = {bastien.baldacci@polytechnique.edu iuliia.manziuk@polytechnique.edu mastrolia@berkeley.edu mathieu.rosenbaum@polytechnique.edu},
   doi             = {10.1287/opre.2022.2406},
   earlyaccessdate = {DEC 2022},
-  keywords        = {market making; dark pools; regulation; make-take fees; stochastic control; principal-agent problem; deep reinforcement learning; actor-critic method, rank3},
+  keywords        = {market making; dark pools; regulation; make-take fees; stochastic control; principal-agent problem; deep reinforcement learning; actor-critic method},
   keywords-plus   = {FREQUENCY; PRICE; RISK},
+  ranking         = {rank5},
   times-cited     = {0},
   type            = {Article; Early Access},
   unique-id       = {WOS:000955980900001},
@@ -613,11 +625,11 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @Article{WOS:001066020000001,
   author          = {Bernasconi, Martino and Vittori, E. and Trovo, F. and Restelli, M.},
-  title           = {Dealer markets: A reinforcement learning mean field game approach},
   journal         = {NORTH AMERICAN JOURNAL OF ECONOMICS AND FINANCE},
+  title           = {Dealer markets: A reinforcement learning mean field game approach},
   year            = {2023},
-  volume          = {68},
   month           = {SEP},
+  volume          = {68},
   abstract        = {We study the problem of finding an equilibrium strategy in an Over The
    Counter (OTC) market populated by multiple strategic dealers quoting the
    bid-ask prices. The need for an equilibrium strategy comes from the
@@ -634,8 +646,9 @@ We describe how the ESN can form the basis for novel and computationally efficie
   author-email    = {martino.bernasconideluca@polimi.it edoardo.vittori@polimi.it francesco1.trovo@polimi.it marcello.restelli@polimi.it},
   doi             = {10.1016/j.najef.2023.101974},
   earlyaccessdate = {AUG 2023},
-  keywords        = {Dealer markets; Market making; Mean field games; Game theory; Reinforcement learning, rank4},
+  keywords        = {Dealer markets; Market making; Mean field games; Game theory; Reinforcement learning},
   keywords-plus   = {SEMI-LAGRANGIAN SCHEME; DYNAMIC-GAMES; EQUILIBRIA; RISK},
+  ranking         = {rank4},
   times-cited     = {0},
   type            = {Article},
   unique-id       = {WOS:001066020000001},
@@ -643,8 +656,8 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @InProceedings{WOS:000945933100004,
   author            = {Dwarakanath, Kshama and Vyetrenko, Svitlana S. and Balch, Tucker},
-  title             = {Profit equitably: An investigation of market maker's impact on equitable outcomes},
   booktitle         = {ICAIF 2021: THE SECOND ACM INTERNATIONAL CONFERENCE ON AI IN FINANCE},
+  title             = {Profit equitably: An investigation of market maker's impact on equitable outcomes},
   year              = {2021},
   note              = {2nd ACM International Conference on AI in Finance (ICAIF), Alan Turing Institute, Univ of Oxford, ELECTR NETWORK, NOV 03-05, 2021},
   abstract          = {We look at discovering the impact of market microstructure on
@@ -667,7 +680,8 @@ We describe how the ESN can form the basis for novel and computationally efficie
   author-email      = {kshama.dwarakanath@jpmchase.com svitlana.s.vyetrenko@jpmchase.com},
   book-group-author = {ACM},
   doi               = {10.1145/3490354.3494369},
-  keywords          = {Agent based simulations; equitability; multi objective reinforcement learning; volatility, rank2},
+  keywords          = {Agent based simulations; equitability; multi objective reinforcement learning; volatility},
+  ranking           = {rank2},
   times-cited       = {0},
   type              = {Proceedings Paper},
   unique-id         = {WOS:000945933100004},
@@ -675,8 +689,8 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @InProceedings{WOS:000856058400005,
   author            = {Wang, Shuangge and Krishnamachari, Bhaskar},
-  title             = {Optimal Trading on a Dynamic Curve Automated Market Maker},
   booktitle         = {2022 IEEE INTERNATIONAL CONFERENCE ON BLOCKCHAIN AND CRYPTOCURRENCY (IEEE ICBC 2022)},
+  title             = {Optimal Trading on a Dynamic Curve Automated Market Maker},
   year              = {2022},
   note              = {4th IEEE International Conference on Blockchain and Cryptocurrency (IEEE ICBC), ELECTR NETWORK, MAY 02-05, 2022},
   abstract          = {In the emerging realm of decentralized finance (DeFi), most of the
@@ -703,7 +717,8 @@ We describe how the ESN can form the basis for novel and computationally efficie
   author-email      = {larrywan@usc.edu bkrishna@usc.edu},
   book-group-author = {IEEE},
   doi               = {10.1109/ICBC54727.2022.9805489},
-  keywords          = {Blockchain; DeFi; AMM; Dynamic Programming, rank3},
+  keywords          = {Blockchain; DeFi; AMM; Dynamic Programming},
+  ranking           = {rank3},
   times-cited       = {0},
   type              = {Proceedings Paper},
   unique-id         = {WOS:000856058400005},
@@ -711,8 +726,8 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @InProceedings{WOS:000945933100029,
   author            = {Xiong, Wei and Cont, Rama},
-  title             = {Interactions of Market Making Algorithms: a Study on Perceived Collusion},
   booktitle         = {ICAIF 2021: THE SECOND ACM INTERNATIONAL CONFERENCE ON AI IN FINANCE},
+  title             = {Interactions of Market Making Algorithms: a Study on Perceived Collusion},
   year              = {2021},
   note              = {2nd ACM International Conference on AI in Finance (ICAIF), Alan Turing Institute, Univ of Oxford, ELECTR NETWORK, NOV 03-05, 2021},
   abstract          = {The widespread use of market making algorithms and the associated
@@ -733,7 +748,8 @@ We describe how the ESN can form the basis for novel and computationally efficie
   author-email      = {wei.xiong@maths.ox.ac.uk rama.cont@maths.ox.ac.uk},
   book-group-author = {ACM},
   doi               = {10.1145/3490354.3494397},
-  keywords          = {deep reinforcement learning; market making; tacit collusion; Nash equilibrium; multi-agent actor-critic algorithm; decentralized, rank1},
+  keywords          = {deep reinforcement learning; market making; tacit collusion; Nash equilibrium; multi-agent actor-critic algorithm; decentralized},
+  ranking           = {rank1},
   times-cited       = {2},
   type              = {Proceedings Paper},
   unique-id         = {WOS:000945933100029},
@@ -741,12 +757,12 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @Article{WOS:000925796700004,
   author         = {Falces Marin, Javier and Pardo de Vera, David Diaz and Lopez Gonzalo, Eduardo},
-  title          = {A reinforcement learning approach to improve the performance of the Avellaneda-Stoikov market-making algorithm},
   journal        = {PLOS ONE},
+  title          = {A reinforcement learning approach to improve the performance of the Avellaneda-Stoikov market-making algorithm},
   year           = {2022},
-  volume         = {17},
-  number         = {12},
   month          = {DEC 20},
+  number         = {12},
+  volume         = {17},
   abstract       = {Market making is a high-frequency trading problem for which solutions
    based on reinforcement learning (RL) are being explored increasingly.
    This paper presents an approach to market making using deep
@@ -774,8 +790,8 @@ We describe how the ESN can form the basis for novel and computationally efficie
   article-number = {e0277042},
   author-email   = {javifalces@gmail.com},
   doi            = {10.1371/journal.pone.0277042},
-  keywords       = {rank5},
   keywords-plus  = {DEEP; GAME},
+  ranking        = {rank5},
   times-cited    = {0},
   type           = {Article},
   unique-id      = {WOS:000925796700004},
@@ -783,8 +799,8 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @InProceedings{WOS:000945933100030,
   author            = {Zhao, Muchen and Linetsky, Vadim},
-  title             = {High Frequency Automated Market Making Algorithms with Adverse Selection Risk Control via Reinforcement Learning},
   booktitle         = {ICAIF 2021: THE SECOND ACM INTERNATIONAL CONFERENCE ON AI IN FINANCE},
+  title             = {High Frequency Automated Market Making Algorithms with Adverse Selection Risk Control via Reinforcement Learning},
   year              = {2021},
   note              = {2nd ACM International Conference on AI in Finance (ICAIF), Alan Turing Institute, Univ of Oxford, ELECTR NETWORK, NOV 03-05, 2021},
   abstract          = {Market makers provide liquidity by placing limit orders on both sides of
@@ -806,8 +822,8 @@ We describe how the ESN can form the basis for novel and computationally efficie
   author-email      = {muchenzhao2015@u.northwestern.edu linetsky@iems.northwestern.edu},
   book-group-author = {ACM},
   doi               = {10.1145/3490354.3494398},
-  keywords          = {rank4},
   keywords-plus     = {LIMIT},
+  ranking           = {rank5},
   times-cited       = {1},
   type              = {Proceedings Paper},
   unique-id         = {WOS:000945933100030},
@@ -815,14 +831,14 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @InProceedings{WOS:000930654200066,
   author        = {Gueant, Olivier},
-  title         = {Computational Methods for Market Making Algorithms},
   booktitle     = {PROGRESS IN INDUSTRIAL MATHEMATICS AT ECMI},
+  title         = {Computational Methods for Market Making Algorithms},
   year          = {2022},
   editor        = {Ehrhardt, M and Gunther, M},
-  volume        = {39},
-  series        = {Mathematics in Industry-Cham},
-  pages         = {509-515},
   note          = {21st European Conference on Mathematics for Industry, ECMI, Univ of Wuppertal, Wuppertal, GERMANY, APR 13-15, 2021},
+  pages         = {509-515},
+  series        = {Mathematics in Industry-Cham},
+  volume        = {39},
   abstract      = {With the rise of electronification and trading automation, the task of
    quoting assets on many financial markets must be carried out
    algorithmically by market makers. Market making models and algorithms
@@ -838,8 +854,8 @@ We describe how the ESN can form the basis for novel and computationally efficie
   affiliation   = {Guéant, O (Corresponding Author), Univ Paris 1 Pantheon Sorbonne, Ctr Econ Sorbonne, Paris, France. Gueant, Olivier, Univ Paris 1 Pantheon Sorbonne, Ctr Econ Sorbonne, Paris, France.},
   author-email  = {olivier.gueant@univ-paris1.fr},
   doi           = {10.1007/978-3-031-11818-0\_66},
-  keywords      = {rank5},
   keywords-plus = {DEALER MARKETS},
+  ranking       = {rank5},
   times-cited   = {0},
   type          = {Proceedings Paper},
   unique-id     = {WOS:000930654200066},
@@ -847,8 +863,8 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @Article{WOS:000998136200001,
   author          = {Cont, Rama and Xiong, Wei},
-  title           = {Dynamics of market making algorithms in dealer markets: Learning and tacit collusion},
   journal         = {MATHEMATICAL FINANCE},
+  title           = {Dynamics of market making algorithms in dealer markets: Learning and tacit collusion},
   year            = {2023},
   month           = {2023 MAY 30},
   abstract        = {The widespread use of market-making algorithms in electronic
@@ -870,8 +886,9 @@ We describe how the ESN can form the basis for novel and computationally efficie
   author-email    = {wei.xiong@maths.ox.ac.uk},
   doi             = {10.1111/mafi.12401},
   earlyaccessdate = {MAY 2023},
-  keywords        = {differential games; decentralized learning; intensity control; learning; Market microstructure; market making; multi-agent actor-critic algorithm; Nash equilibrium; reinforcement tacit collusion, rank2},
+  keywords        = {differential games; decentralized learning; intensity control; learning; Market microstructure; market making; multi-agent actor-critic algorithm; Nash equilibrium; reinforcement tacit collusion},
   keywords-plus   = {FICTITIOUS PLAY; GAMES},
+  ranking         = {rank2},
   times-cited     = {1},
   type            = {Article; Early Access},
   unique-id       = {WOS:000998136200001},
@@ -879,12 +896,12 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @Article{WOS:000921142300003,
   author         = {Ayitey Junior, Michael and Appiahene, Peter and Appiah, Obed and Bombie, Christopher Ninfaakang},
-  title          = {Forex market forecasting using machine learning: Systematic Literature Review and meta-analysis},
   journal        = {JOURNAL OF BIG DATA},
+  title          = {Forex market forecasting using machine learning: Systematic Literature Review and meta-analysis},
   year           = {2023},
-  volume         = {10},
-  number         = {1},
   month          = {JAN 28},
+  number         = {1},
+  volume         = {10},
   abstract       = {BackgroundWhen you make a forex transaction, you sell one currency and
    buy another. If the currency you buy increases against the currency you
    sell, you profit, and you do this through a broker as a retail trader on
@@ -920,8 +937,9 @@ We describe how the ESN can form the basis for novel and computationally efficie
   article-number = {9},
   author-email   = {michaelayiteyjunior@gmail.com},
   doi            = {10.1186/s40537-022-00676-2},
-  keywords       = {Systematic Literature Review; Forex market; Machine learning; Meta-analysis, rank2},
+  keywords       = {Systematic Literature Review; Forex market; Machine learning; Meta-analysis},
   keywords-plus  = {ARTIFICIAL NEURAL-NETWORK},
+  ranking        = {rank2},
   times-cited    = {3},
   type           = {Review},
   unique-id      = {WOS:000921142300003},
@@ -929,13 +947,13 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @Article{WOS:000963297000001,
   author          = {Hambly, Ben and Xu, Renyuan and Yang, Huining},
-  title           = {Recent advances in reinforcement learning in finance},
   journal         = {MATHEMATICAL FINANCE},
+  title           = {Recent advances in reinforcement learning in finance},
   year            = {2023},
-  volume          = {33},
+  month           = {JUL},
   number          = {3},
   pages           = {437-503},
-  month           = {JUL},
+  volume          = {33},
   abstract        = {The rapid changes in the finance industry due to the increasing amount
    of data have revolutionized the techniques on data processing and data
    analysis and brought new theoretical and computational challenges. In
@@ -960,8 +978,8 @@ We describe how the ESN can form the basis for novel and computationally efficie
   author-email    = {renyuanx@usc.edu},
   doi             = {10.1111/mafi.12382},
   earlyaccessdate = {APR 2023},
-  keywords        = {rank5},
   keywords-plus   = {FITTED-Q-ITERATION; PORTFOLIO SELECTION; LIMIT; OPTIONS; MARKET; RISK; INFORMATION; ALGORITHMS; VALUATION; MODELS},
+  ranking         = {rank5},
   times-cited     = {2},
   type            = {Article},
   unique-id       = {WOS:000963297000001},
@@ -969,13 +987,13 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @Article{WOS:000903090100001,
   author          = {Barzykin, Alexander and Bergault, Philippe and Gueant, Olivier},
-  title           = {Algorithmic market making in dealer markets with hedging and market impact},
   journal         = {MATHEMATICAL FINANCE},
+  title           = {Algorithmic market making in dealer markets with hedging and market impact},
   year            = {2023},
-  volume          = {33},
+  month           = {JAN},
   number          = {1},
   pages           = {41-79},
-  month           = {JAN},
+  volume          = {33},
   abstract        = {In dealer markets, dealers provide prices at which they agree to buy and
    sell the assets and securities they have in their scope. With ever
    increasing trading volume, this quoting task has to be done
@@ -998,8 +1016,9 @@ We describe how the ESN can form the basis for novel and computationally efficie
   author-email    = {olivier.gueant@univ-paris1.fr},
   doi             = {10.1111/mafi.12367},
   earlyaccessdate = {DEC 2022},
-  keywords        = {algorithmic trading; dealer markets; market making; stochastic optimal control; viscosity solutions, rank4},
+  keywords        = {algorithmic trading; dealer markets; market making; stochastic optimal control; viscosity solutions},
   keywords-plus   = {FREQUENCY; LIMIT; RISK; ASK},
+  ranking         = {rank5},
   times-cited     = {3},
   type            = {Article},
   unique-id       = {WOS:000903090100001},
@@ -1007,12 +1026,12 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @Article{WOS:000845371100001,
   author         = {Contreras, Ana Roldan and Swishchuk, Anatoliy},
-  title          = {Optimal Liquidation, Acquisition and Market Making Problems in HFT under Hawkes Models for LOB},
   journal        = {RISKS},
+  title          = {Optimal Liquidation, Acquisition and Market Making Problems in HFT under Hawkes Models for LOB},
   year           = {2022},
-  volume         = {10},
-  number         = {8},
   month          = {AUG},
+  number         = {8},
+  volume         = {10},
   abstract       = {The present paper is focused on the solution of optimal control problems
    such as optimal acquisition, optimal liquidation, and market making in
    relation to the high-frequency trading market. We have modeled optimal
@@ -1035,8 +1054,9 @@ We describe how the ESN can form the basis for novel and computationally efficie
   article-number = {160},
   author-email   = {ana.roldancontreras@ucalgary.ca aswish@ucalgary.ca},
   doi            = {10.3390/risks10080160},
-  keywords       = {Hawkes processes; general compound Hawkes processes; limit order books; optimal acquisition; optimal liquidation; market making optimization; high frequency trading; algorithmic trading; diffusion approximation of GCHP; LOBster data, rank4},
+  keywords       = {Hawkes processes; general compound Hawkes processes; limit order books; optimal acquisition; optimal liquidation; market making optimization; high frequency trading; algorithmic trading; diffusion approximation of GCHP; LOBster data},
   keywords-plus  = {ORDER BOOKS},
+  ranking        = {rank4},
   times-cited    = {0},
   type           = {Article},
   unique-id      = {WOS:000845371100001},
@@ -1044,8 +1064,8 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @InProceedings{WOS:000945933100051,
   author            = {Fernandez Vicente, Oscar and Fernandez Rebollo, Fernando and Garcia Polo, Francisco Javier},
-  title             = {Deep Q-Learning Market Makers in a Multi-Agent Simulated Stock Market},
   booktitle         = {ICAIF 2021: THE SECOND ACM INTERNATIONAL CONFERENCE ON AI IN FINANCE},
+  title             = {Deep Q-Learning Market Makers in a Multi-Agent Simulated Stock Market},
   year              = {2021},
   note              = {2nd ACM International Conference on AI in Finance (ICAIF), Alan Turing Institute, Univ of Oxford, ELECTR NETWORK, NOV 03-05, 2021},
   abstract          = {Market makers play a key role in financial markets by providing
@@ -1068,7 +1088,8 @@ We describe how the ESN can form the basis for novel and computationally efficie
   author-email      = {oscar.f.vicente@alumnos.uc3m.es ffernand@inf.uc3m.es fjgpolo@inf.uc3m.es},
   book-group-author = {ACM},
   doi               = {10.1145/3490354.3494448},
-  keywords          = {deep learning; reinforcement learning; multi-agent; stock markets; market makers, rank5},
+  keywords          = {deep learning; reinforcement learning; multi-agent; stock markets; market makers},
+  ranking           = {rank5},
   times-cited       = {1},
   type              = {Proceedings Paper},
   unique-id         = {WOS:000945933100051},
@@ -1076,13 +1097,13 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @Article{WOS:000561753200001,
   author          = {Bergault, Philippe and Gueant, Olivier},
-  title           = {Size matters for OTC market makers: General results and dimensionality reduction techniques},
   journal         = {MATHEMATICAL FINANCE},
+  title           = {Size matters for OTC market makers: General results and dimensionality reduction techniques},
   year            = {2021},
-  volume          = {31},
+  month           = {JAN},
   number          = {1},
   pages           = {279-322},
-  month           = {JAN},
+  volume          = {31},
   abstract        = {In most over-the-counter (OTC) markets, a small number of market makers
    provide liquidity to other market participants. More precisely, for a
    list of assets, they set prices at which they agree to buy and sell.
@@ -1104,8 +1125,9 @@ We describe how the ESN can form the basis for novel and computationally efficie
   author-email    = {olivier.gueant@univ-paris1.fr},
   doi             = {10.1111/mafi.12286},
   earlyaccessdate = {AUG 2020},
-  keywords        = {curse of dimensionality; integro-differential equations; market making; risk factor models; stochastic optimal control, rank4},
+  keywords        = {curse of dimensionality; integro-differential equations; market making; risk factor models; stochastic optimal control},
   keywords-plus   = {FREQUENCY; LIMIT},
+  ranking         = {rank4},
   times-cited     = {5},
   type            = {Article},
   unique-id       = {WOS:000561753200001},
@@ -1113,13 +1135,13 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @Article{WOS:000835064800001,
   author          = {Han, Bingyan},
-  title           = {Cooperation between independent market makers},
   journal         = {QUANTITATIVE FINANCE},
+  title           = {Cooperation between independent market makers},
   year            = {2022},
-  volume          = {22},
+  month           = {NOV 2},
   number          = {11},
   pages           = {2005-2019},
-  month           = {NOV 2},
+  volume          = {22},
   abstract        = {With the digitalization of the financial market, dealers are
    increasingly handling market-making activities by algorithms. Recent
    antitrust literature raises concerns on collusion caused by artificial
@@ -1135,7 +1157,8 @@ We describe how the ESN can form the basis for novel and computationally efficie
   author-email    = {byhan@umich.edu},
   doi             = {10.1080/14697688.2022.2097943},
   earlyaccessdate = {JUL 2021},
-  keywords        = {Market making; Financial regulation; General-sum game; Independent reinforcement learning, rank3},
+  keywords        = {Market making; Financial regulation; General-sum game; Independent reinforcement learning},
+  ranking         = {rank3},
   times-cited     = {0},
   type            = {Article},
   unique-id       = {WOS:000835064800001},
@@ -1143,13 +1166,13 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @InProceedings{WOS:000932071607114,
   author        = {Shi, Ruoshi and Guo, Jian and Zhao, Yanlong},
-  title         = {Empirical Analysis on Market-Making Hedging Problem based on Quadratic Programming with Time-Decay and Sparse-Term},
   booktitle     = {2022 41ST CHINESE CONTROL CONFERENCE (CCC)},
+  title         = {Empirical Analysis on Market-Making Hedging Problem based on Quadratic Programming with Time-Decay and Sparse-Term},
   year          = {2022},
   editor        = {Li, Z and Sun, J},
-  series        = {Chinese Control Conference},
-  pages         = {7546-7550},
   note          = {41st Chinese Control Conference (CCC), Hefei, PEOPLES R CHINA, JUL 25-27, 2022},
+  pages         = {7546-7550},
+  series        = {Chinese Control Conference},
   abstract      = {This paper considers a market-making hedging problem with real market
    demands. To minimize multi-day hedging error square, a procedure based
    on dynamic quadratic programming problem is designed. Considering that
@@ -1163,8 +1186,9 @@ We describe how the ESN can form the basis for novel and computationally efficie
    practicability.},
   affiliation   = {Shi, RS (Corresponding Author), Chinese Acad Sci, Acad Math \& Syst Sci, Beijing 100190, Peoples R China. Shi, RS (Corresponding Author), Univ Chinese Acad Sci, Beijing 100049, Peoples R China. Shi, Ruoshi; Guo, Jian; Zhao, Yanlong, Chinese Acad Sci, Acad Math \& Syst Sci, Beijing 100190, Peoples R China. Shi, Ruoshi; Guo, Jian, Univ Chinese Acad Sci, Beijing 100049, Peoples R China.},
   author-email  = {shiruoshi@amss.ac.cn j.guo@amss.ac.cn ylzhao@amss.ac.cn},
-  keywords      = {Hedging error; quadratic programming; time-decay; sparsity; allocation optimization, rank1},
+  keywords      = {Hedging error; quadratic programming; time-decay; sparsity; allocation optimization},
   keywords-plus = {NEURAL-NETWORKS; FUTURES; PERFORMANCE},
+  ranking       = {rank1},
   times-cited   = {0},
   type          = {Proceedings Paper},
   unique-id     = {WOS:000932071607114},
@@ -1172,13 +1196,13 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @Article{WOS:000870959900001,
   author          = {Cartea, Alvaro and Chang, Patrick and Mroczka, Mateusz and Oomen, Roel},
-  title           = {AI-driven liquidity provision in OTC financial markets},
   journal         = {QUANTITATIVE FINANCE},
+  title           = {AI-driven liquidity provision in OTC financial markets},
   year            = {2022},
-  volume          = {22},
+  month           = {DEC 2},
   number          = {12},
   pages           = {2171-2204},
-  month           = {DEC 2},
+  volume          = {22},
   abstract        = {Providing liquidity in over-the-counter markets is a challenging
    under-taking, in large part because a market maker does not observe
    where their competitors quote, nor do they typically know how many
@@ -1209,8 +1233,9 @@ We describe how the ESN can form the basis for novel and computationally efficie
   author-email    = {roel.oomen@bd.com},
   doi             = {10.1080/14697688.2022.2130087},
   earlyaccessdate = {OCT 2021},
-  keywords        = {OTC markets; Pseudo collusion; Liquidity provision; Reinforcement learning, rank2},
+  keywords        = {OTC markets; Pseudo collusion; Liquidity provision; Reinforcement learning},
   keywords-plus   = {ARTIFICIAL-INTELLIGENCE; COLLUSION; REINFORCEMENT; ALGORITHMS},
+  ranking         = {rank2},
   times-cited     = {1},
   type            = {Article},
   unique-id       = {WOS:000870959900001},
@@ -1218,14 +1243,14 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @InProceedings{WOS:000771716000014,
   author       = {Hirano, Masanori and Matsushima, Hiroyasu and Izumi, Kiyoshi and Sakaji, Hiroki},
-  title        = {STBM: Stochastic Trading Behavior Model for Financial Markets},
   booktitle    = {ADVANCES IN ARTIFICIAL INTELLIGENCE},
+  title        = {STBM: Stochastic Trading Behavior Model for Financial Markets},
   year         = {2021},
   editor       = {Yada, K and Katagami, D and Takama, Y and Ito, T and Abe, A and SatoShimokawara, E and Mori, J and Matsumura, N and Kashima, H},
-  volume       = {1357},
-  series       = {Advances in Intelligent Systems and Computing},
-  pages        = {157-165},
   note         = {34th Annual Conference of the Japanese-Society-for-Artificial-Intelligence (JSAI), ELECTR NETWORK, JUN 09-12, 2020},
+  pages        = {157-165},
+  series       = {Advances in Intelligent Systems and Computing},
+  volume       = {1357},
   abstract     = {This is an extension from a selected paper from JSAI2020. In this study,
    we propose a stochastic model for predicting the behavior of financial
    market traders. First, using real ordering data that includes traders'
@@ -1242,7 +1267,8 @@ We describe how the ESN can form the basis for novel and computationally efficie
   affiliation  = {Hirano, M (Corresponding Author), Univ Tokyo, Sch Engn, Bunkyo Ku, 7-3-1 Hongo, Tokyo 1138656, Japan. Hirano, Masanori; Izumi, Kiyoshi; Sakaji, Hiroki, Univ Tokyo, Sch Engn, Bunkyo Ku, 7-3-1 Hongo, Tokyo 1138656, Japan. Matsushima, Hiroyasu, Shiga Univ, Ctr Data Sci Educ \& Res, 1-1-1 Banba, Hikone, Shiga 5228522, Japan.},
   author-email = {hirano@g.ecc.u-tokyo.ac.jp hiroyasu-matsushima@biwako.shiga-u.ac.jp izumi@sys.t.u-tokyo.ac.jp sakaji@sys.t.u-tokyo.ac.jp},
   doi          = {10.1007/978-3-030-73113-7\_14},
-  keywords     = {Machine learning; Deep learning; Data mining; High-frequency trade; Market-making; Clustering, rank3},
+  keywords     = {Machine learning; Deep learning; Data mining; High-frequency trade; Market-making; Clustering},
+  ranking      = {rank3},
   times-cited  = {0},
   type         = {Proceedings Paper},
   unique-id    = {WOS:000771716000014},
@@ -1250,8 +1276,8 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @InProceedings{WOS:000945933100007,
   author            = {Ardon, Leo and Vadori, Nelson and Spooner, Thomas and Xu, Mengda and Vann, Jared and Ganesh, Sumitra},
-  title             = {Towards a fully RL-based Market Simulator},
   booktitle         = {ICAIF 2021: THE SECOND ACM INTERNATIONAL CONFERENCE ON AI IN FINANCE},
+  title             = {Towards a fully RL-based Market Simulator},
   year              = {2021},
   note              = {2nd ACM International Conference on AI in Finance (ICAIF), Alan Turing Institute, Univ of Oxford, ELECTR NETWORK, NOV 03-05, 2021},
   abstract          = {We present a new financial framework where two families of RL-based
@@ -1266,7 +1292,8 @@ We describe how the ESN can form the basis for novel and computationally efficie
   author-email      = {leo.ardon@jpmorgan.com nelson.n.vadori@jpmorgan.com thomas.spooner@jpmorgan.com mengda.xu@jpmorgan.com jared.vann@jpmorgan.com sumitra.ganesh@jpmorgan.com},
   book-group-author = {ACM},
   doi               = {10.1145/3490354.3494372},
-  keywords          = {multi-agent; reinforcement learning; market making, rank4},
+  keywords          = {multi-agent; reinforcement learning; market making},
+  ranking           = {rank4},
   times-cited       = {1},
   type              = {Proceedings Paper},
   unique-id         = {WOS:000945933100007},
@@ -1274,13 +1301,13 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @Article{WOS:000526474000001,
   author          = {Abergel, Frederic and Hure, Come and Huyen Pham},
-  title           = {Algorithmic trading in a microstructural limit order book model},
   journal         = {QUANTITATIVE FINANCE},
+  title           = {Algorithmic trading in a microstructural limit order book model},
   year            = {2020},
-  volume          = {20},
+  month           = {AUG 2},
   number          = {8},
   pages           = {1263-1283},
-  month           = {AUG 2},
+  volume          = {20},
   abstract        = {We propose a microstructural modeling framework for studying optimal
    market-making policies in a FIFO (first in first out) limit order book
    (order book). In this context, the limit orders, market orders, and
@@ -1309,8 +1336,9 @@ We describe how the ESN can form the basis for novel and computationally efficie
   author-email    = {hure@lpsm.paris},
   doi             = {10.1080/14697688.2020.1729396},
   earlyaccessdate = {APR 2020},
-  keywords        = {Limit order book; Pure-jump controlled process; High-frequency trading; High-dimensional stochastic control; Markov Decision Process; Quantization; Local regression, rank5},
+  keywords        = {Limit order book; Pure-jump controlled process; High-frequency trading; High-dimensional stochastic control; Markov Decision Process; Quantization; Local regression},
   keywords-plus   = {FREQUENCY; MARKET; RISK},
+  ranking         = {rank5},
   times-cited     = {9},
   type            = {Article},
   unique-id       = {WOS:000526474000001},
@@ -1318,12 +1346,12 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @Article{WOS:001064755600001,
   author          = {Puspitasari, Ira and Rusydi, Febdian and Nuzulita, Nania and Hsiao, Chin-Sung},
-  title           = {Investigating the role of utilitarian and hedonic goals in characterizing customer loyalty in E-marketplaces},
   journal         = {HELIYON},
+  title           = {Investigating the role of utilitarian and hedonic goals in characterizing customer loyalty in E-marketplaces},
   year            = {2023},
-  volume          = {9},
-  number          = {8},
   month           = {AUG},
+  number          = {8},
+  volume          = {9},
   abstract        = {Despite significant growth in sales in recent years, retaining customers
    remains a major challenge for the electronic marketplace (e-marketplace)
    industry worldwide, including Indonesia. The small basket size of
@@ -1355,8 +1383,9 @@ We describe how the ESN can form the basis for novel and computationally efficie
   author-email    = {ira-p@fst.unair.ac.id},
   doi             = {10.1016/j.heliyon.2023.e19193},
   earlyaccessdate = {AUG 2023},
-  keywords        = {e-marketplace customer loyalty model; Hierarchical component model; Customer loyalty; Consumer behavior; Machine learning, rank1},
+  keywords        = {e-marketplace customer loyalty model; Hierarchical component model; Customer loyalty; Consumer behavior; Machine learning},
   keywords-plus   = {E-SERVICE QUALITY; EXPECTATION-CONFIRMATION MODEL; CONTINUANCE INTENTION; PERCEIVED ENJOYMENT; SATISFACTION; ADOPTION; ANTECEDENTS; INTEGRATION; ACCEPTANCE; RESPONSES},
+  ranking         = {rank1},
   times-cited     = {0},
   type            = {Article},
   unique-id       = {WOS:001064755600001},
@@ -1364,13 +1393,13 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @Article{WOS:000539876800001,
   author          = {Li, Pan and Hua, Qiang and Hu, Zhijun and Ting, Hing-Fung and Zhang, Yong},
-  title           = {Approximation algorithms for the selling with preference},
   journal         = {JOURNAL OF COMBINATORIAL OPTIMIZATION},
+  title           = {Approximation algorithms for the selling with preference},
   year            = {2020},
-  volume          = {40},
+  month           = {AUG},
   number          = {2},
   pages           = {366-378},
-  month           = {AUG},
+  volume          = {40},
   abstract        = {We consider the market mechanism to sell two types of products, A and B,
    to a set of buyers I=\{1,2,...n\}. . The amounts of products are m(A)
    and m(B) respectively. Each buyer i has his information including the
@@ -1388,7 +1417,8 @@ We describe how the ESN can form the basis for novel and computationally efficie
   author-email    = {pan.li.hbu@outlook.com huaq@hbu.cn zjunhu75@163.com hfting@cs.hku.hk zhangyong@siat.ac.cn},
   doi             = {10.1007/s10878-020-00602-3},
   earlyaccessdate = {JUN 2020},
-  keywords        = {Selling with preference; Approximation algorithms; Approximation ratio, rank2},
+  keywords        = {Selling with preference; Approximation algorithms; Approximation ratio},
+  ranking         = {rank2},
   times-cited     = {1},
   type            = {Article},
   unique-id       = {WOS:000539876800001},
@@ -1396,12 +1426,12 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @Article{WOS:000613392200007,
   author         = {Lipton, Alexander and De Prado, Marcos Lopez},
-  title          = {A CLOSED-FORM SOLUTION FOR OPTIMAL ORNSTEIN-UHLENBECK DRIVEN TRADING STRATEGIES},
   journal        = {INTERNATIONAL JOURNAL OF THEORETICAL AND APPLIED FINANCE},
+  title          = {A CLOSED-FORM SOLUTION FOR OPTIMAL ORNSTEIN-UHLENBECK DRIVEN TRADING STRATEGIES},
   year           = {2020},
-  volume         = {23},
-  number         = {8},
   month          = {DEC},
+  number         = {8},
+  volume         = {23},
   abstract       = {When prices reflect all available information, they oscillate around an
    equilibrium level. This oscillation is the result of the temporary
    market impact caused by waves of buyers and sellers. This price behavior
@@ -1422,8 +1452,9 @@ We describe how the ESN can form the basis for novel and computationally efficie
   article-number = {2050056},
   author-email   = {alexlipt@mit.edu ml863@cornell.edu},
   doi            = {10.1142/S0219024920500569},
-  keywords       = {Market making; pairs trading; optimal execution; statistical arbitrage; Ornstein-Uhlenbeck process, rank3},
+  keywords       = {Market making; pairs trading; optimal execution; statistical arbitrage; Ornstein-Uhlenbeck process},
   keywords-plus  = {STATISTICAL ARBITRAGE; OIL},
+  ranking        = {rank5},
   times-cited    = {1},
   type           = {Article},
   unique-id      = {WOS:000613392200007},
@@ -1431,13 +1462,13 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @Article{WOS:000955906600001,
   author          = {Hubacek, Ondrej and Sir, Gustav},
-  title           = {Beating the market with a bad predictive model},
   journal         = {INTERNATIONAL JOURNAL OF FORECASTING},
+  title           = {Beating the market with a bad predictive model},
   year            = {2023},
-  volume          = {39},
+  month           = {APR-JUN},
   number          = {2},
   pages           = {691-719},
-  month           = {APR-JUN},
+  volume          = {39},
   abstract        = {It is a common misconception that in order to make consistent profits as
    a trader, one needs to possess some extra information leading to an
    asset value estimation that is more accurate than that reflected by the
@@ -1461,8 +1492,9 @@ We describe how the ESN can form the basis for novel and computationally efficie
   author-email    = {souregus@gmail.com},
   doi             = {10.1016/j.ijforecast.2022.02.001},
   earlyaccessdate = {MAR 2023},
-  keywords        = {Predictive Modeling; Sports betting; Trading; Portfolio optimization; Kelly criterion; Market forecasting; Correlation; Prediction Markets, rank2},
+  keywords        = {Predictive Modeling; Sports betting; Trading; Portfolio optimization; Kelly criterion; Market forecasting; Correlation; Prediction Markets},
   keywords-plus   = {PORTFOLIO CHOICE; BETTING MARKET; FOOTBALL; SPORTS; FORECASTS; SELECTION; ACCURACY; NETWORK; ODDS},
+  ranking         = {rank2},
   times-cited     = {0},
   type            = {Article},
   unique-id       = {WOS:000955906600001},
@@ -1470,13 +1502,13 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @Article{WOS:001005814200001,
   author          = {Carvalho, Athos V. C. and Silveira, Douglas and Ely, Regis A. and Cajueiro, Daniel O.},
-  title           = {A logarithmic market scoring rule agent-based model to evaluate prediction markets},
   journal         = {JOURNAL OF EVOLUTIONARY ECONOMICS},
+  title           = {A logarithmic market scoring rule agent-based model to evaluate prediction markets},
   year            = {2023},
-  volume          = {33},
+  month           = {SEP},
   number          = {4},
   pages           = {1303-1343},
-  month           = {SEP},
+  volume          = {33},
   abstract        = {Prediction Markets (PMs) are markets in which agents trade event
    contingent assets. Enterprises use PMs to forecast revenues and project
    deadlines. This paper presents an Agent-based model, called Logarithmic
@@ -1496,8 +1528,9 @@ We describe how the ESN can form the basis for novel and computationally efficie
   author-email    = {athosvcc@gmail.com dsilveir@ualberta.ca regisaely@gmail.com danielcajueiro@gmail.com},
   doi             = {10.1007/s00191-023-00822-w},
   earlyaccessdate = {JUN 2023},
-  keywords        = {Agent-based model; Prediction market, rank3},
+  keywords        = {Agent-based model; Prediction market},
   keywords-plus   = {EFFICIENCY; ECONOMICS; PROTOCOL; PRICES},
+  ranking         = {rank3},
   times-cited     = {0},
   type            = {Article},
   unique-id       = {WOS:001005814200001},
@@ -1505,12 +1538,12 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @InProceedings{WOS:000469462800044,
   author       = {Eapen, Jithin and Verma, Abhishek and Bein, Doina},
-  title        = {Novel Deep Learning Model with CNN and Bi-Directional LSTM for Improved Stock Market Index Prediction},
   booktitle    = {2019 IEEE 9TH ANNUAL COMPUTING AND COMMUNICATION WORKSHOP AND CONFERENCE (CCWC)},
+  title        = {Novel Deep Learning Model with CNN and Bi-Directional LSTM for Improved Stock Market Index Prediction},
   year         = {2019},
   editor       = {Chakrabarti, S and Saha, HN},
-  pages        = {264-270},
   note         = {9th IEEE Annual Computing and Communication Workshop and Conference (CCWC), Univ Nevada, Las Vegas, NV, JAN 07-09, 2019},
+  pages        = {264-270},
   abstract     = {Predicting variations in stock price index has been an important
    application area of machine learning research. Due to the non-linear and
    complex nature of the stock market making predictions on stock price
@@ -1529,7 +1562,8 @@ We describe how the ESN can form the basis for novel and computationally efficie
   affiliation  = {Eapen, J (Corresponding Author), Calif State Univ Fullerton, Dept Comp Sci, Fullerton, CA 92831 USA. Eapen, Jithin; Bein, Doina, Calif State Univ Fullerton, Dept Comp Sci, Fullerton, CA 92831 USA. Verma, Abhishek, New Jersey City Univ, Dept Comp Sci, Jersey City, NJ 07305 USA.},
   author-email = {jithin.john@csu.fullerton.edu averma@njcu.edu dbein@fullerton.edu},
   doi          = {10.1109/ccwc.2019.8666592},
-  keywords     = {deep learning; Bi-directional LSTM; stock market prediction; CNN; S\&P 500, rank2},
+  keywords     = {deep learning; Bi-directional LSTM; stock market prediction; CNN; S\&P 500},
+  ranking      = {rank2},
   times-cited  = {47},
   type         = {Proceedings Paper},
   unique-id    = {WOS:000469462800044},
@@ -1537,12 +1571,12 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @Article{WOS:000785090300001,
   author         = {Zaznov, Ilia and Kunkel, Julian and Dufour, Alfonso and Badii, Atta},
-  title          = {Predicting Stock Price Changes Based on the Limit Order Book: A Survey},
   journal        = {MATHEMATICS},
+  title          = {Predicting Stock Price Changes Based on the Limit Order Book: A Survey},
   year           = {2022},
-  volume         = {10},
-  number         = {8},
   month          = {APR},
+  number         = {8},
+  volume         = {10},
   abstract       = {This survey starts with a general overview of the strategies for stock
    price change predictions based on market data and in particular Limit
    Order Book (LOB) data. The main discussion is devoted to the systematic
@@ -1588,8 +1622,9 @@ We describe how the ESN can form the basis for novel and computationally efficie
   article-number = {1234},
   author-email   = {i.zaznov@pgr.reading.ac.uk julian.kunkel@gwdg.de a.dufour@icmacentre.ac.uk atta.badii@reading.ac.uk},
   doi            = {10.3390/math10081234},
-  keywords       = {survey; review of the literature; experiments reproducibility evaluation; microstructure market data; limit order book; time series analysis; deep learning; convolutional neural network; LSTM, rank2},
+  keywords       = {survey; review of the literature; experiments reproducibility evaluation; microstructure market data; limit order book; time series analysis; deep learning; convolutional neural network; LSTM},
   keywords-plus  = {MARKET PREDICTION; P 500; SELECTION; MACHINE; SYSTEM},
+  ranking        = {rank2},
   times-cited    = {1},
   type           = {Review},
   unique-id      = {WOS:000785090300001},
@@ -1597,21 +1632,21 @@ We describe how the ESN can form the basis for novel and computationally efficie
 
 @Article{Gerald1995,
   author     = {Tesauro, Gerald},
-  title      = {Temporal Difference Learning and TD-Gammon},
   journal    = {Commun. ACM},
+  title      = {Temporal Difference Learning and TD-Gammon},
   year       = {1995},
-  volume     = {38},
+  issn       = {0001-0782},
+  month      = {mar},
   number     = {3},
   pages      = {58–68},
-  month      = {mar},
-  issn       = {0001-0782},
+  volume     = {38},
   abstract   = {Ever since the days of Shannon's proposal for a chess-playing algorithm [12] and Samuel's checkers-learning program [10] the domain of complex board games such as Go, chess, checkers, Othello, and backgammon has been widely regarded as an ideal testing ground for exploring a variety of concepts and approaches in artificial intelligence and machine learning. Such board games offer the challenge of tremendous complexity and sophistication required to play at expert level. At the same time, the problem inputs and performance measures are clear-cut and well defined, and the game environment is readily automated in that it is easy to simulate the board, the rules of legal play, and the rules regarding when the game is over and determining the outcome.},
   address    = {New York, NY, USA},
   doi        = {10.1145/203330.203343},
   issue_date = {March 1995},
-  keywords   = {rank4},
   numpages   = {11},
   publisher  = {Association for Computing Machinery},
+  ranking    = {rank4},
   url        = {https://doi.org/10.1145/203330.203343},
 }
 
@@ -1622,27 +1657,27 @@ We describe how the ESN can form the basis for novel and computationally efficie
   abstract      = {This paper surveys the field of reinforcement learning from a computer-science perspective. It is written to be accessible to researchers familiar with machine learning. Both the historical basis of the field and a broad selection of current work are summarized. Reinforcement learning is the problem faced by an agent that learns behavior through trial-and-error interactions with a dynamic environment. The work described here has a resemblance to work in psychology, but differs considerably in the details and in the use of the word ``reinforcement.'' The paper discusses central issues of reinforcement learning, including trading off exploration and exploitation, establishing the foundations of the field via Markov decision theory, learning from delayed reinforcement, constructing empirical models to accelerate learning, making use of generalization and hierarchy, and coping with hidden state. It concludes with a survey of some implemented systems and an assessment of the practical utility of current methods for reinforcement learning.},
   archiveprefix = {arXiv},
   eprint        = {cs/9605103},
-  keywords      = {rank5},
   primaryclass  = {cs.AI},
+  ranking       = {rank5},
 }
 
 @Book{Sutton2018,
-  title     = {Reinforcement Learning: An Introduction},
-  publisher = {The MIT Press},
-  year      = {2018},
   author    = {Sutton, Richard S. and Barto, Andrew G.},
+  publisher = {The MIT Press},
+  title     = {Reinforcement Learning: An Introduction},
+  year      = {2018},
   isbn      = {978-0262039246},
   abstract  = {Reinforcement learning, one of the most active research areas in artificial intelligence, is a computational approach to learning whereby an agent tries to maximize the total amount of reward it receives while interacting with a complex, uncertain environment. In Reinforcement Learning, Richard Sutton and Andrew Barto provide a clear and simple account of the field's key ideas and algorithms. This second edition has been significantly expanded and updated, presenting new topics and updating coverage of other topics.
 
 Like the first edition, this second edition focuses on core online learning algorithms, with the more mathematical material set off in shaded boxes. Part I covers as much of reinforcement learning as possible without going beyond the tabular case for which exact solutions can be found. Many algorithms presented in this part are new to the second edition, including UCB, Expected Sarsa, and Double Learning. Part II extends these ideas to function approximation, with new sections on such topics as artificial neural networks and the Fourier basis, and offers expanded treatment of off-policy learning and policy-gradient methods. Part III has new chapters on reinforcement learning's relationships to psychology and neuroscience, as well as an updated case-studies chapter including AlphaGo and AlphaGo Zero, Atari game playing, and IBM Watson's wagering strategy. The final chapter discusses the future societal impacts of reinforcement learning.},
-  keywords  = {rank4},
+  ranking   = {rank4},
   url       = {http://incompleteideas.net/book/RLbook2020.pdf},
 }
 
 @Misc{Ganesh2019,
   author        = {Sumitra Ganesh and Nelson Vadori and Mengda Xu and Hua Zheng and Prashant Reddy and Manuela Veloso},
-  title         = {Reinforcement Learning for Market Making in a Multi-agent Dealer Market},
   month         = nov,
+  title         = {Reinforcement Learning for Market Making in a Multi-agent Dealer Market},
   year          = {2019},
   abstract      = {Market makers play an important role in providing liquidity to markets by continuously quoting prices at which they are willing to buy and sell, and managing inventory risk. In this paper, we build a multi-agent simulation of a dealer market and demonstrate that it can be used to understand the behavior of a reinforcement learning (RL) based market maker agent. We use the simulator to train an RL-based market maker agent with different competitive scenarios, reward formulations and market price trends (drifts). We show that the reinforcement learning agent is able to learn about its competitor's pricing policy; it also learns to manage inventory by smartly selecting asymmetric prices on the buy and sell sides (skewing), and maintaining a positive (or negative) inventory depending on whether the market price drift is positive (or negative). Finally, we propose and test reward formulations for creating risk averse RL-based market maker agents.},
   archiveprefix = {arXiv},
@@ -1650,16 +1685,17 @@ Like the first edition, this second edition focuses on core online learning algo
   doi           = {10.48550/arXiv.1911.05892},
   eprint        = {1911.05892},
   file          = {:Ganesh2019 - Reinforcement Learning for Market Making in a Multi Agent Dealer Market.pdf:PDF},
-  keywords      = {Trading and Market Microstructure (q-fin.TR), Machine Learning (cs.LG), Multiagent Systems (cs.MA), FOS: Economics and business, FOS: Computer and information sciences, rank5},
+  keywords      = {Trading and Market Microstructure (q-fin.TR), Machine Learning (cs.LG), Multiagent Systems (cs.MA), FOS: Economics and business, FOS: Computer and information sciences},
   primaryclass  = {q-fin.TR},
   publisher     = {arXiv},
+  ranking       = {rank5},
   url           = {https://arxiv.org/pdf/1911.05892.pdf},
 }
 
 @Misc{Gueant2017,
   author        = {Olivier Guéant},
-  title         = {Optimal market making},
   month         = may,
+  title         = {Optimal market making},
   year          = {2017},
   abstract      = {Market makers provide liquidity to other market participants: they propose prices at which they stand ready to buy and sell a wide variety of assets. They face a complex optimization problem with both static and dynamic components. They need indeed to propose bid and offer/ask prices in an optimal way for making money out of the difference between these two prices (their bid-ask spread). Since they seldom buy and sell simultaneously, and therefore hold long and/or short inventories, they also need to mitigate the risk associated with price changes, and subsequently skew their quotes dynamically. In this paper, (i) we propose a general modeling framework which generalizes (and reconciles) the various modeling approaches proposed in the literature since the publication of the seminal paper "High-frequency trading in a limit order book" by Avellaneda and Stoikov, (ii) we prove new general results on the existence and the characterization of optimal market making strategies, (iii) we obtain new closed-form approximations for the optimal quotes, (iv) we extend the modeling framework to the case of multi-asset market making and we obtain general closed-form approximations for the optimal quotes of a multi-asset market maker, and (v) we show how the model can be used in practice in the specific (and original) case of two credit indices.},
   archiveprefix = {arXiv},
@@ -1667,21 +1703,22 @@ Like the first edition, this second edition focuses on core online learning algo
   doi           = {10.48550/ARXIV.1605.01862},
   eprint        = {1605.01862},
   file          = {:guéant2017optimal - Optimal Market Making.pdf:PDF},
-  keywords      = {Trading and Market Microstructure (q-fin.TR), FOS: Economics and business, rank5},
+  keywords      = {Trading and Market Microstructure (q-fin.TR), FOS: Economics and business},
   primaryclass  = {q-fin.TR},
   publisher     = {arXiv},
+  ranking       = {rank5},
   url           = {https://arxiv.org/abs/1605.01862},
 }
 
 @Article{Avellaneda2008,
   author    = {Marco Avellaneda and Sasha Stoikov},
-  title     = {High-frequency trading in a limit order book},
   journal   = {Quantitative Finance},
+  title     = {High-frequency trading in a limit order book},
   year      = {2008},
-  volume    = {8},
+  month     = {apr},
   number    = {3},
   pages     = {217--224},
-  month     = {apr},
+  volume    = {8},
   abstract  = {We study a stock dealer’s strategy for submitting bid and ask quotes in a
 limit order book. The agent faces an inventory risk due to the diffusive nature of
 the stock’s mid-price and a transactions risk due to a Poisson arrival of market
@@ -1696,67 +1733,68 @@ P&L profiles and final inventories that have significantly less variance than th
 benchmark strategy.},
   doi       = {10.1080/14697680701381228},
   file      = {:Avellaneda2008 - High Frequency Trading in a Limit Order Book.pdf:PDF},
-  keywords  = {rank5},
   publisher = {Informa {UK} Limited},
+  ranking   = {rank5},
   url       = {https://math.nyu.edu/~avellane/HighFrequencyTrading.pdf},
 }
 
 @Article{selser2021optimal,
   author        = {Matias Selser and Javier Kreiner and Manuel Maurette},
-  title         = {Optimal Market Making by Reinforcement Learning},
   journal       = {Quantitative Finance},
+  title         = {Optimal Market Making by Reinforcement Learning},
   year          = {2021},
   archiveprefix = {arXiv},
   doi           = {10.48550/arXiv.2104.04036},
   eprint        = {2104.04036},
-  keywords      = {rank5},
   primaryclass  = {cs.LG},
+  ranking       = {rank5},
   url           = {https://arxiv.org/pdf/2104.04036.pdf},
 }
 
 @Article{Gu_ant_2012,
   author    = {Olivier Gu{\'{e}}ant and Charles-Albert Lehalle and Joaquin Fernandez-Tapia},
-  title     = {Dealing with the inventory risk: a solution to the market making problem},
   journal   = {Mathematics and Financial Economics},
+  title     = {Dealing with the inventory risk: a solution to the market making problem},
   year      = {2012},
-  volume    = {7},
+  month     = {sep},
   number    = {4},
   pages     = {477--507},
-  month     = {sep},
+  volume    = {7},
   doi       = {10.1007/s11579-012-0087-0},
-  keywords  = {rank3},
   publisher = {Springer Science and Business Media {LLC}},
+  ranking   = {rank3},
   url       = {https://doi.org/10.1007%2Fs11579-012-0087-0},
 }
 
 @Article{bakshaev2020marketmaking,
   author        = {Alexey Bakshaev},
-  title         = {Market-making with reinforcement-learning (SAC)},
   journal       = {Quantitative Finance},
+  title         = {Market-making with reinforcement-learning (SAC)},
   year          = {2020},
   archiveprefix = {arXiv},
   doi           = {10.48550/arXiv.2008.12275},
   eprint        = {2008.12275},
-  keywords      = {rank4},
   primaryclass  = {q-fin.PR},
+  ranking       = {rank5},
   url           = {https://arxiv.org/pdf/2008.12275.pdf},
 }
 
 @InProceedings{10.1145/3384441.3395986,
   author    = {Byrd, David and Hybinette, Maria and Balch, Tucker Hybinette},
-  title     = {ABIDES: Towards High-Fidelity Multi-Agent Market Simulation},
   booktitle = {Proceedings of the 2020 ACM SIGSIM Conference on Principles of Advanced Discrete Simulation},
+  title     = {ABIDES: Towards High-Fidelity Multi-Agent Market Simulation},
   year      = {2020},
-  series    = {SIGSIM-PADS '20},
-  pages     = {11–22},
   address   = {New York, NY, USA},
+  pages     = {11–22},
   publisher = {Association for Computing Machinery},
+  series    = {SIGSIM-PADS '20},
   abstract  = {We introduce ABIDES, an open source Agent-Based Interactive Discrete Event Simulation environment. ABIDES is designed from the ground up to support agent-based research in market applications. While proprietary simulations are available within trading firms, there are no broadly available high-fidelity market simulation environments. ABIDES enables the simulation of tens of thousands of trading agents interacting with an exchange agent to facilitate transactions. It supports configurable pairwise noisy network latency between each individual agent as well as the exchange. Our simulator's message-based design is modeled after NASDAQ's published equity trading protocols ITCH and OUCH. We introduce the design of the simulator and illustrate its use and configuration with sample code, validating the environment with example trading scenarios. The utility of ABIDES for financial research is illustrated through experiments to develop a market impact model. The core of ABIDES is a general-purpose discrete event simulation, and we demonstrate its breadth of application with a non-finance work-in-progress simulating secure multiparty federated learning. We close with discussion of additional experimental problems it can be, or is being, used to explore, such as the development of machine learning trading algorithms. We hope that the availability of such a platform will facilitate research in this important area.},
   doi       = {10.1145/3384441.3395986},
   isbn      = {9781450375924},
-  keywords  = {simulation, market, multiagent, discrete, finance, rank5},
+  keywords  = {simulation, market, multiagent, discrete, finance},
   location  = {Miami, FL, Spain},
   numpages  = {12},
+  ranking   = {rank5},
   url       = {https://doi.org/10.1145/3384441.3395986},
 }
 
@@ -1766,8 +1804,23 @@ benchmark strategy.},
   year          = {2021},
   archiveprefix = {arXiv},
   eprint        = {2108.07806},
-  keywords      = {rank4},
   primaryclass  = {q-fin.TR},
+  ranking       = {rank5},
+}
+
+@Article{Gueant2012,
+  author    = {Guéant, Olivier and Lehalle, Charles-Albert and Fernandez-Tapia, Joaquin},
+  journal   = {Mathematics and Financial Economics},
+  title     = {Dealing with the inventory risk: a solution to the market making problem},
+  year      = {2012},
+  issn      = {1862-9660},
+  month     = sep,
+  number    = {4},
+  pages     = {477–507},
+  volume    = {7},
+  doi       = {10.1007/s11579-012-0087-0},
+  publisher = {Springer Science and Business Media LLC},
+  url       = {http://dx.doi.org/10.1007/s11579-012-0087-0},
 }
 
 @Comment{jabref-meta: databaseType:bibtex;}

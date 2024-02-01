@@ -245,6 +245,8 @@ def main():
     agent.print_arrows()
     agent.print_V()
 
+    print(np.reshape(agent.policy, (4, 4, 4)))
+
     simulation = Simulation(agent, environment)
     total_reward, done = simulation.simulate()
     print(f'Total reward: {total_reward}')

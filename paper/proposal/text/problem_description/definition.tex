@@ -1,24 +1,18 @@
-Os mercados normalmente definem uma quantidade mínima por lote ofertado. Se uma bolsa determina um mínimo de 100 ações um vendedor não poderia criar uma oferta de 50 ações. Se os preços ofertados no momento permitirem a execução de um negócio, a transação ocorrerá em cima da menor quantidade entre as duas ofertas, ou seja, se uma ordem de venda de 100 ações fecha um negócio com uma ordem de compra de 200 ações por exemplo, a quantidade negociada será de apenas 100. O restante da oferta de compra, i.e. 100 ações, continua no livro de oferta de compras, enquanto no lado da venda, a próxima oferta de maior preferência vai para o topo do livro. 
+Nesta seção, será definido os principais elementos de Market Making.
 
-Definimos como $p^{a}$ a matriz de preços de venda para um agente qualquer, chamados de \textit{ask prices} em inglês e $p^{b}$ para compras, ou \textit{bid prices} em inglês. A matriz tem em suas $t \leq T, \  \forall t \in \mathbb{N}$\footnote{o tempo $t$ é comumente discretizado e sua unidade é representada em milissegundos.} linhas as diferentes ofertas do agente a cada momento, e em suas $i \in I$ colunas as ofertas para cada ativo $i$: 
-\begin{equation*}
-	\begin{aligned}
-		p^{a}_{t, i} \text{ para ofertas de venda e}  \\
-		p^{b}_{t, i} \text{ para ofertas de compra.}
-	\end{aligned}
-\end{equation*}
+Um agente pode enviar uma ordem limite $o = (p, Q)$, onde $p$ é o valor da ordem e $Q$ é a quantidade ofertada. Para um intervalo de tempo $t < T$, é possível ter um conjunto de ordens enviadas pelo agente $o_{t} \in \{o_{0}, ..., o_{T}\} = O$ indexados pelo índice de tempo $t$.
 
-A posição de uma oferta no livro de vendas para um ativo $i$ é dada pela função $\mathbf{pos}_{t, i}^{a}(p) = k$ está na posição $k$ da fila \footnote{onde $k = 0$ é a melhor oferta; com valores de preço decrescentes para vendas, e crescentes para compras.}. A diferença entre ofertas de compra e venda para um mesmo ativo $\Delta_{t, i} = p_{t, i}^{a} - p_{t, i}^{b}$ é o \textit{spread} no momento $t$ e caso $\mathbf{pos}_{t, i}^{a}(p) = \mathbf{pos}_{t, i}^{b}(p) = 0$ é chamado de \textit{bid-ask spread} $\mathbf{\Delta}_{t, i}$.
+A diferença entre o preço da melhor oferta de compra e venda no livro para um determinado ativo é chamada de \textit{bid-ask spread}: $\Delta = p^{(a, 0)} - p^{(b, 0)}$, onde $p^{(a, 0)}$ é o melhor $ask$ e $p^{(b, 0)}$ é o melhor \textit{bid}. Para um \textit{bid} (ou \textit{ask}) em uma posição qualquer, denota-se $p^{(b, i)}$, onde $i$ é a posição no livro de ofertas (decrescente para \textit{bids} e crescente para \textit{asks})
 
-O objetivo de uma estratégia de \textit{market making} (\textit{MM}) nesse contexto é criar ofertas de compra com valor maior que a melhor oferta, ou menor para ofertas de venda que venham a se tornar as melhores ofertas:
+O objetivo de uma estratégia de \textit{market making} (\textit{MM}) nesse contexto é criar ofertas de compra com valor maior (ou menor para ofertas de venda) que venham a se tornar as melhores ofertas, tais que: 
 
 \begin{itemize}
-    \item de venda, tais que $p^{a} < P^{a}$; ou 
-    \item de compra, tais que $p^{b} > P^{b,}$;
+    \item $p^{(a, 0)} < p^{(a, MM)}$ para vendas;
+    \item $p^{(b, 0)} > p^{(b, MM)}$ para compras;
 \end{itemize}
 
-onde $p$ é o preço da oferta do agente e $P$ é a melhor oferta existente $\mathbf{pos}_{t, i}^{a}(P) = \mathbf{pos}_{t, i}^{b}(P) = 0$.
-É importante notar que quaisquer ordens criadas por um agente de \textit{MM} não geram novas transações no instante \textit{t} (indicado por $p^{a} > P^{b}$ e $p^{b} < P^{a}$ para um mesmo ativo). A seguir um exemplo da reta de preços para um momento $t$ e um ativo $i$ qualquer, onde $p^{b, k}$ é tal que $\mathbf{pos}^{b}(p^{b, k}) = k$:
+onde $p^{(MM)}$ é o preço da oferta do agente e  $p^{(0)}$ é a melhor oferta existente.
+É importante notar que quaisquer ordens criadas por um agente de \textit{MM} não geram novas transações no momento, ou seja, as ofertas de bid do agente não cruzam com ofertas de ask existentes e vice-versa. ($p^{(a, 0)} > p^{(b, MM)}$ e $p^{(b, 0)} < p^{(a, MM)}$ para novas ordens).
 
 \begin{figure}[H]
 	\begin{center}
@@ -92,59 +86,71 @@ onde $p$ é o preço da oferta do agente e $P$ é a melhor oferta existente $\ma
 				\addplot [blue, fill=blue!20] coordinates {(1, 45) (2, 35) (3, 25) (4, 5)};
 				% Represent ask prices in red
 				\addplot [red, fill=red!20] coordinates {(5, 5) (6, 15) (7, 25) (8, 35)};
-				\legend{Bid Prices, Ask Prices}
+				\legend{Bid Deltas, Ask Deltas}
 			\end{axis}
 		\end{tikzpicture}
 	\end{center}
-	\caption{Gráfico de spreads de um livro de ordens limite $L$ qualquer}
+	\caption{Gráfico de spreads $\Delta$ de um livro de ordens limite $L$ qualquer}
 \end{figure}
 
-Para ilustrar melhor o funcionamento do livro de ordens considere a seguinte situação para um mesmo momento $t$ e ativo $i$: um agente qualquer de \textit{MM} tem a \textbf{única oferta de venda} pelo preço de $p^{a}$ no mercado. Caso surja uma nova oferta de \textbf{compra} com melhor preço e acima do preço da oferta do agente $P^{b} \geq p^{a}$, será gerada uma transação pelo preço $p^{a}$ e a ordem de preço $P^{b}$ que gerou a transação é chamada de ordem de mercado, enquanto a ordem do agente é chamada de ordem limite. Após o motor de transações da bolsa receber a ordem com preço $P$, uma transação ocorre e ambas ofertas são removidas do livro de ordens. Em seguida, o agente tem o valor da sua posição $r_{t}$ ajustada:
+Para ilustrar melhor o funcionamento do livro de ordens considere a seguinte situação, para um único ativo: um agente qualquer de \textit{MM} tem a \textbf{única oferta de venda} pelo preço de $p^{(a, MM)}$ no mercado. Caso surja uma nova oferta de \textbf{compra} com melhor preço e acima do preço da oferta do agente $p^{(b, i)} \geq p^{(a, MM)}$, será gerada uma transação pelo preço $p^{(a, MM)}$ e a ordem de valor $p^{(b, i)}$ que gerou a transação é a ordem limite com preço de mercado. Após o motor de transações da bolsa receber a oferta $i$, uma transação ocorre e ambas ofertas são removidas do livro de ordens. Em seguida, o agente tem o valor do seu inventário $I$ ajustada:
 \begin{equation}
     \begin{aligned}
-    	r_{t + 1}:= r_{t} + p^{a}_{t, i} \cdot q^{a}_{t, i} \text{ para vendas e} \\ 
-    	r_{t + 1}:= r_{t} - p^{b}_{t, i} \cdot q^{b}_{t, i} \text{ para compras}
+    	I_{t} = N^{(b)}_{t} - N^{(a)}_{t} 
     \end{aligned}
 \end{equation}
-onde $r_{t}$ é um valor escalar e $p^{a}$ e $q^{a}$ são as matrizes de preços ofertados e quantidades negociadas. Note que as dimensões de $q^{a}$ são as mesmas de $p^{a}$, ou seja, uma matriz com linhas representando os índices $t$ de tempo e colunas $i$ para cada ativo do mercado (o mesmo vale para $p^{b}$ e $q^{b}$).
+onde $I_{t} \in \mathbf{I}, t < T$ é um valor escalar e representa a quantidade que o agente possúi do determinado ativo no momento $t$, e $\mathbf{I}$ é um vetor representado o histórico temporal de inventário do agente. $N^{(a)}$ e $N^{(b)}$ são variáveis aleatórias que representam a quantidade de ativos vendidos ou comprados da oferta inicial, distribuídas de acordo com um processo de contagem, com incrementos indepentes (note que os valores esperados dos incrementos dos processos seguem médias $\lambda_{t}^{(a)}$ e $\lambda_{t}^{(b)}$ que se alteram de acordo com o tempo $t$). Os incrementos dos processos de contagem são limitados externalmente à quantidade ofertada pelo agente, tal que $(N_{t + 1}^{(a)} - N_{t}^{(a)}) \leq Q_{t + 1}^{(a)}$ e $(N_{t + 1}^{(b)} - N_{t}^{(b)}) \leq Q_{t + 1}^{(b)}$.
 
-Em seguida, o agente escolhe esperar ou realizar uma das ações abaixo:
+O retorno financeiro do agente (também chamado de \textit{Profit and Loss} ou \textit{PnL}) é representado por $W$, e também pode ser indexado pelo tempo $W_{t} \in \mathbf{W}, t < T$. O PnL do agente é atualizado de acordo com a seguinte expressão:
+\begin{equation}
+	\begin{aligned}
+		W_{t + 1} = W_{t} + p^{(a, MM)}_{t} \cdot (N^{(a)}_{t + 1} - N^{(a)}_{t}) - p^{(b, MM)}_{t} \cdot (N^{(b)}_{t + 1} - N^{(b)}_{t} )
+	\end{aligned}
+\end{equation}
+
+Por fim, o agente tem como valor do portfólio a seguinte expressão:
+
+\begin{equation}
+	\begin{aligned}
+		W_{t} + I_{t} \cdot P_{t}
+	\end{aligned}
+\end{equation}
+
+onde $P_{t}$ é o preço médio do ativo ($\frac{p_{t}^{(a, 0)} - p_{t}^{(b, 0)}}{2}$) e é distribuido de acordo com um processo de Wiener: $dP_t = \sigma \cdot dz_t$.
+
+A cada observação e atualização dos valores $\{t, P_{t}, W_{t}, I_{t}\}$ o agente pode escolher não fazer nada ou realizar uma das ações abaixo:
 \begin{enumerate}
-    \item inserir uma nova oferta de venda, substituindo ou complementando a oferta anterior;
-    \item inserir ou ajustar uma oferta de compra existente no livro de ofertas de compras;
+    \item alterar as quantidades ofertadas $Q^{(a)}_{t + 1}$ e $Q^{(b)}_{t + 1}$;
+    \item alterar os preços ofertados $p^{(a, MM)}_{t + 1}$ e $p^{(b, MM)}_{t + 1}$;
 \end{enumerate}
 
-A decisão do agente irá depender de sua expectativa sobre a evolução do mercado, assim como do processo de chegada de ordens de outros agentes, representados pelo identificador $n$, incluindo, mas não limitado à
-\begin{itemize}
-    \item probabilidade de chegar uma oferta de compra com preço superior $Pr(P_{t + s, i}^{b} > p_{t, i}^{b})$, em algum momento no futuro $s > 0$;
-    \item probabilidade de chegar uma oferta de venda com preço inferior $Pr(P_{t + s, i}^{a} < p_{t, i}^{a})$, em algum momento no futuro $s > 0$;
-    \item liquidez esperada para o mercado a partir de $t$ até o momento de fechamento do pregão $T$;
-    \item risco futuro da posição ultrapassar os limites estabelecidos pelas corretoras.
-\end{itemize}
+O agente realiza essas mudanças buscando maximizar a recompensa de sua posição, representada por:
 
-De modo a simplificar as equações adiantes e utilizar uma notação mais comumente usada no contexto de ordens limite, definimos:
+\[
+R_{t} =
+\begin{cases}
+	0 & \text{se } t + 1 < T, \\
+	U(W_{t + 1} + I_{t + 1} \cdot P_{t + 1}) & \text{se } t + 1 = T.
+\end{cases}
+\]
 
-\begin{description}[]
-	\item[$\delta_{t}(p)$:] $\mathbb{R} \rightarrow \mathbb{R} = |p - p_{t}|$ como a diferença entre o preço $p$ de uma oferta de venda ou compra e o preço de mercado $p$ da ação subjacente no momento $t$.
-	
-	\item[$\delta_{t}(p, q)$:] $\mathbb{R}^{2} \rightarrow \mathbb{R} = q \cdot \delta_{t}(p)$ como a função que mapeia o impacto de $q$ ações negociadas na carteira do agente sob o \textit{spread} parcial $\delta_t$.
-	
-	\item[$r_{t}$] é o retorno obtido pelo agente no momento $t$. É calculado pela soma do impacto de todos ativos, onde $o_{t} = \{(p_{t, 0}^{a}, Q_{t, 0}^{a}), ..., (p_{t, n}^{a}, Q_{t, n}^{a}), (p_{t, 0}^{b}, Q_{t, 0}^{b}), ..., (p_{t, m}^{b}, Q_{t, m}^{b})\}$ é o conjunto de ofertas do agente para todos ativos no momento $t$. Cada oferta é uma tupla $(p, Q)$ de preço por ativo e quantidade de ativos ofertada. O retorno no momento $t$ é definido como a soma de todas os \textit{spreads} de venda $\delta_{t}(p^{a}_{t, i}, q^{a}_{t, i})$ menos todos os \textit{spreads} de compra $\delta_{t}(p^{b}_{t, j}, q^{a}_{t, j})$.
-	
-	\begin{equation} \label{return}
-		\begin{aligned}
-			r_{t} = \sum_{i = 0}^{n} \delta_{t}(p_{t, i}^{a}, q_{t, i}^{a}) \\
-			-\sum_{j = 0}^{m} \delta_{t}(p_{t, j}^{b}, q_{t, j}^{b}) \\
-			\forall t < T
-		\end{aligned}
-	\end{equation}
-\end{description}
+onde U é uma função de utilidade côncava escolhida de forma a levar em consideração o risco associado à posição do agente, tal que $U(x) = -e^{-c x}$ e $c$ é o coeficiente de aversão ao risco.
 
-onde os valores de  $q$ são as quantidades efetivamente executadas da ordem, podendo ser menor (no caso de uma ordem parcial) ou igual à $Q$ (ordem total), onde $Q$ é a quantidade inicialmente ofertada pelo agente.
-Para considerar custos de transação — que incluem tipicamente custos da corretora e emolumentos das bolsas — basta alterar a expressão para $r_{t} := r_{t} - c$, sendo $c$ o custo total de todas transações realizadas.
+Em seguida, definimos como $G$ o retorno do agente (agora o termo "retorno" pertence ao contexto de controle estocástico, e não é referente ao "retorno financeiro"), que é a soma amortecida $\gamma$ das recompensas intermediárias:
 
-O agente de \textit{MM}, por fim, observa a sua posição acumulada durante todo o período de negociação $T$ para decidir se obteve retorno positivo ou negativo:
-\begin{equation} \label{return_accumulated}
-    R_{T} = \sum_{t=0}^{T} r_t
+\begin{equation}
+	\begin{aligned}
+		G_{T} = \sum_{t=0}^{T} \gamma^t \cdot R_t
+	\end{aligned}
 \end{equation}
-Define-se matematicamente o valor da posição $R_T$ como a agregação das receitas de vendas, e dos custos de compra e de transações até o momento $T$. 
+
+Por fim, o objetivo do agente é obter uma política $\pi$ que maximize a equação ação-valor ótima de Bellman para o tempo terminal (fechamento do pregão) \citep{Sutton2018}.
+
+\begin{equation}
+	\begin{aligned}
+		Q^{\pi}(s, a) = \mathbb{E}_{\pi} \left[ G_t \mid S_{t} = s, A_{t} = a \right]\\
+		Q^{*}(s, a) = \max_{\pi} Q^{\pi}(s, a)		
+	\end{aligned}
+\end{equation}
+
+Na próxima seção será definido o Processo de Recompensa de Markov, assim como o modelo do ambiente e do agente. Por fim, será discutido o uso de algoritmos de Aprendizado por Reforço para aproximar os valores da equação de Bellman, e da política $\pi$ que maximizem o retorno do agente de \textit{Market Making}.
