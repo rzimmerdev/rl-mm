@@ -1,10 +1,8 @@
-Nesta seção, será definido os principais elementos de Market Making.
+Nos mercados eletrônicos modernos é possível a criação e envio de ordens digitais. No contexto do MM o principal tipo de ordem usado é a ordem limite. Uma ordem limite qualquer $o = (p, Q)$, onde $p$ é o valor da ordem e $Q$ é a quantidade ofertada. Para um intervalo de tempo discreto $t < T, t \in \mathbb{Z^{+}}$, onde $T$ é o momento do fechamento do mercado (ou final do pregão), o agente pode operar diversas vezes, atualizando os valores da ordem ao longo do tempo $t$. Para tal, identificar-se-há o preço e quantidade ofertada no tempo $t$ por $o_{t} \in \{o_{0}, ..., o_{T}\}$.
 
-Um agente pode enviar uma ordem limite $o = (p, Q)$, onde $p$ é o valor da ordem e $Q$ é a quantidade ofertada. Para um intervalo de tempo $t < T$, é possível ter um conjunto de ordens enviadas pelo agente $o_{t} \in \{o_{0}, ..., o_{T}\} = O$ indexados pelo índice de tempo $t$.
+Como mencionado anteriormente, os \textit{LOB} são ordenados de acordo com as ofertas com melhores preços, sejam de compra ou venda. A diferença entre o preço da melhor oferta de compra e venda no livro para um determinado ativo é chamada de \textit{bid-ask spread}, representada por $\Delta = p^{(a, 0)} - p^{(b, 0)}$, onde $p^{(a, 0)}$ é o melhor $ask$ e $p^{(b, 0)}$ é o melhor \textit{bid}. Para um \textit{bid} (ou \textit{ask}) em uma posição qualquer, denota-se $p^{(b, i)}$, onde $i$ é a posição da oferta no \textit{LOB} ($p^{(i)}$ é decrescente para \textit{bids} e crescente para \textit{asks})
 
-A diferença entre o preço da melhor oferta de compra e venda no livro para um determinado ativo é chamada de \textit{bid-ask spread}: $\Delta = p^{(a, 0)} - p^{(b, 0)}$, onde $p^{(a, 0)}$ é o melhor $ask$ e $p^{(b, 0)}$ é o melhor \textit{bid}. Para um \textit{bid} (ou \textit{ask}) em uma posição qualquer, denota-se $p^{(b, i)}$, onde $i$ é a posição no livro de ofertas (decrescente para \textit{bids} e crescente para \textit{asks})
-
-O objetivo de uma estratégia de \textit{market making} (\textit{MM}) nesse contexto é criar ofertas de compra com valor maior (ou menor para ofertas de venda) que venham a se tornar as melhores ofertas, tais que: 
+O objetivo de uma estratégia de \textit{market making} (\textit{MM}) nesse contexto é criar ofertas que superem as ordens existentes e venham a se tornar as melhores ofertas, tais que: 
 
 \begin{itemize}
     \item $p^{(a, 0)} < p^{(a, MM)}$ para vendas;
@@ -93,48 +91,52 @@ onde $p^{(MM)}$ é o preço da oferta do agente e  $p^{(0)}$ é a melhor oferta 
 	\caption{Gráfico de spreads $\Delta$ de um livro de ordens limite $L$ qualquer}
 \end{figure}
 
-Para ilustrar melhor o funcionamento do livro de ordens considere a seguinte situação, para um único ativo: um agente qualquer de \textit{MM} tem a \textbf{única oferta de venda} pelo preço de $p^{(a, MM)}$ no mercado. Caso surja uma nova oferta de \textbf{compra} com melhor preço e acima do preço da oferta do agente $p^{(b, i)} \geq p^{(a, MM)}$, será gerada uma transação pelo preço $p^{(a, MM)}$ e a ordem de valor $p^{(b, i)}$ que gerou a transação é a ordem limite com preço de mercado. Após o motor de transações da bolsa receber a oferta $i$, uma transação ocorre e ambas ofertas são removidas do livro de ordens. Em seguida, o agente tem o valor do seu inventário $I$ ajustada:
+Para ilustrar melhor o funcionamento do livro de ordens considere a seguinte situação, para um único ativo: um agente qualquer de \textit{MM} tem a \textbf{única oferta de venda} pelo preço de $p^{(a, MM)}$ no mercado. Caso surja uma nova oferta de \textbf{compra} com melhor preço e acima do preço da oferta do agente $p^{(b, i)} \geq p^{(a, MM)}$, será gerada uma transação pelo preço $p^{(a, MM)}$ e a ordem de valor $p^{(b, i)}$ que gerou a transação é a ordem limite com preço de mercado. Após o motor de transações da bolsa receber a oferta $i$, uma transação ocorre e ambas ofertas são removidas do livro de ordens. 
+
+O agente observa, para um determinado ativo e considerando novamente um índice de tempo discreto $t < T, t \in \mathbb{Z^{+}}$, três valores numéricos principais $(I_{t}, P_{t}, W_{t})$, sendo eles: 
+\begin{itemize}
+	\item o inventário $I_{t} \in \mathbb{Z}$ (a quantidade que têm do ativo);
+	\item o preço médio do ativo $P_{t} \in \mathbb{R}$;
+	\item o lucro financeiro do portfólio $W_{t} \in \mathbb{R}$;
+	\item o valor total das negociações diárias, obtido a partir da expressão: $W_{t} + I_{t} \cdot P_{t}$;
+\end{itemize}
+
+A cada passo de tempo, ou seja, quando $t := t + 1$, o inventário do agente é atualizado da seguinte forma:
 \begin{equation}
     \begin{aligned}
-    	I_{t} = N^{(b)}_{t} - N^{(a)}_{t} 
+    	I_{t + 1} = N^{(b)}_{t + 1} - N^{(a)}_{t + 1} 
     \end{aligned}
 \end{equation}
-onde $I_{t} \in \mathbf{I}, t < T$ é um valor escalar e representa a quantidade que o agente possúi do determinado ativo no momento $t$, e $\mathbf{I}$ é um vetor representado o histórico temporal de inventário do agente. $N^{(a)}$ e $N^{(b)}$ são variáveis aleatórias que representam a quantidade de ativos vendidos ou comprados da oferta inicial, distribuídas de acordo com um processo de contagem, com incrementos indepentes (note que os valores esperados dos incrementos dos processos seguem médias $\lambda_{t}^{(a)}$ e $\lambda_{t}^{(b)}$ que se alteram de acordo com o tempo $t$). Os incrementos dos processos de contagem são limitados externalmente à quantidade ofertada pelo agente, tal que $(N_{t + 1}^{(a)} - N_{t}^{(a)}) \leq Q_{t + 1}^{(a)}$ e $(N_{t + 1}^{(b)} - N_{t}^{(b)}) \leq Q_{t + 1}^{(b)}$.
+onde $N^{(a)}$ e $N^{(b)}$ são as quantidades de ativos efetivamente vendidos ou comprados, distribuídas de acordo com um processo de contagem, com incrementos indepentes (note que os valores esperados dos incrementos dos processos seguem médias $\lambda_{t}^{(a)}$ e $\lambda_{t}^{(b)}$ que se alteram de acordo com o tempo $t$). Os incrementos dos processos de contagem são limitados externalmente à quantidade ofertada pelo agente, tal que $(N_{t + 1}^{(a)} - N_{t}^{(a)}) \leq Q_{t + 1}^{(a)}$ e $(N_{t + 1}^{(b)} - N_{t}^{(b)}) \leq Q_{t + 1}^{(b)}$.
 
-O retorno financeiro do agente (também chamado de \textit{Profit and Loss} ou \textit{PnL}) é representado por $W$, e também pode ser indexado pelo tempo $W_{t} \in \mathbf{W}, t < T$. O PnL do agente é atualizado de acordo com a seguinte expressão:
+O preço médio do ativo é facilmente obtido a partir de um movimento Browniano unidimensional (também chamado de processo de Wiener), de acordo com a equação incremental a seguir:
+\begin{equation}
+	\begin{aligned}
+		P_{t+1} = P_t + \sigma \cdot \Delta Z_t
+	\end{aligned}
+\end{equation}
+onde \(\sigma\) é a volatilidade do ativo e \(\Delta Z_t\) é uma variável aleatória amostrada de uma distribuição normal com média 0 e variância \(\Delta t\), onde \(\Delta t\) é o tamanho do intervalo de tempo discreto.
+
+Por fim, o lucro financeiro do agente (também chamado de \textit{Profit and Loss} ou \textit{PnL}) é atualizado de acordo com a seguinte expressão:
 \begin{equation}
 	\begin{aligned}
 		W_{t + 1} = W_{t} + p^{(a, MM)}_{t} \cdot (N^{(a)}_{t + 1} - N^{(a)}_{t}) - p^{(b, MM)}_{t} \cdot (N^{(b)}_{t + 1} - N^{(b)}_{t} )
 	\end{aligned}
 \end{equation}
 
-Por fim, o agente tem como valor do portfólio a seguinte expressão:
-
-\begin{equation}
-	\begin{aligned}
-		W_{t} + I_{t} \cdot P_{t}
-	\end{aligned}
-\end{equation}
-
-onde $P_{t}$ é o preço médio do ativo ($\frac{p_{t}^{(a, 0)} - p_{t}^{(b, 0)}}{2}$) e é distribuido de acordo com um processo de Wiener: $dP_t = \sigma \cdot dz_t$.
-
-A cada observação e atualização dos valores $\{t, P_{t}, W_{t}, I_{t}\}$ o agente pode escolher não fazer nada ou realizar uma das ações abaixo:
+A cada observação e atualização dos valores $(P_{t}, W_{t}, I_{t})$ o agente pode escolher não fazer nada ou realizar uma das ações abaixo:
 \begin{enumerate}
     \item alterar as quantidades ofertadas $Q^{(a)}_{t + 1}$ e $Q^{(b)}_{t + 1}$;
     \item alterar os preços ofertados $p^{(a, MM)}_{t + 1}$ e $p^{(b, MM)}_{t + 1}$;
 \end{enumerate}
 
-O agente realiza essas mudanças buscando maximizar a recompensa de sua posição, representada por:
+O agente realiza essas mudanças buscando maximizar uma função-utilidade $U(X)$, que de preferência incorpore os valores do PnL, do inventário atual e do preço médio do ativo, assim como um fator de aversão ao risco. Para tal, definimos a progressão da recompensa $R$ em relação ao tempo $t$ como:
 
 \[
-R_{t} =
-\begin{cases}
-	0 & \text{se } t + 1 < T, \\
-	U(W_{t + 1} + I_{t + 1} \cdot P_{t + 1}) & \text{se } t + 1 = T.
-\end{cases}
+R_{t + 1} = U(W_{t} + I_{t} \cdot P_{t})
 \]
 
-onde U é uma função de utilidade côncava escolhida de forma a levar em consideração o risco associado à posição do agente, tal que $U(x) = -e^{-c x}$ e $c$ é o coeficiente de aversão ao risco.
+onde a funçãu utilidade $U$ escolhida é exponencial, tal que $U(x) = -e^{-c x}$ e $c$ é o coeficiente de aversão ao risco.
 
 Em seguida, definimos como $G$ o retorno do agente (agora o termo "retorno" pertence ao contexto de controle estocástico, e não é referente ao "retorno financeiro"), que é a soma amortecida $\gamma$ das recompensas intermediárias:
 
