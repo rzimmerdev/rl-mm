@@ -104,7 +104,7 @@ O agente observa, para um determinado ativo e considerando novamente um índice 
 A cada passo de tempo, ou seja, quando $t := t + 1$, o inventário do agente é atualizado da seguinte forma:
 \begin{equation}
     \begin{aligned}
-    	I_{t + 1} = N^{(b)}_{t + 1} - N^{(a)}_{t + 1} 
+    	I_{t + 1} = N^{(b)}_{t + 1} - N^{(a)}_{t + 1} \label{eq:inventory}
     \end{aligned}
 \end{equation}
 onde $N^{(a)}$ e $N^{(b)}$ são as quantidades de ativos efetivamente vendidos ou comprados, distribuídas de acordo com um processo de contagem, com incrementos indepentes (note que os valores esperados dos incrementos dos processos seguem médias $\lambda_{t}^{(a)}$ e $\lambda_{t}^{(b)}$ que se alteram de acordo com o tempo $t$). Os incrementos dos processos de contagem são limitados externalmente à quantidade ofertada pelo agente, tal que $(N_{t + 1}^{(a)} - N_{t}^{(a)}) \leq Q_{t + 1}^{(a)}$ e $(N_{t + 1}^{(b)} - N_{t}^{(b)}) \leq Q_{t + 1}^{(b)}$.
@@ -113,6 +113,7 @@ O preço médio do ativo é facilmente obtido a partir de um movimento Browniano
 \begin{equation}
 	\begin{aligned}
 		P_{t+1} = P_t + \sigma \cdot \Delta Z_t
+		\label{eq:midprice}
 	\end{aligned}
 \end{equation}
 onde \(\sigma\) é a volatilidade do ativo e \(\Delta Z_t\) é uma variável aleatória amostrada de uma distribuição normal com média 0 e variância \(\Delta t\), onde \(\Delta t\) é o tamanho do intervalo de tempo discreto.
@@ -121,6 +122,7 @@ Por fim, o lucro financeiro do agente (também chamado de \textit{Profit and Los
 \begin{equation}
 	\begin{aligned}
 		W_{t + 1} = W_{t} + p^{(a, MM)}_{t} \cdot (N^{(a)}_{t + 1} - N^{(a)}_{t}) - p^{(b, MM)}_{t} \cdot (N^{(b)}_{t + 1} - N^{(b)}_{t} )
+		\label{eq:pnl}
 	\end{aligned}
 \end{equation}
 
@@ -132,27 +134,13 @@ A cada observação e atualização dos valores $(P_{t}, W_{t}, I_{t})$ o agente
 
 O agente realiza essas mudanças buscando maximizar uma função-utilidade $U(X)$, que de preferência incorpore os valores do PnL, do inventário atual e do preço médio do ativo, assim como um fator de aversão ao risco. Para tal, definimos a progressão da recompensa $R$ em relação ao tempo $t$ como:
 
-\[
-R_{t + 1} = U(W_{t} + I_{t} \cdot P_{t})
-\]
-
-onde a funçãu utilidade $U$ escolhida é exponencial, tal que $U(x) = -e^{-c x}$ e $c$ é o coeficiente de aversão ao risco.
-
-Em seguida, definimos como $G$ o retorno do agente (agora o termo "retorno" pertence ao contexto de controle estocástico, e não é referente ao "retorno financeiro"), que é a soma amortecida $\gamma$ das recompensas intermediárias:
-
 \begin{equation}
 	\begin{aligned}
-		G_{T} = \sum_{t=0}^{T} \gamma^t \cdot R_t
+		R_{t + 1} = U(W_{t} + I_{t} \cdot P_{t})
+		\label{eq:reward}
 	\end{aligned}
 \end{equation}
 
-Por fim, o objetivo do agente é obter uma política $\pi$ que maximize a equação ação-valor ótima de Bellman para o tempo terminal (fechamento do pregão) \citep{Sutton2018}.
+onde a função utilidade $U$ escolhida é exponencial, tal que $U(x) = -e^{-c x}$ e $c$ é o coeficiente de aversão ao risco.
 
-\begin{equation}
-	\begin{aligned}
-		Q^{\pi}(s, a) = \mathbb{E}_{\pi} \left[ G_t \mid S_{t} = s, A_{t} = a \right]\\
-		Q^{*}(s, a) = \max_{\pi} Q^{\pi}(s, a)		
-	\end{aligned}
-\end{equation}
-
-Na próxima seção será definido o Processo de Recompensa de Markov, assim como o modelo do ambiente e do agente. Por fim, será discutido o uso de algoritmos de Aprendizado por Reforço para aproximar os valores da equação de Bellman, e da política $\pi$ que maximizem o retorno do agente de \textit{Market Making}.
+Por fim, traduzindo os conceitos discutidos podem ser aplicado no contexto de aprendizado por reforço, formando o $MDP = (\mathcal{S}, \mathcal{A}, T_{a}, R_{a})$, onde o espaço de observações do ambiente é \(\mathcal{S} = \{(P, W, I) \mid P \in \mathbb{R}, W \in \mathbb{R}, I \in \mathbb{Z}\}\), o espaço de ações do agente é \(\mathcal{A} = \{(p^a, p^b, Q^a, Q^b) \mid p \in \mathbb{R}^+ \text{ e } Q \in \mathbb{N}\}\). Os valores do operador de transição $T$ são obtidos de acordo com as dinâmicas em \ref{eq:inventory}, \ref{eq:midprice} e \ref{eq:pnl} e os valores da função de recompensa é dada por \ref{eq:reward}.

@@ -1,49 +1,8 @@
 O objetivo principal do agente de \textit{MM} é decidir dentro do intervalo de preços possíveis para o ativo o que proporcione um maior retorno financeiro para o menor risco associado, de acordo com a fronteira eficiente de execução ótima \citep{almgren2000}. O agente também pode decidir a quantidade $Q$ de ações ofertadas por determinado preço $p$, mas não tem controle direto sobre as quantidades efetivamente negociadas. Ou seja, a quantidade executada $N \leq Q$ é uma variável aleatória, dado que não é possível determinar de antemão quanto o agente agressor irá negociar com o agente de \textit{market-making} \citep{rao2020stochastic}.
 
-É possível representar essa dinâmica na forma de um problema de otimização estocástica com restrições, onde o objetivo do agente (ou controle) consiste em obter uma aproximação ótima da equação de valores-estados de Bellman $Q^*(s, a) = \mathbb{E} \left[ R_{t+1} + \gamma \cdot \max_{a'} Q^*(S_{t+1}, a') \mid S_t = s, A_t = a \right]$ para um processo de decisão de Markov (ou \textit{Markov Decision Process} em inglês).
-
-De modo a obter a solução para a equação, definimos o processo de decisão de Markov $(\mathcal{S}, \mathcal{A}, T_{a}, R_{a})$ a seguir:
-
-\begin{description}
-	\item[$\mathcal{S}$] 
-	é o espaço de estados possíveis, representado pelo conjunto $\{t, P_{t}, W_{t}, I_{t} \ | \ t < T\}$, onde cada estado $s \in \mathcal{S}$ é uma combinação possível da observação da dinâmica do livro de ordens limite $L$ no momento $t$;
-	
-	\item[$\mathcal{A}$] é o espaço de ações que o agente pode realizar, ou seja, a combinação de preços $p^{(a)}_{t + 1}$ e $p^{(b)}_{t + 1}$ e novas quantidades $Q^{(a)}_{t+1}$ e $Q^{(b)}_{t+1}$ para as ofertas de venda e compra existentes;
-	
-	\item[\textit{T}] são as transições possíveis entre estados dado uma ação tomada pelo agente. São representadas pela função de transição $T :  \mathcal{S} \times \mathcal{A} \times \mathcal{S} \rightarrow [0, 1]$, que mapeia o estado atual e a ação tomada para a probabilidade de ir para um estado subjacente. No caso do agente de \textit{market-making}, a função $T$ recebe o estado atual $s$ e a ação $a$ tomada pelo agente (conjunto de preços e quantidades ofertadas atualizadas). Em seguida recebe um possível estado futuro $s' \in \mathcal{S}$ e retorna a probabilidade de transição $T(s, a, s') = Pr(S_{t+1} = s' \ | \ S_{t} = s, A = a)$. O valor dessa função não é conhecido a não ser para sistemas muito simples, o que requer o uso de técnicas de programação dinâmica ou aprendizado por reforço para estimar a sua distribuição, como o método tabular \textit{Q-Learning} e \textit{Proximal Policy Optimization}, que serão analizados abaixo;
-
-	\item[\textit{R}] é a função de recompensa da cadeia aleatória, que mapeia o estado atual e a ação do agente para a probabilidade de uma recompensa ocorrer caso a transição para um determinado estado seguinte ocorra. No caso do agente de \textit{MM}, a função de recompensa é o próprio retorno $r_{t+1}$ do agente.
-\end{description}
-
-\begin{figure}[H]
-	\centering
-	\input{files/mdp}
-	\caption{Processo de Decisão de Markov com 4 estados e 4 ações (MDP)}
-	\label{fig:mdp}
-\end{figure}
-
-Tendo tal definição do agente como um Processo de Decisão de Markov (MDP), podemos simular o ambiente e encontrar uma política de decisão de preços ótimas. Há várias formas de obter a solução para o MDP, como:
-
+É possível representar essa dinâmica na forma de um problema de otimização estocástica com restrições, onde o objetivo do agente (ou controle) consiste em obter uma aproximação ótima da equação de valores-estados de Bellman $Q^*(s, a) = \mathbb{E} \left[ R_{t+1} + \gamma \cdot \max_{a'} Q^*(S_{t+1}, a') \mid S_t = s, A_t = a \right]$ para um processo de decisão de Markov (ou \textit{Markov Decision Process} em inglês). Para processos com ambientes mais simples é possível obter soluções analíticas, como proposto por \citep{Avellaneda2008} e \citep{rao2020stochastic} para intervalos de tempo contínuo. Existem métodos numéricos iterativos, que consistem em aproximar os valores das probabilidades de transição da política (\textit{policy-iteration}) ou da função valor (\textit{value-iteration}) por iterações consecutivas no ambiente.
 
 \begin{itemize}
-	\item \textbf{Soluções Analíticas:}
-	\begin{itemize}
-		\item \textbf{Avellaneda e Stoikov (2008):} Apresentam soluções analíticas para problemas de \textit{market making}, fornecendo insights valiosos, embora a aplicação direta possa ser limitada pela complexidade do modelo.
-		\item \textbf{Rao (2020):} Contribui com análise analítica sobre controle estocástico para \textit{market making}, expandindo o conhecimento no campo.
-	\end{itemize}
-	
-	\item \textbf{Métodos Iterativos, usando Programação Dinâmica (ou DP):}
-	\begin{itemize}
-		\item Consistem em aproximar os valores para as probabilidades de transição da política (\textit{policy-iteration}) ou da função valor (\textit{value-iteration}) por iterações consecutivas do ambiente.
-		\item Poderosos, mas podem enfrentar desafios em cenários complexos.
-	\end{itemize}
-	
-	\item \textbf{Métodos de Monte Carlo:}
-	\begin{itemize}
-		\item Consistem em simular episódios do ambiente e usar as médias dos episódios como retorno esperado.
-		\item Efetivos, mas podem exigir um grande número de simulações para convergir, tornando-os computacionalmente intensivos.
-	\end{itemize}
-	
 	\item \textbf{Aprendizado por Reforço - Temporal Difference Learning:}
 	\begin{itemize}
 		\item O TD learning é uma técnica de aprendizado por reforço que visa aprender a função valor de um estado ou ação de forma incremental com base nas diferenças temporais entre as estimativas sucessivas.

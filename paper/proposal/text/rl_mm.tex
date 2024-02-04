@@ -19,7 +19,14 @@ Em suma, os principais elementos do market making incluem, mas não se limitam �
 No contexto deste projeto, o foco da pesquisa será a otimização de uma estratégia de \textit{market-making} que minimize o risco de inventário durante a noite. A estratégia será composta por um agente responsável pela interação com o mercado e alocação de preços sob políticas para redução de risco. Mais adiante, será apresentado a modelagem do problema como uma cadeia de decisão de Markov. Tendo definido o espaço de ações possíveis para o agente e de observações possíveis do mercado, modelaremos a equação de otimalidade de Bellman para os estados do mercado, e discutiremos os algoritmos de Aprendizado por Reforço (RL) que foram escolhidos como abordagem para obter um agente ótimo capaz de aproximar numericamente os preços ótimos.
 
 \subsection{Sistemas dinâmicos e Aprendizado por Reforço}
-O Aprendizado por Reforço (RL) é um paradigma de aprendizado de máquina baseado em princípios da psicologia comportamental e em otimização estocástica, especificamente tarefas de controle e sistemas dinâmicos. Simplificadamente, trata-se de uma técnica para modelagem, simulação e treino de um agente. Tal agente é capaz de interagir com um sistema, modelado a partir de um processo de decisão de Markov, onde o objetivo do agente é obter uma política de interação com o ambiente que maximize sua recompensa cumulativa ao longo do tempo, chamada de "retorno" (note que no contexto de \textit{RL}, o retorno é diferente do retorno financeiro em si).
+O Aprendizado por Reforço (RL) é um paradigma de aprendizado baseado em princípios da psicologia comportamental e em otimização estocástica, especificamente tarefas de controle e sistemas dinâmicos. Simplificadamente, trata-se de uma técnica para modelagem, simulação e treino de um agente. Tal agente é capaz de interagir com um ambiente, modelado a partir de um processo de decisão de Markov, com o objetivo de obter uma política de interação com o sistema que maximize sua recompensa cumulativa ao longo do tempo, chamada de "retorno" (note que no contexto de \textit{RL}, o retorno é diferente do retorno financeiro em si).
+
+\begin{figure}[H]
+	\centering
+	\includegraphics{files/rl-agent.pdf}
+	\caption{Autômato do Agente sob o paradigma de Aprendizado por Reforço}
+	\label{fig:rl-agent}
+\end{figure}
 
 A definição de uma cadeia de decisão com a qual o agente interagirá é uma tupla $MDP = (\mathcal{S}, \mathcal{A}, T_{a}, R_{a})$, onde os elementos que a compõem são:
 
@@ -35,6 +42,13 @@ A definição de uma cadeia de decisão com a qual o agente interagirá é uma t
 	$R : \mathcal{S} \times \mathcal{A} \times \mathcal{S} \rightarrow \mathbb{R}$, onde $R(s, a, s') = \int_{\mathbb{R}} r \cdot f(r \,|\, s, a, s') \, dr$ e $f$ é a função de densidade condicional à transição ocorrida, e a integral retorna o valor esperado da recompensa.
 \end{description}
 
+\begin{figure}[H]
+	\centering
+	\input{files/mdp}
+	\caption{Processo de Decisão de Markov com 4 estados e 4 ações (MDP)}
+	\label{fig:mdp}
+\end{figure}
+
 Considerando o contexto de controle estocástico, um agente ou controle é efetivamente a política de escolha de ações. Dado um estado atual $s$ e uma ação $a$, a política dá a probabilidade do agente executar e enviar à cadeia tal ação. Uma política estocástica $\pi$ qualquer é representada por:
 
 \begin{equation}
@@ -43,7 +57,7 @@ Considerando o contexto de controle estocástico, um agente ou controle é efeti
 	\end{aligned}
 \end{equation}
 
-Por fim, o objetivo do agente é obter uma política ótima que maximize o retorno obtido, que é a soma amortizada das recompensas futuras. O retorno do agente é, dado um determinado momento em um intervalo de tempo discreto $t \leq T, t \in \mathbb{Z}$, onde T é o final do período de observação, pela seguinte expressão:
+Por fim, o objetivo do agente é obter uma política ótima que maximize o retorno obtido, que é a soma amortizada das recompensas futuras. O retorno do agente é obtida pela seguinte expressão, para um determinado momento em um intervalo de tempo discreto $t \leq T, t \in \mathbb{Z}$, onde T é o final do período de observação:
 
 \begin{equation}
 	\begin{aligned}
@@ -53,22 +67,21 @@ Por fim, o objetivo do agente é obter uma política ótima que maximize o retor
 
 onde $\gamma$ é o fator de amortecimento e $R_t$ é a recompensa que o agente recebe no momento $t$, de acordo com uma função de recompensa $R$, ou seja $R_t = R(s_{t}, a_{t}, s_{t + 1})$.
 
-A equação de maximização da recompensa que será tratada na seção a seguinte, e que forma a base para os problemas de aprendizado por reforço é a equação ação-valor de otimalidade de Bellman:
+De modo a obter a política que maximize o retorno do agente, é necessário definir duas equações importantes para o contexto de aprendizado por reforço. A função de valor de estado de Bellman \(V_\pi(s)\) quantifica o retorno cumulativo esperado quando um agente começa no estado \(s\) e segue uma política específica \(\pi\):
+\[ 
+V^{\pi}(s) = \mathbb{E}_\pi[G_t | S_t = s]
+\]
+onde \(G_t\) é o retorno no tempo e \(S_t\) é o estado no tempo \(t\).
 
+A função de valor de estado-ação, \(Q_\pi(s, a)\), estende a função de valor do estado ao considerar tanto o estado atual \(s\) quanto uma ação escolhida \(a\):
+\[ Q^{\pi}(s, a) = \mathbb{E}_\pi[G_t | S_t = s, A_t = a]\]
+onde \(A_t\) é a ação tomada no tempo \(t\).
 
-\begin{equation}
-	\begin{aligned}
-		Q^{\pi}(s, a) = \mathbb{E}_{\pi} \left[ G_t \mid s_{t} = s, a_{t} = a \right]\\
-		Q^{*}(s, a) = \max_{\pi} Q^{\pi}(s, a)		
-	\end{aligned}
-\end{equation}
+A equação estado-valor de otimalidade, \(V^*(s)\), representa o retorno cumulativo máximo esperado alcançável a partir do estado \(s\) entre todas as políticas possíveis:
+\[ V^*(s) = \max_\pi V^{\pi}(s). \]
 
-\begin{itemize}
-\item Política (ou \textit{Policy}, também chamado de "Controle"): Define o processo de tomada de decisões do agente, ou seja, como ele escolhe ações em resposta às observações do ambiente. Pode ser uma estratégia determinística ou estocástica.
+Por fim, a política ótima $\pi^*$ é obtida ao selecionar ações que maximizam a função de valor de estado-ação:
+\[ \pi^*(a|s) = \arg\max_a Q^*(s, a), \]
+onde \(Q^*(s, a)\) é a função de valor de estado-ação ótima.
 
-\item Recompensa (ou \textit{Reward}): É uma medida numérica que permite ao agente interpretar quão boa ou ruim foi uma ação específica em função do estado atual do==== ambiente, assim como atribuir valores numéricos à qualidade dos estados observados ao longo do tempo. O objetivo do agente é então maximizar a recompensa cumulativa ao longo do tempo ao tomar ações que levem para estados com valores altos.
-
-\item Ambiente (ou \textit{Environment}): Representa e simula o estado do ambiente real, assim como as possíveis ações que o agente possa realizar. É uma descrição quantitativa de elementos do ambiente e como as ações tomadas pela política resultam em mudanças no ambiente.
-\end{itemize}
-
-Técnicas de \textit{AR} podem ser aplicadas à diversos domínios, da robótica, jogos à finanças e no contexto deste projeto será o paradigma central na idealização e modelagem da estratégia de \textit{market-making}. Na próxima seção será realizada uma descrição inicial do ambiente e da modelagem do sistema à ser realizada.
+Os valores de $Q^{*}$ não são conhecidos para sistemas mais complexos, assim como não são discretizáveis para problemas com espaços de ação ou estado contínuos. Na próxima seção será discutido as técnicas e metodologias possíveis para se obter os valores da equação de estado ação de otimalidade, assim como a necessidade do uso do aprendizado por reforço devido à complexidade de ambientes como bolsas digitais e livros de ordem limite.
