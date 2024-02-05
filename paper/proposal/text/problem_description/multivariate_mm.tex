@@ -1,11 +1,14 @@
 Ao considerarmos a situação em que o MM aplica a sua estratégia em diversos mercados simultaneamente observamos um aumento da complexidade, mas também das alternativas para lidar com riscos envolvidos - chamamos essa situação de MM \textbf{simultâneo} ou \textbf{multivariado}.
 
-Para tal, a função valor $V_{T}$ do agente passa a ser a soma de todas posições parciais $V_{T, k}$, onde $k$ é uma bolsa onde o agente possui ações:
-\begin{eqnarray*}
-    V_t &=& \sum_{k=1}^K V_{t, k}\\
-\end{eqnarray*}
+Para tal, consideramos a possibilidade do agente negociar um ativo $i$ dentre um total de $k$ ativos diferentes, em possivelmente diversos mercados. Os elementos do espaço de observações e de ações do agente passam a ser os vetores 
+\[ 
+\mathcal{S} = \{(\mathbf{P}, \mathbf{W}, \mathbf{I}) \mid \mathbf{P} \in \mathbb{R}^{k}, \mathbf{W} \in \mathbb{R}^{k}, \mathbf{I} \in \mathbb{Z}^{k}\}
+\]
+\[
+\mathcal{A} = \left\{ (\mathbf{p}^a, \mathbf{p}^b, \mathbf{Q}^a, \mathbf{Q}^b) \mid \mathbf{p} \in \mathbb{R}^{k},  \mathbf{Q} \in \mathbb{N}^{k} \right\}
+\].
 
-O objetivo principal (\ref{objective_equation}) continua o mesmo, e mantém-se a restrição (\ref{overnight_restriction}). Contudo, surgem novas alternativas para proteção da carteira durante a noite:
+O objetivo principal (\ref{eq:objective}) continua a mesmo, e remove-se a restrição (\ref{eq:inventory_restriction}). Contudo, surgem novas alternativas para proteção da carteira durante a noite:
 
 \begin{enumerate}
     \item O agente pode avaliar o risco global da carteira, e incluir um único ativo de proteção contra o risco global ao final do dia.

@@ -81,7 +81,46 @@ A equação estado-valor de otimalidade, \(V^*(s)\), representa o retorno cumula
 \[ V^*(s) = \max_\pi V^{\pi}(s). \]
 
 Por fim, a política ótima $\pi^*$ é obtida ao selecionar ações que maximizam a função de valor de estado-ação:
-\[ \pi^*(a|s) = \arg\max_a Q^*(s, a), \]
+\begin{equation}
+	\begin{aligned}
+		\pi^*(a|s) = \arg\max_a Q^*(s, a)
+		\label{eq:objective}
+	\end{aligned}
+\end{equation}
 onde \(Q^*(s, a)\) é a função de valor de estado-ação ótima.
 
 Os valores de $Q^{*}$ não são conhecidos para sistemas mais complexos, assim como não são discretizáveis para problemas com espaços de ação ou estado contínuos. Na próxima seção será discutido as técnicas e metodologias possíveis para se obter os valores da equação de estado ação de otimalidade, assim como a necessidade do uso do aprendizado por reforço devido à complexidade de ambientes como bolsas digitais e livros de ordem limite.
+
+Para sistemas dinâmicos simples, é possível obter a função de valores de ação-estado analiticamente, como proposto em \citep{Avellaneda2008} e \citep{rao2020stochastic} para espaços contínuos. Para sistemas com dinâmicas mais complexas existem também métodos de aproximação numérica presentes na literatura de controle estocástico, como os métodos de programação dinâmica, que consistem em aproximar os valores para as probabilidades de transição da política (\textit{policy-iteration}) ou da função valor (\textit{value-iteration}).
+
+Por fim, para espaços discretos extremamente grandes ou espaços contínuos tanto o uso de soluções analíticas como métodos de programação dinâmica ou tabelas se tornam inviáveis, devido a escala e custo computacional do problema. O paradigma de aprendizado por reforço busca possibilitar a aproximação dos valores de $V$ ou $Q$ de modo que convirga e execute em tempo aceitável.  Dentre as técnicas que foram consideradas estão:
+\begin{itemize}
+	\item \textbf{Temporal Difference Learning (\textit{TD Learning})}
+	\begin{itemize}
+		\item O \textit{TD Learning} é uma técnica de aprendizado por reforço que visa aprender a função valor de um estado ou ação de forma incremental com base nas diferenças temporais entre as estimativas sucessivas.
+		\item A atualização típica do TD learning para um estado \(s\) é dada por \(V(s) \leftarrow V(s) + \alpha \cdot (R + \gamma \cdot V(s') - V(s))\), onde $R$ é a recompensa imediata, \(\gamma\) é o fator de desconto, \(s'\) é o próximo estado, e \(\alpha\) é a taxa de aprendizado.
+	\end{itemize}
+	
+	\item \textbf{\textit{Q-Learning}}
+	\begin{itemize}
+		\item O \textit{Q-Learning} é um método de aprendizado por reforço que visa aproximar os valores da função Q, que representa a qualidade de tomar uma ação específica em um determinado estado.
+		\item A regra de atualização típica do Q-valor é \(Q(s, a) \leftarrow Q(s, a) + \alpha \cdot (R + \gamma \cdot \max_{a'} Q(s', a') - Q(s, a))\), onde \(s'\) é o próximo estado, \(R\) é a recompensa, \(\gamma\) é o fator de desconto e \(\alpha\) é a taxa de aprendizado.
+	\end{itemize}
+	
+	\item \textbf{\textit{Actor-Critic Learning}}
+	
+	\begin{itemize}
+		\item O AC-learning envolve duas partes principais: o crítico (critic) que avalia as ações, e o ator (actor) que escolhe as ações. O objetivo é otimizar a política do ator com base nas avaliações do crítico.
+		\item O crítico aprende uma função de valor como no TD learning, enquanto o ator atualiza a política para maximizar os valores de ação estimados pelo crítico.
+	\end{itemize}
+	
+	\item \textbf{\textit{Deep Q-Learning (DQL)}}
+	
+	\begin{itemize}
+		\item O DQL é uma extensão do Q-Learning que incorpora redes neurais para lidar com espaços de estados e ações contínuos ou de alta dimensionalidade.
+		\item A função Q passa a ser aproximada por uma rede neural profunda. O algoritmo utiliza a experiência passada armazenada em um buffer de repetição para realizar atualizações mais estáveis.
+		\item A atualização do Q-valor torna-se \(Q(s, a) \leftarrow Q(s, a) + \alpha \cdot (R + \gamma \cdot \max_{a'} Q(s', a'; \theta^-) - Q(s, a; \theta))\), onde \(\theta\) são os parâmetros da rede neural, e \(\theta^-\) representa os parâmetros da rede no passo anterior.
+	\end{itemize}
+\end{itemize}
+
+Na proxima seção é discutido o processo de decisão de Markov em termos das variáveis de Market-Making, assim como é explicado o passo a passo para treino do agente por aprendizado por reforço.
