@@ -4,7 +4,7 @@ Como os preços de compra e venda dos ativos são afetados pela demanda e oferta
 
 No \textit{LOB} os registros se dão primeiramente por ordem de preço, e em segundo por data de criação: as ofertas com melhor preço (tanto para compra como para venda) ficam no topo do livro, e caso tenham o mesmo valor entre si tem sua posição desempatada pela ordem temporal de chegada. No livro de compras, a melhor oferta é a que oferece o maior preço, e o contrário vale para o livro de vendas.
 
-Nas bolsas de valores digitais a execução de uma transação é automática e auxiliada por um sistema chamado de \textit{matching engine} - ou seja, um motor para pareamento de ordens. Esse sistema verifica se para a melhor oferta de compra (ou venda) existe outra correspondente no livro de venda (ou compra) com valor menor ou igual (ou maior ou igual para venda). Após o pareamento, a bolsa anuncia o a execução da ordem e as ofertas relacionadas são removidas dos livros.
+Nas bolsas de valores digitais a execução de uma transação é automática e auxiliada por um sistema chamado de \textit{matching engine} - ou seja, um motor para pareamento de ordens. Esse sistema verifica se para a melhor oferta de compra (ou venda) existe outra correspondente no livro de venda (ou compra) com valor menor ou igual (ou maior ou igual para venda). Após o pareamento, a bolsa anuncia a execução da ordem e as ofertas relacionadas são removidas dos livros.
 
 Em suma, os principais elementos do market making incluem, mas não se limitam à:
 
@@ -13,13 +13,13 @@ Em suma, os principais elementos do market making incluem, mas não se limitam �
 	
 	\item Livro de Ordens Limite: É um conjunto ordenado onde as ofertas de compra e venda são registradas. Também é permitido o ajuste dos preços de compra e venda de ofertas existentes por parte dos agentes.
 	
-	\item Gestão de Risco: Todos \textit{market-makers} enfrentam riscos em suas negociações, entre eles o risco de inventário e risco de mercado. O risco de inventário ocorre quando o market maker mantém uma posição desequilibrada entre ativos comprados e vendidos, enquanto o risco de mercado está relacionado às flutuações nos preços dos ativos.
+	\item Gestão de Risco: Todos \textit{market-makers} enfrentam riscos em suas negociações, entre eles o risco de inventário e risco de mercado. O risco de inventário ocorre quando o \textit{market maker} mantém uma posição desequilibrada entre ativos comprados e vendidos, enquanto o risco de mercado está relacionado às flutuações nos preços dos ativos.
 \end{itemize}
 
-No contexto deste projeto, o foco da pesquisa será a otimização de uma estratégia de \textit{market-making} que minimize o risco de inventário durante a noite. A estratégia será composta por um agente responsável pela interação com o mercado e alocação de preços sob políticas para redução de risco. Mais adiante, será apresentado a modelagem do problema como uma cadeia de decisão de Markov. Tendo definido o espaço de ações possíveis para o agente e de observações possíveis do mercado, modelaremos a equação de otimalidade de Bellman para os estados do mercado, e discutiremos os algoritmos de Aprendizado por Reforço (RL) que foram escolhidos como abordagem para obter um agente ótimo capaz de aproximar numericamente os preços ótimos.
+No contexto deste projeto, o foco da pesquisa será a otimização de uma estratégia de \textit{market-making} que minimize o risco de inventário durante a noite. A estratégia será composta por um agente responsável pela interação com o mercado e alocação de preços sob políticas para redução de risco. Mais adiante, será apresentado a modelagem do problema como uma cadeia de decisão de Markov. Tendo definido o espaço de ações para o agente e de observações possíveis do mercado, modelaremos a equação de otimalidade de Bellman para os estados do mercado, e discutiremos os algoritmos de Aprendizado por Reforço (RL) que foram escolhidos como abordagem para obter um agente ótimo capaz de aproximar numericamente os preços ótimos.
 
 \subsection{Sistemas dinâmicos e Aprendizado por Reforço}
-O Aprendizado por Reforço (RL) é um paradigma de aprendizado baseado em princípios da psicologia comportamental e em otimização estocástica, especificamente tarefas de controle e sistemas dinâmicos. Simplificadamente, trata-se de uma técnica para modelagem, simulação e treino de um agente. Tal agente é capaz de interagir com um ambiente, modelado a partir de um processo de decisão de Markov, com o objetivo de obter uma política de interação com o sistema que maximize sua recompensa cumulativa ao longo do tempo, chamada de "retorno" (note que no contexto de \textit{RL}, o retorno é diferente do retorno financeiro em si).
+O Aprendizado por Reforço (RL) é um paradigma de aprendizado baseado em princípios da psicologia comportamental e em otimização estocástica, especificamente tarefas de controle e sistemas dinâmicos. Simplificadamente, trata-se de uma técnica para modelagem, simulação e treino de um agente. Tal agente é capaz de interagir com um ambiente, modelado a partir de um processo de decisão de Markov, com o objetivo de obter uma política de interação com o sistema que maximize sua recompensa cumulativa ao longo do tempo, chamada de "retorno" (note que no contexto de \textit{RL}, o retorno é diferente do 'retorno financeiro' em si).
 
 \begin{figure}[H]
 	\centering
@@ -32,40 +32,40 @@ A definição de uma cadeia de decisão com a qual o agente interagirá é uma t
 
 \begin{description}
 	\item[$\mathcal{S}$] 
-	é o espaço de estados possíveis, representado por um conjunto de estados, onde cada estado $s \in \mathcal{S}$ é uma tupla de $n$ valores numéricos observáveis $s = (x_{0}, x_{1}, \ldots, x_{n})$. Cada estado é uma observação possível da dinâmica do sistema em determinado momento;
+	é o espaço de estados possíveis, representado por um conjunto onde cada estado $s \in \mathcal{S}$ é uma tupla de $n + 1$ valores numéricos observáveis $s = (x_{0}, x_{1}, \ldots, x_{n})$. Cada estado é uma observação possível da dinâmica do sistema em determinado momento;
 	
-	\item[$\mathcal{A}$] é o espaço de ações que o agente pode realizar. Uma ação $a \in \mathcal{A}$ é uma tupla com $m$ valores numéricos tal que $a = (y_{0}, y_{1}, \ldots, y_{m})$ são os valores que o agente aplica no sistema, e transiciona à um novo estado, recebendo uma recompensa.
+	\item[$\mathcal{A}$] é o espaço de ações que o agente pode realizar. Uma ação $a \in \mathcal{A}$ é uma tupla com $m + 1$ valores numéricos tal que $a = (y_{0}, y_{1}, \ldots, y_{m})$ são os valores escolhidos pelo agente e aplicados ao sistema, levando à um novo estado.
 	
-	\item[\textit{T}] é o operador de transição, que representa as transições possíveis entre estado atual $s$ e possível estado futuro $s'$, dado uma ação $a$ tomada pelo agente, tal qual \(T : \mathcal{S} \times \mathcal{A} \times \mathcal{S} \rightarrow [0, 1]\). A função $T$ fornece uma função de densidade de probabilidade, tal que $T(s, a, s') = f(s' \,|\, s, a)$ onde \(f(s' \,|\, s, a) \in \mathcal{L}([0, 1])\) e $\mathcal{L}$ é o espaço de probabilidade padrão de Lebesgue.
+	\item[\textit{T}] é o operador de transição, que representa as transições possíveis entre estado atual $s$ e possível estado futuro $s'$, dado uma ação $a$ tomada pelo agente, tal qual \(T : \mathcal{S} \times \mathcal{A} \times \mathcal{S} \rightarrow [0, 1]\). A função densidade de probabilidade $T$, é tal que $T(s, a, s') = f(s' \,|\, s, a)$ onde $f(s' \,|\, s, a)$ pertence à um espaço de probabilidade qualquer, no intervalo $[0, 1]$.
 	
-	\item[\textit{R}] é a função de recompensa da cadeia de markov, que mapeia uma determinada transição à probabilidade de uma recompensa ocorrer 
-	$R : \mathcal{S} \times \mathcal{A} \times \mathcal{S} \rightarrow \mathbb{R}$, onde $R(s, a, s') = \int_{\mathbb{R}} r \cdot f(r \,|\, s, a, s') \, dr$ e $f$ é a função de densidade condicional à transição ocorrida, e a integral retorna o valor esperado da recompensa.
+	\item[\textit{R}] é a função de recompensa da cadeia de Markov, que mapeia uma determinada transição (tupla com valores $(s, a, s')$) à recompensa esperada no próximo estado $s'$, tal que
+	$R : \mathcal{S} \times \mathcal{A} \times \mathcal{S} \rightarrow \mathbb{R}$, onde $R(s, a, s') = \mathbb{E}[r | s, a, s']$ e $r \sim g(r | s, a, s')$ é a função densidade de recompensa para a transição.
 \end{description}
 
 \begin{figure}[H]
 	\centering
 	\input{files/mdp}
-	\caption{Processo de Decisão de Markov com 4 estados e 4 ações (MDP)}
+	\caption{Processo de Decisão de Markov discreto com 4 estados e 4 ações (MDP)}
 	\label{fig:mdp}
 \end{figure}
 
-Considerando o contexto de controle estocástico, um agente ou controle é efetivamente a política de escolha de ações. Dado um estado atual $s$ e uma ação $a$, a política dá a probabilidade do agente executar e enviar à cadeia tal ação. Uma política estocástica $\pi$ qualquer é representada por:
+Considerando o contexto de controle estocástico, um agente é efetivamente a política de escolha de ações. Dado um estado atual $s$ a política dá a probabilidade do agente escolher uma ação $a$ e enviar à cadeia tal ação. Uma política estocástica $\pi$ qualquer é representada por:
 
 \begin{equation}
 	\begin{aligned}
-	\pi(a \,|\, s) = g(a \,|\, s)\text{, onde }\\ g(a \,|\, s) \in \mathcal{L}([0, 1])
+	\pi(a \,|\, s) = h(a \,|\, s)
 	\end{aligned}
 \end{equation}
-
-Por fim, o objetivo do agente é obter uma política ótima que maximize o retorno obtido, que é a soma amortizada das recompensas futuras. O retorno do agente é obtida pela seguinte expressão, para um determinado momento em um intervalo de tempo discreto $t \leq T, t \in \mathbb{Z}$, onde T é o final do período de observação:
+onde $h(a \,|\, s)$ é uma função densidade de probabilidade em cima das ações possíveis.
+Por fim, o objetivo do agente é obter uma política ótima que maximize o retorno obtido, que é a soma amortizada das recompensas futuras. Para tal, definimos o tempo atual do ambiente como $t \in \mathbb{N}$, que vai até o final do período de observação $T$, tal que $t \leq T$. Assim, o retorno do agente é obtido pela seguinte expressão:
 
 \begin{equation}
 	\begin{aligned}
-		G_{t} = \sum_{k=0}^{T} \gamma^t \cdot R_{t + k + 1}
+		G_{t} = \sum_{k=0}^{T - t - 1} \gamma^{k} \cdot R_{t + 1 + k}
 	\end{aligned}
 \end{equation}
 
-onde $\gamma$ é o fator de amortecimento e $R_t$ é a recompensa que o agente recebe no momento $t$, de acordo com uma função de recompensa $R$, ou seja $R_t = R(s_{t}, a_{t}, s_{t + 1})$.
+onde $\gamma$ é o fator de amortecimento e $R_t$ é a recompensa que o agente recebe no momento $t$, de acordo com uma função de recompensa $R$, ou seja $R_t = R(s_{t}, a_{t}, s_{t + 1})$ (note que $G_{T} = 0$, dado que não é possível receber recompensas após o término do ambiente).
 
 De modo a obter a política que maximize o retorno do agente, é necessário definir duas equações importantes para o contexto de aprendizado por reforço. A função de valor de estado de Bellman \(V_\pi(s)\) quantifica o retorno cumulativo esperado quando um agente começa no estado \(s\) e segue uma política específica \(\pi\):
 \[ 
@@ -73,7 +73,7 @@ V^{\pi}(s) = \mathbb{E}_\pi[G_t | S_t = s]
 \]
 onde \(G_t\) é o retorno no tempo e \(S_t\) é o estado no tempo \(t\).
 
-A função de valor de estado-ação, \(Q_\pi(s, a)\), estende a função de valor do estado ao considerar tanto o estado atual \(s\) quanto uma ação escolhida \(a\):
+A função de valor de estado-ação, \(Q^\pi(s, a)\), estende a função de valor do estado ao considerar tanto o estado atual \(s\) quanto uma ação escolhida \(a\):
 \[ Q^{\pi}(s, a) = \mathbb{E}_\pi[G_t | S_t = s, A_t = a]\]
 onde \(A_t\) é a ação tomada no tempo \(t\).
 
@@ -93,7 +93,7 @@ Os valores de $Q^{*}$ não são conhecidos para sistemas mais complexos, assim c
 
 Para sistemas dinâmicos simples, é possível obter a função de valores de ação-estado analiticamente, como proposto em \citep{Avellaneda2008} e \citep{rao2020stochastic} para espaços contínuos. Para sistemas com dinâmicas mais complexas existem também métodos de aproximação numérica presentes na literatura de controle estocástico, como os métodos de programação dinâmica, que consistem em aproximar os valores para as probabilidades de transição da política (\textit{policy-iteration}) ou da função valor (\textit{value-iteration}).
 
-Por fim, para espaços discretos extremamente grandes ou espaços contínuos tanto o uso de soluções analíticas como métodos de programação dinâmica ou tabelas se tornam inviáveis, devido a escala e custo computacional do problema. O paradigma de aprendizado por reforço busca possibilitar a aproximação dos valores de $V$ ou $Q$ de modo que convirga e execute em tempo aceitável.  Dentre as técnicas que foram consideradas estão:
+Por fim, para espaços discretos extremamente grandes ou espaços contínuos tanto o uso de soluções analíticas como métodos de programação dinâmica ou tabelas se tornam inviáveis, devido a escala e custo computacional do problema. O paradigma de aprendizado por reforço busca possibilitar a aproximação dos valores de $V$ ou $Q$ de modo que convirja e execute em tempo aceitável.  Dentre as técnicas que foram consideradas estão:
 \begin{itemize}
 	\item \textbf{Temporal Difference Learning (\textit{TD Learning})}
 	\begin{itemize}
@@ -123,4 +123,4 @@ Por fim, para espaços discretos extremamente grandes ou espaços contínuos tan
 	\end{itemize}
 \end{itemize}
 
-Na proxima seção é discutido o processo de decisão de Markov em termos das variáveis de Market-Making, assim como é explicado o passo a passo para treino do agente por aprendizado por reforço.
+Na próxima seção é discutido o processo de decisão de Markov em termos das variáveis de Market-Making, assim como é explicado o passo a passo para treino do agente por aprendizado por reforço.

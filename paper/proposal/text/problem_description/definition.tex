@@ -93,7 +93,7 @@ onde $p^{(MM)}$ é o preço da oferta do agente e  $p^{(0)}$ é a melhor oferta 
 
 Para ilustrar melhor o funcionamento do livro de ordens considere a seguinte situação, para um único ativo: um agente qualquer de \textit{MM} tem a \textbf{única oferta de venda} pelo preço de $p^{(a, MM)}$ no mercado. Caso surja uma nova oferta de \textbf{compra} com melhor preço e acima do preço da oferta do agente $p^{(b, i)} \geq p^{(a, MM)}$, será gerada uma transação pelo preço $p^{(a, MM)}$ e a ordem de valor $p^{(b, i)}$ que gerou a transação é a ordem limite com preço de mercado. Após o motor de transações da bolsa receber a oferta $i$, uma transação ocorre e ambas ofertas são removidas do livro de ordens. 
 
-O agente observa, para um determinado ativo e considerando novamente um índice de tempo discreto $t < T, t \in \mathbb{Z^{+}}$, três valores numéricos principais $(I_{t}, P_{t}, W_{t})$, sendo eles: 
+O agente observa para um determinado ativo e considerando novamente a definição do tempo atual como $t \in \mathbb{N}$ (onde $T$ é o período de final do pregão, tal que $t \leq T$) três valores numéricos principais $(I_{t}, P_{t}, W_{t})$, sendo eles: 
 \begin{itemize}
 	\item o inventário $I_{t} \in \mathbb{Z}$ (a quantidade que têm do ativo);
 	\item o preço médio do ativo $P_{t} \in \mathbb{R}$;
@@ -107,7 +107,7 @@ A cada passo de tempo, ou seja, quando $t := t + 1$, o inventário do agente é 
     	I_{t + 1} = N^{(b)}_{t + 1} - N^{(a)}_{t + 1} \label{eq:inventory}
     \end{aligned}
 \end{equation}
-onde $N^{(a)}$ e $N^{(b)}$ são as quantidades de ativos efetivamente vendidos ou comprados, distribuídas de acordo com um processo de contagem, com incrementos indepentes (note que os valores esperados dos incrementos dos processos seguem médias $\lambda_{t}^{(a)}$ e $\lambda_{t}^{(b)}$ que se alteram de acordo com o tempo $t$). Os incrementos dos processos de contagem são limitados externalmente à quantidade ofertada pelo agente, tal que $(N_{t + 1}^{(a)} - N_{t}^{(a)}) \leq Q_{t + 1}^{(a)}$ e $(N_{t + 1}^{(b)} - N_{t}^{(b)}) \leq Q_{t + 1}^{(b)}$.
+onde $N^{(a)}$ e $N^{(b)}$ são as quantidades de ativos efetivamente vendidos ou comprados, distribuídas de acordo com um processo de contagem, com incrementos independentes (note que os valores esperados dos incrementos dos processos seguem médias $\lambda_{t}^{(a)}$ e $\lambda_{t}^{(b)}$ que se alteram de acordo com o tempo $t$). Os incrementos dos processos de contagem são limitados externalmente à quantidade ofertada pelo agente, tal que $(N_{t + 1}^{(a)} - N_{t}^{(a)}) \leq Q_{t + 1}^{(a)}$ e $(N_{t + 1}^{(b)} - N_{t}^{(b)}) \leq Q_{t + 1}^{(b)}$.
 
 O preço médio do ativo é facilmente obtido a partir de um movimento Browniano unidimensional (também chamado de processo de Wiener), de acordo com a equação incremental a seguir:
 \begin{equation}
