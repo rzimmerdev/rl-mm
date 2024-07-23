@@ -1,67 +1,31 @@
-import abc
-from typing import Tuple
-
 import numpy as np
 import pandas as pd
 
-# Replace 'your_file.xlsx' with the path to your Excel file
+from src.data.rbtree import RedBlackTree
+
 file_path = '2013-09-09.xlsx'
 
-# Read the Excel file and get the list of sheet names
 xls = pd.ExcelFile(file_path)
 sheet_names = xls.sheet_names
 
-# Print the sheet names
-print("Available sheets:")
-for sheet_name in sheet_names:
-    print(sheet_name)
-
-# Select a sheet
 selected_sheet_name = input("Enter the name of the sheet you want to select: ") or "VAGR3 BS Equity"
-
-# Read the selected sheet
 df = pd.read_excel(file_path, sheet_name=selected_sheet_name, header=2)
 
-# Print the first 5 rows of the selected sheet
-print(df.head())
-print(df.columns)
-print(df.dtypes)
-print(df.shape)
-print(df.describe())
-print(df.index[0])
 
-
-class Environment(abc.ABC):
-    def __init__(self):
-        pass
-
-    @abc.abstractmethod
-    def reset(self):
-        pass
-
-    @abc.abstractmethod
-    def step(self, action: any) -> any:
-        pass
-
-    @property
-    @abc.abstractmethod
-    def state(self) -> any:
-        pass
-
-# LOB environment for RL agent
-class LOBEnvironment(Environment):
+class ProcessEnvironment:
     """
     Action space: AskPrice, BidPrice, AskVolume, BidVolume
     State space: Spread, Imbalance, MidPrice
     """
+
     def __init__(self):
         super().__init__()
         self.data = df
         self.t = 0
 
         self.book = {
-            'bid': [],
-            'ask': []
+            'bid': RedBlackTree(),
+            'ask': RedBlackTree()
         }
 
     def reset(self):
@@ -84,9 +48,9 @@ class LOBEnvironment(Environment):
 
     def create_order(self, price, quantity, side):
         if side == 'bid':
-            self.book['bid'].append((price, quantity))
+            self.book['bid'].insert((price, quantity))
         elif side == 'ask':
-            self.book['ask'].append((price, quantity))
+            self.book['ask'].insert((price, quantity))
 
     def hit(self, quantity=1):
         while quantity > 0:
@@ -95,7 +59,7 @@ class LOBEnvironment(Environment):
                 quantity = 0
             else:
                 quantity -= self.book['ask'][0][1]
-                self.book['ask'].pop(0)
+                self.book['ask'].delete(0)
 
     def lift(self, quantity=1):
         while quantity > 0:
@@ -120,10 +84,7 @@ class LOBEnvironment(Environment):
 
         # Get the current time
         t = self.data.index[self.t]
-
         # Add the current state to the events
-
-
         # Get the current intensity
         intensity = self.hawkes(t, alpha=0.1, beta=0.1, mu=0.1, events=self.data.index[:self.t])
 
@@ -156,7 +117,7 @@ class LOBEnvironment(Environment):
 
 
 # Create the LOB environment
-env = LOBEnvironment()
+env = ProcessEnvironment()
 
 # View the first 10 states
 for _ in range(10):
