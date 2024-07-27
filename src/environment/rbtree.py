@@ -6,10 +6,20 @@ class Node:
         self.right = None
         self.parent = None
 
+    def __str__(self):
+        return str(self.data)
+
+    def __getattr__(self, item):
+        # Delegate to the data attribute
+        try:
+            return getattr(self.data, item)
+        except AttributeError:
+            raise AttributeError(f"'Node' object has no attribute '{item}'")
+
 
 class RedBlackTree:
     def __init__(self):
-        self.TNULL = Node(data=None, color='B')  # Our representation for the NIL leaf nodes.
+        self.TNULL = Node(data=None, color='B')
         self.root = self.TNULL
         self.size = 0
 
@@ -126,7 +136,7 @@ class RedBlackTree:
         while node != self.TNULL:
             if node.data == key:
                 z = node
-            if node.data <= key:
+            if node.data < key:
                 node = node.right
             else:
                 node = node.left
@@ -194,7 +204,7 @@ class RedBlackTree:
                     self.right_rotate(x.parent)
                     s = x.parent.left
 
-                if s.right.color == 'B' and s.right.color == 'B':
+                if s.left.color == 'B' and s.right.color == 'B':
                     s.color = 'R'
                     x = x.parent
                 else:
@@ -212,17 +222,28 @@ class RedBlackTree:
         x.color = 'B'
 
     def minimum(self, node):
-        while node.left != self.TNULL:
+        while node != self.TNULL and node.left != self.TNULL:
             node = node.left
         return node
 
-    def delete(self, key):
+    def min(self) -> Node:
+        return self.minimum(self.root)
+
+    def maximum(self, node):
+        while node != self.TNULL and node.right != self.TNULL:
+            node = node.right
+        return node
+
+    def max(self):
+        return self.maximum(self.root)
+
+    def remove(self, key):
         self.size -= 1
         self.delete_node_helper(self.root, key)
 
     def pop(self, idx):
         self.size -= 1
-        self.delete_node_helper(self.root, self.inorder()[idx])
+        self.delete_node_helper(self.root, self.inorder()[idx].data)
 
     def inorder_helper(self, node):
         if node != self.TNULL:
@@ -232,12 +253,12 @@ class RedBlackTree:
             return left + [node.data] + right
 
     def inorder(self):
-        return self.inorder_helper(self.root)
+        return self.inorder_helper(self.root) or []
 
     def __len__(self):
         return self.size
 
-    def search_helper(self, node, key):
+    def search_helper(self, node: Node, key):
         if node == self.TNULL or key == node.data:
             return node
         if key < node.data:
@@ -253,27 +274,33 @@ class RedBlackTree:
     def __setitem__(self, key, value):
         self.inorder()[key] = value
 
+    def __str__(self):
+        return str(self.inorder())
 
-rbt = RedBlackTree()
-rbt.insert(20)
-rbt.insert(15)
-rbt.insert(25)
-rbt.insert(10)
-rbt.insert(5)
-rbt.insert(1)
-rbt.insert(30)
 
-print("Inorder before deletion:")
-print(rbt.inorder())
+if __name__ == "__main__":
+    rbt = RedBlackTree()
+    rbt.insert(20)
+    rbt.insert(15)
+    rbt.insert(25)
+    rbt.insert(10)
+    rbt.insert(5)
+    rbt.insert(1)
+    rbt.insert(30)
 
-rbt.delete(25)
-rbt.delete(20)
+    print("Inorder before deletion:")
+    print(rbt.inorder())
 
-print("\nInorder after deletion:")
-print(rbt.inorder())
+    rbt.remove(25)
+    rbt.remove(20)
+    rbt.remove(1)
+    rbt.remove(15)
 
-print("\nSize of the tree:", len(rbt))
+    print("\nInorder after deletion:")
+    print(rbt.inorder())
 
-print("\nSearching for 10:", rbt.search(10).data)
-# first element O(log(h)) time complexity
-print("\nFirst element:", rbt[0])
+    print("\nSize of the tree:", len(rbt))
+
+    print("\nSearching for 10:", rbt.search(10).data)
+    # first element O(log(h)) time complexity
+    print("\nFirst element:", rbt[0])

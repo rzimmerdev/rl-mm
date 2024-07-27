@@ -4,7 +4,7 @@ Optimization of a Market-Making strategy using Reinforcement Learning techniques
 To replicate the virtual-environment, run:
 
 ```bash
-conda env create -f environment.yml
+conda env create -f dataset.yml
 ```
 
 or 
