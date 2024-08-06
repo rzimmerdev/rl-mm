@@ -1,11 +1,11 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 
 import numpy as np
 import dxlib as dx
 from matplotlib import pyplot as plt
 from tqdm import tqdm
 
-from lob import Book
+from lob import Book, Level
 
 
 class Simulator:
@@ -18,9 +18,7 @@ class Simulator:
 
 
 class Step(ABC):
-    @abstractmethod
-    def __call__(self, environment: Simulator):
-        pass
+    pass
 
 
 class Hawkes:
@@ -55,25 +53,45 @@ class SimpleSimulator(Simulator):
         def reset(self):
             self.hawkes.events = np.array([])
 
-        def __call__(self, environment: 'SimpleSimulator'):
-            dt = self.hawkes.interval(environment.t)
+        def next(self, simulator: 'SimpleSimulator'):
+            return self.hawkes.interval(simulator.t)
+
+        def insert(self, simulator: 'SimpleSimulator'):
             # spread is gaussian
             spread = np.random.normal(self.spread_mean, 2)
             side = dx.Side.BUY if np.random.rand() < 0.5 else dx.Side.SELL
 
             # size is poisson
             quantity = np.random.poisson(self.size_mean)
-            price = (environment.lob.mid_price or environment.start_price) + spread
+            price = (simulator.lob.mid_price or simulator.start_price) + spread
             price = np.round(price, self.price_eps)
 
             order = dx.Order.from_data(
-                security=environment.security,
+                security=simulator.security,
                 price=price,
                 side=side,
                 quantity=quantity
             )
 
-            return dt, order
+            simulator.lob.insert(order)
+
+        def remove(self, simulator: 'SimpleSimulator'):
+            if not simulator.lob.orders:
+                return
+            orders = list(simulator.lob.orders.keys())
+            order_idx = np.random.choice(np.arange(len(orders)))
+
+            order_id = orders[order_idx]
+            order_level = simulator.lob.orders[order_id].price
+            side = simulator.lob.orders[order_id].side
+            tree = simulator.lob.asks if side == dx.Side.BUY else simulator.lob.bids
+
+            level = tree.search(Level(order_level))
+            level.remove(order_id)
+            simulator.lob.orders.pop(order_id)
+
+            if not level.orders:
+                tree.remove(level)
 
     def __init__(self, dt_mean, spread_mean, size_mean, start_price=100):
         super().__init__()
@@ -92,11 +110,15 @@ class SimpleSimulator(Simulator):
         starting_t = self.t
         with tqdm(total=T) as pbar:
             while (self.t - starting_t) < T:
-                dt, order = self.event(self)
+                dt = self.event.next(self)
                 if dt + self.t >= T:
                     break
+                event_type = np.random.choice(["delete", "insert", "stay"], p=[0.1, 0.9, 0.0])
+                if event_type == "delete":
+                    self.event.remove(self)
+                elif event_type == "insert":
+                    self.event.insert(self)
                 self.t += dt
-                self.lob.insert(order)
                 self.lob.match()
                 pbar.update(dt)
 

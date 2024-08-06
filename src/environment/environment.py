@@ -17,25 +17,30 @@ class Environment:
 
 
 class SimpleEnvironment:
-    def __init__(self, simulator: SimpleSimulator = None, interval=1):
+    def __init__(self, simulator: SimpleSimulator = None, interval=1, depth=25):
         self.dt_mean = 10
         self.spread_mean = 0.1
         self.size_mean = 10
-        self.interval = 1
+        self.interval = interval
+        self.depth = depth
         self.simulator = simulator or SimpleSimulator(self.dt_mean, self.spread_mean, self.size_mean)
+        self.spread_velocity = 0
+        self.spread_acceleration = 0
+
+    @property
+    def lob(self):
+        return self.simulator.lob
 
     def state(self):
-        # state R^7 == (order imbalance, mid price, spread, spread slope, spread curvature, spread velocity, spread acceleration)
-        # to calculate order imbalance, we need to know the number of buy and sell orders
-        # we can use the order book to calculate the order imbalance
-        # we can use the mid price to calculate the spread
-        # we can use the spread to calculate the spread slope, curvature, velocity, and acceleration
-        order_imbalance = 0
-        for order in self.simulator.orders:
-            order_imbalance += order.quantity if order.side == 'BUY' else -order.quantity
+        return (len(self.lob.bids.inorder()[:self.depth]) - len(self.lob.asks.inorder()[:self.depth]) / self.depth,
+                self.lob.mid_price,
+                self.lob.spread,
+                self.spread_velocity,
+                self.spread_acceleration)
 
-    def step(self):
+    def step(self, action):
         self.simulator.run(self.interval)
-
-    def state(self):
-        return self.simulator.state
+        # update spread velocity and acceleration
+        # average over last 5 spread values
+        self.spread_velocity = 4 / 5 * self.spread_velocity + 1 / 5 * (self.simulator.lob.spread - self.lob.spread)
+        self.spread_acceleration = 4 / 5 * self.spread_acceleration + 1 / 5 * (self.spread_velocity - self.spread_velocity)
