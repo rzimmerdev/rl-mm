@@ -1,7 +1,4 @@
-from simulator import SimpleSimulator
-
-
-class Environment:
+class BaseEnvironment:
     def __init__(self):
         pass
 
@@ -16,31 +13,16 @@ class Environment:
         pass
 
 
-class SimpleEnvironment:
-    def __init__(self, simulator: SimpleSimulator = None, interval=1, depth=25):
-        self.dt_mean = 10
-        self.spread_mean = 0.1
-        self.size_mean = 10
-        self.interval = interval
-        self.depth = depth
-        self.simulator = simulator or SimpleSimulator(self.dt_mean, self.spread_mean, self.size_mean)
-        self.spread_velocity = 0
-        self.spread_acceleration = 0
+class SamplingEnvironment(BaseEnvironment):
+    def __init__(self):
+        self.simulator = simulator
 
     @property
-    def lob(self):
-        return self.simulator.lob
-
     def state(self):
-        return (len(self.lob.bids.inorder()[:self.depth]) - len(self.lob.asks.inorder()[:self.depth]) / self.depth,
-                self.lob.mid_price,
-                self.lob.spread,
-                self.spread_velocity,
-                self.spread_acceleration)
+        return self.simulator.state
 
     def step(self, action):
-        self.simulator.run(self.interval)
-        # update spread velocity and acceleration
-        # average over last 5 spread values
-        self.spread_velocity = 4 / 5 * self.spread_velocity + 1 / 5 * (self.simulator.lob.spread - self.lob.spread)
-        self.spread_acceleration = 4 / 5 * self.spread_acceleration + 1 / 5 * (self.spread_velocity - self.spread_velocity)
+        return self.simulator.step(action)
+
+    def reset(self):
+        return self.simulator.reset()

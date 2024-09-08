@@ -3,9 +3,8 @@ from typing import List, Dict
 
 import matplotlib.pyplot as plt
 import dxlib as dx
-import numpy as np
 
-from rbtree import RedBlackTree
+from .rbtree import RedBlackTree
 
 
 class Singleton:
@@ -120,6 +119,19 @@ class Book:
         bid = self.bids.max()
         # mid price exists only if there are asks and bids
         return (ask.price + bid.price) / 2 if ask != self.asks.TNULL and bid != self.bids.TNULL else None
+
+    @property
+    def order_imbalance(self):
+        """Order imbalance"""
+        return (self.asks.size - self.bids.size) / (self.asks.size + self.bids.size)
+
+    @property
+    def micro_price(self):
+        """Order imbalance weighted mid price"""
+        ask_imbalance = self.asks.size / (self.asks.size + self.bids.size)
+        bid_imbalance = self.bids.size / (self.asks.size + self.bids.size)
+
+        return self.asks.min().price * ask_imbalance + self.bids.max().price * bid_imbalance
 
     def plot(self, n=None):
         cumulative_asks = []
