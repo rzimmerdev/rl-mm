@@ -92,28 +92,6 @@ class Environment(BaseEnvironment):
                 realized_pnl + Q * delta_mp - np.maximum(0, nu * Q * delta_mp),
                 alpha)
 
-    def step(self, action: Action, min_quantity=10) -> Reward:
-        spread = action.spread
-        size = action.size
-        price = self.price + spread
-
-        order = dx.Order.from_data(
-            self.security,
-            price,
-            size,
-            (1 if np.random.rand() > 0.5 else -1)
-        )
-
-        mp = self.lob.mid_price
-
-        if order.quantity >= min_quantity:
-            self.lob.insert(order)
-            transactions = self.lob.match()
-
-
-
-        return
-
     @property
     def state(self):
         """
@@ -137,46 +115,79 @@ class Environment(BaseEnvironment):
         """
         return self.lob, self.price, self.current_time
 
+    def step(self, dt, next_event_time):
+        if next_event_time < dt or np.random.rand() > self.sampler.cdf(self.current_time + dt):
+            spread = np.random.normal(self.spread_mean, 1)
+            size = np.random.poisson(self.size_mean)
+            price = self.price + spread
+
+            order = dx.Order.from_data(
+                self.security,
+                price,
+                size,
+                (1 if np.random.rand() > 0.5 else -1)
+            )
+            self.lob.insert(order)
+            transactions = self.lob.match()
+
+            self.current_time += next_event_time
+            self.sampler.register_event(self.current_time)
+            return self.sampler(self.current_time), transactions
+
+        else:
+            self.current_time += dt
+
+            return next_event_time, None
+
     def run(self, total_time, dt=1):
         starting_t = self.current_time
 
+        rewards = []
+
         with tqdm(total=total_time) as pbar:
-            next_event_time = self.sampler(self.current_time)
+            prev_time = self.current_time
+            next_event_time, transactions = self.step(dt, self.sampler(self.current_time))
+
+            # Tau = {s_0, a_0, r_1, s_1, a_1, ...}
             while (self.current_time - starting_t) < total_time:
-                prev_time = self.current_time
+                # at this point, either:
+                # 1. an event happened and the state changed (since lob changed and state contains lob)
+                # 2. no event happened, time changed discretely (state contains time)
 
-                if next_event_time < dt or np.random.rand() > self.sampler.cdf(self.current_time + dt):
-                    self.current_time += next_event_time
+                # in both cases, the agent will read state and decide whether to send an order or not if order is
+                # sent, a new event happened "technically", and the next_event_time is resampled if no order is sent,
+                # the previously sampled event is statistically still the next event
 
-                    spread = np.random.normal(self.spread_mean, 1)
-                    size = np.random.poisson(self.size_mean)
-                    price = self.price + spread
-
-                    order = dx.Order.from_data(
-                        self.security,
-                        price,
-                        size,
-                        (1 if np.random.rand() > 0.5 else -1)
-                    )
-
+                # what the agent does can be:
+                # 1. agent sends order and becomes next event
+                #
+                # 2. agent does not send order, and considering the scenarios above:
+                # in scenario 1: next_event_time is already the next event, so pass
+                # in scenario 2: next_event_time is still the next event,
+                #                and current_time already increased by dt, so pass
+                # TODO: Step 1 - a_t
+                if np.random.rand() < 0.5:  # agent sends order and becomes next event
+                    # -> reset next_event_time
+                    next_event_time = self.sampler(self.current_time)
+                    # send order
                 else:
-                    self.current_time += dt
+                    pass
 
-                    order = dx.Order.from_data(
-                        self.security,
-                        self.price,
-                        1,
-                        (1 if np.random.rand() > 0.5 else -1)
-                    )
+                # TODO: Step 2 - r_{t+1}
+                # store micro price
 
-                self.lob.insert(order)
-                self.lob.match()
+                # Step 3 - s_{t+1}
+                # -> update state
+                next_event_time, transactions = self.step(dt, next_event_time)
 
-                self.sampler.register_event(self.current_time)
-                next_event_time = self.sampler(self.current_time)
+                # TODO: Step 2 - r_{t+1}
+                # use transactions (delta_ask, q_ask, delta_bid, q_bid),
+                # prev_micro_price, current micro price, current agent position
+                # to calculate reward and store
+
                 pbar.update(self.current_time - prev_time)
 
-        return self.sampler.events
+        return rewards
 
 
 if __name__ == "__main__":
