@@ -3,6 +3,7 @@ from typing import List, Dict
 
 import matplotlib.pyplot as plt
 import dxlib as dx
+import numpy as np
 
 from .rbtree import RedBlackTree
 
@@ -58,19 +59,22 @@ class Level:
 
 
 class Book:
-    def __init__(self):
+    def __init__(self, tick=2):
         self.asks = RedBlackTree()
         self.bids = RedBlackTree()
+        self.tick = tick
         self.orders: Dict[uuid.UUID, dx.Order] = Orders()
+        self.prices = []
 
     def insert(self, order: dx.Order, order_id=None):
-        tree = self.asks if order.side == dx.Side.BUY else self.bids
-        level = tree.search(Level(order.price))
+        tree = self.bids if order.side == dx.Side.BUY else self.asks
+        price = np.round(order.price, self.tick)
+        level = tree.search(Level(price))
 
         order_id = order_id or uuid.uuid4()
 
         if level is tree.TNULL:
-            level = Level(order.price)
+            level = Level(price)
             tree.insert(level)
 
         self.orders[order_id] = order
@@ -98,10 +102,11 @@ class Book:
             ask_order.quantity -= quantity
             bid_order.quantity -= quantity
 
-            transactions.append(dx.Transaction(ask_order.security, quantity, ask_order.price))
+            transactions.append(dx.Transaction(ask_order.security, quantity, np.round(ask_level.price, self.tick)))
 
             if ask_order.quantity == 0:
                 self.remove(ask_level.data, self.asks)
+                # if the level change, remove previous level from tree since it is empty
                 ask_level = self.asks.min()
 
             if bid_order.quantity == 0:
@@ -110,6 +115,9 @@ class Book:
 
             if ask_level == self.asks.TNULL or bid_level == self.bids.TNULL:
                 break
+
+        if self.mid_price:
+            self.prices.append(self.micro_price)
 
         return transactions
 
@@ -123,15 +131,63 @@ class Book:
     @property
     def order_imbalance(self):
         """Order imbalance"""
-        return (self.asks.size - self.bids.size) / (self.asks.size + self.bids.size)
+        return (self.asks.size - self.bids.size) / (self.asks.size + self.bids.size) \
+            if self.asks.size + self.bids.size else 0
+
+    @property
+    def rsi(self):
+        """Relative Strength Index"""
+        returns = np.diff(self.prices) / self.prices[:-1]
+        gain = np.sum(returns[returns >= 0])
+        loss = np.sum(returns[returns < 0])
+
+        if len(returns):
+            avg_gain = np.abs(gain / len(returns))
+            avg_loss = np.abs(loss / len(returns))
+
+            return 100 - 100 / (1 + avg_gain / (avg_loss + 1e-16))
+        else:
+            return 100
+
+    @property
+    def volatility(self):
+        """Volatility"""
+        return np.std(self.prices)
+
+    def current_volatility(self, window=10):
+        """Current volatility"""
+        return np.std(self.prices[-window:]) if len(self.prices) > window else 0
+
+    def state(self, levels=5):
+        # return 5 levels of asks and bids
+        # (level_price, level_quantity) for each level < levels
+        # for bids and asks
+        # traverse both self.ask and self.bids trees
+
+        # asks
+        ask_levels = []
+        for level in self.asks.inorder():
+            quantity = sum([self.orders[order_id].quantity for order_id in level.orders])
+            ask_levels.append((level.price, quantity))
+
+        # bids
+        bid_levels = []
+        for level in reversed(self.bids.inorder()):
+            quantity = sum([self.orders[order_id].quantity for order_id in level.orders])
+            bid_levels.append((level.price, quantity))
+
+        return ask_levels, bid_levels
 
     @property
     def micro_price(self):
         """Order imbalance weighted mid price"""
-        ask_imbalance = self.asks.size / (self.asks.size + self.bids.size)
-        bid_imbalance = self.bids.size / (self.asks.size + self.bids.size)
+        ask_imbalance = self.asks.size / (self.asks.size + self.bids.size) if self.asks.size + self.bids.size else 0
+        bid_imbalance = self.bids.size / (self.asks.size + self.bids.size) if self.asks.size + self.bids.size else 0
 
-        return self.asks.min().price * ask_imbalance + self.bids.max().price * bid_imbalance
+        ask_price = self.asks.min().price if self.asks.size else 0
+        bid_price = self.bids.max().price if self.bids.size else 0
+
+        return ask_imbalance * ask_price + bid_imbalance * bid_price
 
     def plot(self, n=None):
         cumulative_asks = []
@@ -164,8 +220,10 @@ class Book:
         # ask_line = plt.Line2D((0, 1), (0, 0), color='red', linewidth=3)
         # bid_line = plt.Line2D((0, 1), (0, 0), color='blue', linewidth=3)
         # Use area graphs
-        ask_graph = ax.fill_between([price for price, _ in cumulative_asks], [quantity for _, quantity in cumulative_asks], color='red', alpha=0.3)
-        bid_graph = ax.fill_between([price for price, _ in cumulative_bids], [quantity for _, quantity in cumulative_bids], color='green', alpha=0.3)
+        ask_graph = ax.fill_between([price for price, _ in cumulative_asks],
+                                    [quantity for _, quantity in cumulative_asks], color='red', alpha=0.3)
+        bid_graph = ax.fill_between([price for price, _ in cumulative_bids],
+                                    [quantity for _, quantity in cumulative_bids], color='green', alpha=0.3)
         ax.legend([ask_graph, bid_graph], ['Asks', 'Bids'])
 
         return fig
@@ -174,33 +232,28 @@ class Book:
 if __name__ == "__main__":
     book = Book()
     sec = dx.Security("AAPL")
-    book.insert(dx.Order.from_data(sec, 1, 10, dx.Side.SELL))
-    book.insert(dx.Order.from_data(sec, 2, 20, dx.Side.BUY))
-    book.insert(dx.Order.from_data(sec, 3, 30, dx.Side.BUY))
-    book.insert(dx.Order.from_data(sec, 4, 40, dx.Side.BUY))
-    book.insert(dx.Order.from_data(sec, 5, 50, dx.Side.SELL))
-    book.insert(dx.Order.from_data(sec, 6, 60, dx.Side.BUY))
-    book.insert(dx.Order.from_data(sec, 7, 70, dx.Side.SELL))
+    book.insert(dx.Order.from_data(sec, 1, 10, dx.Side.BUY))
 
+    for i in range(1000):
+        random_price = np.random.randint(1, 99)
+        random_quantity = np.random.randint(1, 5)
+        random_direction = dx.Side.BUY if np.random.rand() > 0.5 else dx.Side.SELL
 
-    print("Asks:")
-    for level in book.asks.inorder():
-        print(level.price, [book.orders[order_id].quantity for order_id in level.orders])
-
-    print("\nBids:")
-    for level in book.bids.inorder():
-        print(level.price, [book.orders[order_id].quantity for order_id in level.orders])
-
-    print("\nOrders:")
-    print(book.orders)
+        book.insert(dx.Order.from_data(sec, random_price, random_quantity, random_direction))
 
     print("\nOrders at price $ 1.00:")
     print(book.bids.search(Level(1.00)).orders)
 
     print("\nTransactions:")
     print(book.match())
-    # final book after match: 2, 3, 4, 5, 6, 7
+    print("\nFinal Book:")
+    print("Asks:")
+    for level in book.asks.inorder():
+        print(level.price, sum([book.orders[order_id].quantity for order_id in level.orders]))
 
-    print({order.quantity for order in book.orders.values()})
+    print("\nBids:")
+    for level in book.bids.inorder():
+        print(level.price, sum([book.orders[order_id].quantity for order_id in level.orders]))
+
     book.plot()
     plt.show()

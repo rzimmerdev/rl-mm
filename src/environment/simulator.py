@@ -57,6 +57,27 @@ class Hawkes:
         return 1 - np.exp(-self.intensity(t))
 
 
+class Agent:
+    def __init__(self):
+        self.Q = 0
+        self.c = 0
+
+
+class Action:
+    def __init__(self, spread, size):
+        self.spread = spread
+        self.size = size
+
+
+class Reward(float):
+    @staticmethod
+    def utility(x: float, alpha: float = 1) -> float:  # CARA utility function
+        return 1 - 1 / alpha * np.exp(-alpha * x)
+
+    def __call__(self, realized_pnl, Q, delta_mp, nu=0.6, alpha=1):
+        return self.utility(realized_pnl + Q * delta_mp - np.maximum(0, nu * Q * delta_mp), alpha)
+
+
 class Environment(BaseEnvironment):
     def __init__(self, sampler, spread_mean, size_mean, start_price=100):
         super().__init__()
@@ -67,6 +88,8 @@ class Environment(BaseEnvironment):
         self.sampler = sampler
         self.spread_mean = spread_mean
         self.size_mean = size_mean
+        self.agent = Agent()
+        self.reward = Reward()
 
     @property
     def price(self):
@@ -76,21 +99,6 @@ class Environment(BaseEnvironment):
         self.lob = Book()
         self.sampler.reset()
         self.current_time = 0
-
-    class Action:
-        def __init__(self, spread, size):
-            self.spread = spread
-            self.size = size
-
-    class Reward(float):
-        @staticmethod
-        def utility(x: float, alpha: float = 1) -> float:  # CARA utility function
-            return 1 - 1 / alpha * np.exp(-alpha * x)
-
-        def __new__(cls, realized_pnl, Q, delta_mp, nu=0.6, alpha=1):
-            return cls.utility(
-                realized_pnl + Q * delta_mp - np.maximum(0, nu * Q * delta_mp),
-                alpha)
 
     @property
     def state(self):
@@ -113,12 +121,25 @@ class Environment(BaseEnvironment):
 
         t := time
         """
-        return self.lob, self.price, self.current_time
+        o = (
+            self.lob.order_imbalance,
+            self.lob.rsi,
+            self.lob.current_volatility(),
+            self.lob.micro_price,
+            *self.lob.state(levels=5)
+        )
+
+        x = (
+            self.agent.Q,
+            self.agent.c
+        )
+
+        return o, x, self.current_time
 
     def step(self, dt, next_event_time):
         if next_event_time < dt or np.random.rand() > self.sampler.cdf(self.current_time + dt):
             spread = np.random.normal(self.spread_mean, 1)
-            size = np.random.poisson(self.size_mean)
+            size = np.random.poisson(self.size_mean - 1) + 1
             price = self.price + spread
 
             order = dx.Order.from_data(
@@ -146,6 +167,10 @@ class Environment(BaseEnvironment):
 
         with tqdm(total=total_time) as pbar:
             prev_time = self.current_time
+
+            prev_ask = 0
+            prev_bid = 0
+
             next_event_time, transactions = self.step(dt, self.sampler(self.current_time))
 
             # Tau = {s_0, a_0, r_1, s_1, a_1, ...}
@@ -165,7 +190,8 @@ class Environment(BaseEnvironment):
                 # in scenario 1: next_event_time is already the next event, so pass
                 # in scenario 2: next_event_time is still the next event,
                 #                and current_time already increased by dt, so pass
-                # TODO: Step 1 - a_t
+                # print(self.state)
+
                 if np.random.rand() < 0.5:  # agent sends order and becomes next event
                     # -> reset next_event_time
                     next_event_time = self.sampler(self.current_time)
@@ -173,8 +199,16 @@ class Environment(BaseEnvironment):
                 else:
                     pass
 
+                prev_ask = self.lob.asks.min().price if self.lob.asks.min().data is not None else prev_ask
+                prev_bid = self.lob.bids.max().price if self.lob.bids.max().data is not None else prev_bid
+
                 # TODO: Step 2 - r_{t+1}
-                # store micro price
+                reward = self.reward(
+                    realized_pnl=prev_ask - prev_bid,
+                    Q=self.agent.Q,
+                    delta_mp=(self.lob.micro_price - self.lob.prices[-1]) if self.lob.prices else 0
+                )
+                print(reward)
 
                 # Step 3 - s_{t+1}
                 # -> update state
