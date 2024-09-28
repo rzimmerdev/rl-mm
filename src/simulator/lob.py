@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 import dxlib as dx
 import numpy as np
 
-from .rbtree import RedBlackTree
+from rbtree import RedBlackTree
+from order import Order, Side, Transaction
 
 
 class Singleton:
@@ -27,7 +28,7 @@ class Orders(dict):
     def __setitem__(self, key, value):
         super().__setitem__(key, value)
 
-    def __getitem__(self, key) -> dx.Order:
+    def __getitem__(self, key) -> Order:
         return super().__getitem__(key)
 
 
@@ -63,11 +64,11 @@ class Book:
         self.asks = RedBlackTree()
         self.bids = RedBlackTree()
         self.tick = tick
-        self.orders: Dict[uuid.UUID, dx.Order] = Orders()
+        self.orders: Dict[uuid.UUID, Order] = Orders()
         self.prices = []
 
-    def insert(self, order: dx.Order, order_id=None):
-        tree = self.bids if order.side == dx.Side.BUY else self.asks
+    def insert(self, order: Order, order_id=None):
+        tree = self.bids if order.side == Side.BUY.value else self.asks
         price = np.round(order.price, self.tick)
         level = tree.search(Level(price))
 
@@ -86,7 +87,7 @@ class Book:
         if not level.orders:
             tree.remove(level)
 
-    def match(self) -> List[dx.Transaction]:
+    def match(self) -> List[Transaction]:
         transactions = []
         ask_level = self.asks.min()
         bid_level = self.bids.max()
@@ -102,7 +103,7 @@ class Book:
             ask_order.quantity -= quantity
             bid_order.quantity -= quantity
 
-            transactions.append(dx.Transaction(ask_order.security, quantity, np.round(ask_level.price, self.tick)))
+            transactions.append(Transaction(quantity, np.round(ask_level.price, self.tick)))
 
             if ask_order.quantity == 0:
                 self.remove(ask_level.data, self.asks)
@@ -189,57 +190,18 @@ class Book:
 
         return ask_imbalance * ask_price + bid_imbalance * bid_price
 
-    def plot(self, n=None):
-        cumulative_asks = []
-        cumulative_bids = []
-
-        cumulative_quantity = 0
-        for current_level in self.asks.inorder()[:n if n else self.asks.size]:
-            quantities = sum([self.orders[order_id].quantity for order_id in current_level.orders])
-            cumulative_quantity += quantities
-            cumulative_asks.append((current_level.price, cumulative_quantity))
-
-        cumulative_quantity = 0
-        for current_level in reversed(self.bids.inorder()[-(n if n else self.bids.size):]):
-            quantities = sum([self.orders[order_id].quantity for order_id in current_level.orders])
-            cumulative_quantity += quantities
-            cumulative_bids.append((current_level.price, cumulative_quantity))
-
-        # Reverse cumulative_bids to plot correctly
-        cumulative_bids.reverse()
-
-        # Plot chart with grouped asks and bids
-        fig, ax = plt.subplots()
-
-        # Plot grouped asks with cumulative quantities
-        ax.set_xlabel('Price')
-        ax.set_ylabel('Cumulative Quantity')
-        ax.set_title('Order Book with Cumulative Volume')
-
-        # Fix legend colors
-        # ask_line = plt.Line2D((0, 1), (0, 0), color='red', linewidth=3)
-        # bid_line = plt.Line2D((0, 1), (0, 0), color='blue', linewidth=3)
-        # Use area graphs
-        ask_graph = ax.fill_between([price for price, _ in cumulative_asks],
-                                    [quantity for _, quantity in cumulative_asks], color='red', alpha=0.3)
-        bid_graph = ax.fill_between([price for price, _ in cumulative_bids],
-                                    [quantity for _, quantity in cumulative_bids], color='green', alpha=0.3)
-        ax.legend([ask_graph, bid_graph], ['Asks', 'Bids'])
-
-        return fig
 
 
 if __name__ == "__main__":
     book = Book()
-    sec = dx.Security("AAPL")
-    book.insert(dx.Order.from_data(sec, 1, 10, dx.Side.BUY))
+    book.insert(Order.from_data(1, 10, Side.BUY))
 
     for i in range(1000):
         random_price = np.random.randint(1, 99)
         random_quantity = np.random.randint(1, 5)
-        random_direction = dx.Side.BUY if np.random.rand() > 0.5 else dx.Side.SELL
+        random_direction = Side.BUY if np.random.rand() > 0.5 else Side.SELL
 
-        book.insert(dx.Order.from_data(sec, random_price, random_quantity, random_direction))
+        book.insert(Order.from_data(random_price, random_quantity, random_direction))
 
     print("\nOrders at price $ 1.00:")
     print(book.bids.search(Level(1.00)).orders)

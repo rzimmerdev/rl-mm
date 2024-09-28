@@ -1,5 +1,6 @@
 numpy~=1.26.4
 matplotlib~=3.9.2
-dxlib~=1.0.22+7.git.g995d26d
 tqdm~=4.66.5
-pandas~=1.5.3
+pandas~=2.2.2
+torch~=2.4.1+cu124
+scipy~=1.11.4
