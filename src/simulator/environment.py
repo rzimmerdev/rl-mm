@@ -11,35 +11,35 @@ from src.simulator.lob import Book, Level, Order, Orders, Side
 class MarketInterface:
     def __init__(self):
         self.lob = Book()
-        self.orders: Dict[uuid.UUID, Order] = Orders()
-        self.order_levels: Dict[float, Level] = {}
+        self.ask = None
+        self.bid = None
         self.cash = 0
         self.equity = 0
 
     def clear(self):
         self.lob = Book()
 
-    def send_insert(self, order: Order):
-        self.lob.insert(order)
+    def send_insert(self, order: Order) -> uuid.UUID:
+        return self.lob.insert(order)
 
-    def send_update(self, order_id: uuid.UUID | None, order: Order):
+    def send_update(self, order: Order):
         """
         Update the quantity of an existing order, either increase or decrease or entirely remove the order.
         If no order exists, insert a new one.
         """
-        if order_id in self.orders:
-            order = self.orders[order_id]
-            order.quantity = order.quantity + order.quantity \
-                if order.side == Side.BUY else order.quantity - order.quantity
-        else:
-            # insert new order
-            self.send_insert(order)
+        if self.bid is None and order.side == Side.BUY:
+            self.bid = self.send_insert(order)
+            return self.bid
+        elif order.side == Side.SELL and self.ask is None:
+            self.ask = self.send_insert(order)
+            return self.ask
+
+        return self.lob.update(self.ask, order)
 
     def send_update_on_price(self, price: float, quantity: int, side: Side):
         # Additional logic to call send_update when the order_id is unknown, but the price level is known
         order = Order.from_data(price, quantity, side)
-        order_id = self.order_levels.get(price, None)
-        self.send_update(order_id, order)
+        return self.send_update(order)
 
     def lob_head(self, levels: int):
         return self.lob.state(levels)
@@ -52,21 +52,36 @@ class MarketInterface:
 
 
 class MarketInterfaceSimulator(MarketInterface):
-    def __init__(self):
+    class OrderSampler:
+        def __init__(self, mean=1, std=1):
+            self.mean = mean
+            self.std = std
+
+        def __call__(self, side_mean, side):
+            return Order()
+
+    def __init__(self, market_dt=1e-3):
         super().__init__()
 
         # event_sampler
         self.event_sampler = Hawkes()
+        self.previous_event = 0
+        self.next_event = self.event_sampler(self.previous_event)
+        self.market_time = 0
+        self.market_dt = market_dt
 
         # size sampler Poisson
-        self.size_sampler = 1
+        self.order_sampler = None
 
-    def send_update_on_price(self, price: float, quantity: int, side: Side):
-        transactions = super().send_update_on_price(price, quantity, side)
+    def step(self, price: float, quantity: int, side: Side):
+        self.send_update_on_price(price, quantity, side)
 
         # Simulate the arrival of new orders
-        t = 0
+        if self.previous_event + self.next_event < self.market_time:
+            self.market_time = self.previous_event + self.next_event
+            self.previous_event = self.market_time
 
+            self.next_event = self.event_sampler(self.market_time)
 
 
 class Indicators:
@@ -139,7 +154,7 @@ class LobEnvironment(Environment):
         assert self.action_space.contains(action)
 
         price, quantity, side = action
-        transactions = self.api.send_update_on_price(price, quantity, side)
+        transactions, market_time = self.api.send_update_on_price(price, quantity, side)
 
         # state = self.state_space.sample()  <-- This would mean the LOB's interpretation is used
         # and the environments interpretation of the LOB is the same
@@ -162,7 +177,7 @@ class LobEnvironment(Environment):
                          * np.sum([transaction.price * transaction.quantity for transaction in transactions])
                          * self.api.equity * delta_p)
 
-        self.t += 1
+        self.t = market_time
         done = self.t > self.market_close
 
         return state, reward, done

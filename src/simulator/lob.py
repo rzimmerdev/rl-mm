@@ -67,7 +67,7 @@ class Book:
         self.orders: Dict[uuid.UUID, Order] = Orders()
         self.prices = []
 
-    def insert(self, order: Order, order_id=None):
+    def insert(self, order: Order, order_id=None) -> uuid.UUID:
         tree = self.bids if order.side == Side.BUY.value else self.asks
         price = np.round(order.price, self.tick)
         level = tree.search(Level(price))
@@ -80,6 +80,8 @@ class Book:
 
         self.orders[order_id] = order
         level.add(order_id)
+
+        return order_id
 
     def remove(self, level: Level, tree: RedBlackTree):
         self.orders.pop(level.pop())
@@ -121,6 +123,29 @@ class Book:
             self.prices.append(self.micro_price)
 
         return transactions
+
+    def get(self, order_id):
+        return self.orders.get(order_id, None)
+
+    def update(self, order_id, new_order: Order):
+        # if price changes, remove the order from the tree and insert it again
+        # if quantity increases, as well, but if it decreases, just update the order
+        order = self.orders[order_id]
+
+        if order.side != new_order.side:
+            raise ValueError("Order side cannot be changed")
+
+        if order.price != new_order.price or order.quantity < new_order.quantity:
+            self.remove(self.bids.search(Level(order.price)), self.bids)
+            self.remove(self.asks.search(Level(order.price)), self.asks)
+            return self.insert(new_order, order_id)
+
+        elif order.quantity > new_order.quantity:
+            order.quantity = new_order.quantity
+            return order_id
+
+        else:
+            raise ValueError("Order did not change")
 
     @property
     def mid_price(self):
