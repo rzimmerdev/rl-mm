@@ -1,11 +1,10 @@
 import uuid
-from typing import Dict
 
 import numpy as np
 
 from src.framework import Environment, StateSpace, ActionSpace, RewardSpace
-from src.simulator.hawkes import Hawkes
-from src.simulator.lob import Book, Level, Order, Orders, Side
+from src.simulator.dynamics import Hawkes
+from src.simulator.lob import Book, Order, Side
 
 
 class MarketInterface:
@@ -51,14 +50,14 @@ class MarketInterface:
         return self.lob.mid_price
 
 
-class MarketInterfaceSimulator(MarketInterface):
+class MarketInterfaceMock(MarketInterface):
     class OrderSampler:
         def __init__(self, mean=1, std=1):
             self.mean = mean
             self.std = std
 
         def __call__(self, side_mean, side):
-            return Order()
+            return Order.from_data(np.random.normal(side_mean, self.std), np.random.poisson(self.mean), side)
 
     def __init__(self, market_dt=1e-3):
         super().__init__()
@@ -66,7 +65,7 @@ class MarketInterfaceSimulator(MarketInterface):
         # event_sampler
         self.event_sampler = Hawkes()
         self.previous_event = 0
-        self.next_event = self.event_sampler(self.previous_event)
+        self.next_event = self.event_sampler(self.previous_event, 1e-3)
         self.market_time = 0
         self.market_dt = market_dt
 
@@ -81,7 +80,7 @@ class MarketInterfaceSimulator(MarketInterface):
             self.market_time = self.previous_event + self.next_event
             self.previous_event = self.market_time
 
-            self.next_event = self.event_sampler(self.market_time)
+            self.next_event = self.event_sampler(self.market_time, 1e-3)
 
 
 class Indicators:
@@ -114,7 +113,9 @@ class Indicators:
 
 class LobStateSpace(StateSpace):
     def contains(self, state: np.array) -> bool:
-        return state.shape == (1, 1)
+        if state is None or not isinstance(state, np.ndarray):
+            return False
+        return state.shape == (7,)
 
 
 class LobActionSpace(ActionSpace):
@@ -126,7 +127,7 @@ class LobActionSpace(ActionSpace):
         super().__init__()
 
     def contains(self, action: np.array) -> bool:
-        return action.shape == (1, 1)
+        return action.shape == (4,)
 
 
 class LobEnvironment(Environment):
@@ -134,8 +135,11 @@ class LobEnvironment(Environment):
     The environment encapsulates the MarketInterface of a LOB.
     The state is a fabricated representation of the LOB and depends on the Environment's interpretation of the LOB.
     """
-
-    def __init__(self, api: MarketInterface, action_space, reward_space, market_close: int = 1000):
+    def __init__(self,
+                 api: MarketInterface,
+                 action_space: ActionSpace,
+                 reward_space: RewardSpace,
+                 market_close: int = 1000):
         super().__init__(LobStateSpace(), action_space, reward_space)
         self.api = api
         self.quotes = []
@@ -151,10 +155,11 @@ class LobEnvironment(Environment):
         # MDP process: Insert action into limit order book, update state. return reward
 
         # If action is LOB acceptable, call update on LOB (interface for an agent to a real LOB)
-        assert self.action_space.contains(action)
+        if not self.action_space.contains(action):
+            raise ValueError("Action is not in the action space")
 
-        price, quantity, side = action
-        transactions, market_time = self.api.send_update_on_price(price, quantity, side)
+        ask_price, ask_quantity, bid_price, bid_quantity = action
+        transactions, market_time = self.api.send_update_on_price((ask_price, ask_quantity), Side.SELL)
 
         # state = self.state_space.sample()  <-- This would mean the LOB's interpretation is used
         # and the environments interpretation of the LOB is the same
@@ -181,3 +186,11 @@ class LobEnvironment(Environment):
         done = self.t > self.market_close
 
         return state, reward, done
+
+    @property
+    def end(self) -> bool:
+        return self.t > self.market_close
+
+    @property
+    def state(self):
+        return self.api.lob_head(levels=5)

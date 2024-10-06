@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from space import Space
+from .space import Space
 
 
 class StateSpace(Space, ABC):

@@ -7,8 +7,8 @@ class StochasticProcess(ABC):
     def sample(self, x, dt):
         raise NotImplementedError
 
-    def __call__(self, *args, **kwargs):
-        return self.sample(*args, **kwargs)
+    def __call__(self, x, dt, *args, **kwargs):
+        return self.sample(x, dt)
 
     def simulate(self, x0, dt, n):
         n = int(n)

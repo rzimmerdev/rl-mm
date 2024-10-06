@@ -31,3 +31,20 @@ class Environment(ABC):
             The initial state.
         """
         pass
+
+    @property
+    @abstractmethod
+    def end(self) -> bool:
+        """
+        Whether the episode has ended.
+        """
+        pass
+
+
+    @property
+    @abstractmethod
+    def state(self):
+        """
+        The current state of the environment.
+        """
+        pass
