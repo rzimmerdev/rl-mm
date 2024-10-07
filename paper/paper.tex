@@ -16,7 +16,7 @@
 \leftline{AME 20231}
 \leftline{18 January 2024}
 
-\begin{section}
+\section{Introduction}
 
 Market making in financial markets is a trading approach that involves continuously quoting buy and sell prices. Market makers are essential, as they help narrowing bid-ask spreads, reduce price volatility, and maintain market stability, particularly in times of uncertainty by trading and providing liquidity in the market. Dealing with supply and demand imbalances, as well as the risks of holding inventory and speculation is an intrinsic aspect of market making and a focus of recent research. Correctly reducing inventory risk benefits not only individual market makers but all market participants as a whole. With the increase of computational power and data-driven automated systems, placing optimal bid and ask prices as a market maker is becoming an almost completely automatized task, but such a transition comes with additional caveats, such as slippage, overnight inventory and adverse market movements risks on agent inventory. 
 
@@ -28,6 +28,56 @@ Unrestricted RL-based market making, however, can lead to potentially risky beha
 
 Our main contributions for this paper are: a reusable design and implementation on restrictions for RL market making agents; analyze the impact on performance of RL agents adverse to overnight risk; Discuss and explore how varying degrees of restrictions, either in the form of penalty structures or hard inventory limits, affect the robustness of risk-adverse strategies under realistic market conditions.
 
-\end{section}
+\section{Methodology}
+
+\subsection{Problem Definition}
+The market-making problem addressed in this work involves designing an optimal trading policy for an agent using reinforcement learning (RL). The agent aims to maximize profit while managing risks, particularly inventory risk. The market dynamics are modeled by the limit order book (LOB), which evolves over time based on order flow and price movements. The agent interacts with this environment by quoting bid and ask prices and adjusting quantities. A central challenge lies in balancing profitability with risk management, especially regarding inventory at the close of the market, where overnight positions can expose the agent to significant risks.
+
+\subsection{Formal Description of the RL Environment}
+The RL environment is modeled as a continuous Markov chain. The state space is represented by variables that reflect the market's current conditions, including the Relative Strength Index (RSI), order imbalance, micro price, and price level distances for \(d\) levels in the order book. Formally, the state space can be written as:
+\[
+S_t \in \mathbb{R}^3 \times \mathbb{R}^{2d} = \{\text{RSI}, \text{Order Imbalance}, \text{Micro Price}, \text{Price Level Distances}\}
+\]
+The agent's action space includes the bid and ask spreads, as well as the quantities for both sides:
+\[
+A_t \in \mathbb{R}^2 \times \mathbb{Z}^2 = \{\text{Ask Spread}, \text{Bid Spread}, \text{Ask Quantity}, \text{Bid Quantity}\}
+\]
+The reward space is scalar, representing the profit and risk trade-offs:
+\[
+R_t \in \mathbb{R}
+\]
+The agent receives this reward based on the difference between the quoted spreads and the executed quantities, with adjustments for inventory changes and associated risks.
+
+\subsection{Limit Order Book Evolution Dynamics}
+The limit order book evolves as a time-continuous Markov chain, where the next event timing follows a Hawkes process, which models the self-exciting nature of market events. The spread dynamics are captured by an Ornstein-Uhlenbeck process to reflect mean-reversion tendencies. Upon each new event, the type of order (market or limit) is determined via an exponential distribution. The bid and ask spreads quoted by the agent are normally distributed:
+\[
+\text{Ask Spread} \sim \mathcal{N}(\mu_{\text{ask}} + \text{Spread}, \sigma^2), \quad \text{Bid Spread} \sim \mathcal{N}(\mu_{\text{bid}} - \text{Spread}, \sigma^2)
+\]
+The mid-price, defined as the average of the best bid and ask prices, evolves according to a Wiener process:
+\[
+\text{Mid Price}(t) = \frac{\min(\text{Ask}) + \max(\text{Bid})}{2}
+\]
+Finally, the quantities of ask and bid orders are modeled using a Poisson distribution to capture the random nature of trade sizes:
+\[
+\text{Ask Quantity}, \text{Bid Quantity} \sim \text{Poisson}(\lambda)
+\]
+
+\subsection{Agent Objective}
+The agent’s primary objective is to maximize a constant absolute risk aversion (CARA) utility function based on profit and loss (PnL), while managing inventory risk. The PnL is calculated as:
+\[
+\text{PnL} = (\text{Ask Spread} \times \text{Ask Quantity Executed}) - (\text{Bid Spread} \times \text{Bid Quantity Executed}) + \text{Inventory} \times \Delta \text{Mid Price}
+\]
+Additionally, an asymmetric penalty is applied to the PnL to penalize the agent for holding large inventory positions at market close. This penalty is defined as:
+\[
+\text{PnL} = \text{PnL} - \eta [\text{Inventory} \times \Delta \text{Mid Price}]^+
+\]
+where \(\eta < 1\) is a dampening factor applied to penalize positive inventory changes. This formulation allows for testing different levels of risk aversion with respect to the agent's inventory position, particularly targeting overnight risk.
+
+\subsection{Agent Formulation}
+The agent is implemented in three different formulations. First, we use Proximal Policy Optimization (PPO), a policy gradient method that updates the policy iteratively while ensuring stability in the learning process. Second, we use the Advantage Actor-Critic (A2C) method, which combines both a value function and a policy network to reduce variance in the policy gradient estimates. Finally, we explore an analytical solution based on simplified assumptions about the Markov chain model, providing a baseline for comparison against the RL-based agents.
+
+\subsection{Contributions on Restrictions and Constraints Formulations}
+A central contribution of this work is the implementation of restrictions within the RL framework. These restrictions are introduced either as hard limits or as incentive-based adjustments. Hard restrictions enforce boundary conditions such as requiring zero inventory at market close. Incentive-based restrictions modify the reward function, applying penalties for holding large inventory positions at market close. For instance, a higher inventory at the end of a trading day results in a larger negative reward, discouraging the agent from holding risky overnight positions. This allows for incorporating domain knowledge and market stylized facts into the learning process, enhancing both risk management and the interpretability of the RL model. We demonstrate the effects of these restrictions on agent performance, focusing on the ability to manage volatility and inventory risk effectively under realistic market conditions.
+
 
 \end{document}
