@@ -1,12 +1,10 @@
 import uuid
 from typing import List, Dict
 
-import matplotlib.pyplot as plt
-import dxlib as dx
 import numpy as np
 
-from rbtree import RedBlackTree
-from order import Order, Side, Transaction
+from .rbtree import RedBlackTree, Node
+from .order import Order, Side, Transaction
 
 
 class Singleton:
@@ -64,11 +62,10 @@ class Book:
         self.asks = RedBlackTree()
         self.bids = RedBlackTree()
         self.tick = tick
-        self.orders: Dict[uuid.UUID, Order] = Orders()
-        self.prices = []
+        self.orders: Dict[uuid.UUID, Order] = {}
 
     def insert(self, order: Order, order_id=None) -> uuid.UUID:
-        tree = self.bids if order.side == Side.BUY.value else self.asks
+        tree = self.bids if order.side == Side.BUY else self.asks
         price = np.round(order.price, self.tick)
         level = tree.search(Level(price))
 
@@ -105,7 +102,9 @@ class Book:
             ask_order.quantity -= quantity
             bid_order.quantity -= quantity
 
-            transactions.append(Transaction(quantity, np.round(ask_level.price, self.tick)))
+            transactions.append(Transaction(quantity,
+                                            np.round(ask_level.price, self.tick),
+                                            (ask_level.top(), bid_level.top())))
 
             if ask_order.quantity == 0:
                 self.remove(ask_level.data, self.asks)
@@ -118,9 +117,6 @@ class Book:
 
             if ask_level == self.asks.TNULL or bid_level == self.bids.TNULL:
                 break
-
-        if self.mid_price:
-            self.prices.append(self.micro_price)
 
         return transactions
 
@@ -143,46 +139,21 @@ class Book:
         elif order.quantity > new_order.quantity:
             order.quantity = new_order.quantity
             return order_id
-
         else:
-            raise ValueError("Order did not change")
+            return order_id
 
     @property
-    def mid_price(self):
-        ask = self.asks.min()
-        bid = self.bids.max()
-        # mid price exists only if there are asks and bids
-        return (ask.price + bid.price) / 2 if ask != self.asks.TNULL and bid != self.bids.TNULL else None
+    def top(self):
+        try:
+            ask_price = self.asks.min().data.price
+        except AttributeError:
+            ask_price = None
+        try:
+            bid_price = self.bids.max().data.price
+        except AttributeError:
+            bid_price = None
 
-    @property
-    def order_imbalance(self):
-        """Order imbalance"""
-        return (self.asks.size - self.bids.size) / (self.asks.size + self.bids.size) \
-            if self.asks.size + self.bids.size else 0
-
-    @property
-    def rsi(self):
-        """Relative Strength Index"""
-        returns = np.diff(self.prices) / self.prices[:-1]
-        gain = np.sum(returns[returns >= 0])
-        loss = np.sum(returns[returns < 0])
-
-        if len(returns):
-            avg_gain = np.abs(gain / len(returns))
-            avg_loss = np.abs(loss / len(returns))
-
-            return 100 - 100 / (1 + avg_gain / (avg_loss + 1e-16))
-        else:
-            return 100
-
-    @property
-    def volatility(self):
-        """Volatility"""
-        return np.std(self.prices)
-
-    def current_volatility(self, window=10):
-        """Current volatility"""
-        return np.std(self.prices[-window:]) if len(self.prices) > window else 0
+        return ask_price, bid_price
 
     def state(self, levels=5):
         # return 5 levels of asks and bids
@@ -204,18 +175,6 @@ class Book:
 
         return ask_levels, bid_levels
 
-    @property
-    def micro_price(self):
-        """Order imbalance weighted mid price"""
-        ask_imbalance = self.asks.size / (self.asks.size + self.bids.size) if self.asks.size + self.bids.size else 0
-        bid_imbalance = self.bids.size / (self.asks.size + self.bids.size) if self.asks.size + self.bids.size else 0
-
-        ask_price = self.asks.min().price if self.asks.size else 0
-        bid_price = self.bids.max().price if self.bids.size else 0
-
-        return ask_imbalance * ask_price + bid_imbalance * bid_price
-
-
 
 if __name__ == "__main__":
     book = Book()
@@ -229,7 +188,11 @@ if __name__ == "__main__":
         book.insert(Order.from_data(random_price, random_quantity, random_direction))
 
     print("\nOrders at price $ 1.00:")
-    print(book.bids.search(Level(1.00)).orders)
+    node = book.bids.search(Level(1.00))
+
+    assert isinstance(node, Node)
+    assert node.data is not None
+    print(node.data.orders)
 
     print("\nTransactions:")
     print(book.match())
@@ -241,6 +204,3 @@ if __name__ == "__main__":
     print("\nBids:")
     for level in book.bids.inorder():
         print(level.price, sum([book.orders[order_id].quantity for order_id in level.orders]))
-
-    book.plot()
-    plt.show()

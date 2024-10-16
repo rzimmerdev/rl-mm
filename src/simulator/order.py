@@ -13,13 +13,14 @@ class Order:
 
 
 class Transaction:
-    def __init__(self, price, quantity):
+    def __init__(self, price, quantity, order_id):
         self.price = price
         self.quantity = quantity
+        self.order_id = order_id
 
     @classmethod
-    def from_data(cls, price, quantity):
-        return Transaction(price, quantity)
+    def from_data(cls, price, quantity, order_id):
+        return Transaction(price, quantity, order_id)
 
 
 class Side(Enum):

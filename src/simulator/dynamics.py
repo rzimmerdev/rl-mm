@@ -71,13 +71,19 @@ class AsymmetricGBM(StochasticProcess):
         spread = np.exp(self.spread_process.sample(self.spread, dt))
         ask = np.random.normal((1 + self.mean) * (self.mid + self.spread), self.volatility * self.mid)
         bid = np.random.normal((1 + self.mean) * (self.mid - self.spread), self.volatility * self.mid)
-        change = (self.ask + self.bid) / 2 - self.mid
+        change = (ask + bid) / 2 - self.mid
         return change, (spread, ask, bid)
 
     def simulate(self, x0, dt, n):
         n = int(n)
         x = np.zeros(n)
         x[0] = x0
+        self.mid = x0
+
+        asks = np.zeros(n - 1)
+        bids = np.zeros(n - 1)
+
+
         for i in range(1, n):
             self.mean += self.mean_process.sample(self.mean, dt)
             change, (spread, ask, bid) = self(x[i - 1], dt)
@@ -86,8 +92,12 @@ class AsymmetricGBM(StochasticProcess):
             self.spread = spread
             self.ask = ask
             self.bid = bid
+            self.mid = (self.ask + self.bid) / 2
 
-        return x
+            asks[i -1] = ask
+            bids[i -1] = bid
+
+        return x, (asks, bids)
 
 
 class Hawkes(StochasticProcess):
@@ -110,16 +120,16 @@ class Hawkes(StochasticProcess):
         self.events = np.append(self.events, t)
 
     def phi(self, x):
-        return self.alpha * self.beta * np.exp(-self.beta * x)
+        return np.exp(-self.beta * x)
 
     def intensity(self, t):
         """
         Returns the intensity of the process at time t, the intensity is the rate of events for the current time.
         """
-        return self.mean + np.sum(self.phi(t - (self.events[self.events < t])))
+        return self.mean + self.alpha * np.sum(self.phi(t - (self.events[self.events < t])))
 
     def sample(self, x, dt):
-        return self.intensity(x) * dt + np.random.poisson(1)
+        return np.random.exponential(1 / self.intensity(x))
 
     def simulate(self, x0, dt, n):
         n = int(n)
@@ -133,8 +143,6 @@ class Hawkes(StochasticProcess):
 
 
 if __name__ == "__main__":
-    import matplotlib.pyplot as plt
-
     s = 160
     dt = 1
     T = 1 * 252  # 5 * year * dt
@@ -146,21 +154,9 @@ if __name__ == "__main__":
     dt_volatility = asset_risk / np.sqrt(252)
 
     agbm = AsymmetricGBM(s, dt_returns, dt_volatility)
-    x = agbm.simulate(s, dt, T)
+    x, (asks, bids) = agbm.simulate(s, dt, T)
 
     returns = np.diff(x) / x[:-1]
-
-    fig = plt.figure(figsize=(10, 5))
-
-    fig.suptitle("Asymmetric GBM Simulation")
-    fig.subplots_adjust(hspace=0.5)
-    plt.plot(x, label="Stock Price")
-
-    plt.legend()
-
-    # change graph ratios 1x1 -> 2x1
-
-    plt.show()
 
     mean = np.mean(returns) * 252
     volatility = np.std(returns) * np.sqrt(252)
@@ -169,3 +165,11 @@ if __name__ == "__main__":
 
     # deviation from model values
     print(f"Residuals - Mean: {mean - asset_returns}, Volatility: {volatility - asset_risk}")
+
+    import matplotlib.pyplot as plt
+
+    plt.plot(x)
+    plt.plot(asks, alpha=.5, color='green')
+    plt.plot(bids, alpha=.5, color='red')
+
+    plt.show()

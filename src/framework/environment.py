@@ -48,3 +48,17 @@ class Environment(ABC):
         The current state of the environment.
         """
         pass
+
+    @property
+    def duration(self):
+        """
+        The duration of the episode.
+        """
+        raise NotImplementedError("No duration measure specified for this environment.")
+
+    @property
+    def remaining(self):
+        """
+        The remaining duration of the episode.
+        """
+        raise NotImplementedError("No remaining measure specified for this environment.")

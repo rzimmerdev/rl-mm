@@ -13,18 +13,19 @@ class Rewards(RewardSpace):
 def main():
     class PPOAgent(Agent):
         def act(self, state: np.array) -> np.array:
-            return np.array([0, 0])
+            #
+            return np.array([np.inf, 0, -np.inf, 0])
 
         def update(self, next_state, reward, done):
             pass
 
     agent = PPOAgent()
     api = MarketInterfaceMock()
-    environment = LobEnvironment(api, LobActionSpace(), Rewards(), market_close=1000)
+    environment = LobEnvironment(api, LobActionSpace(), Rewards(), market_time=100)
 
     simulator = Simulator(agent, environment)
 
-    simulator.run(1000)
+    simulator.run()
     print("Simulation complete")
     print("Final state:", environment.state)
 
