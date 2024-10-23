@@ -3,8 +3,8 @@ from typing import List, Dict
 
 import numpy as np
 
-from .rbtree import RedBlackTree, Node
-from .order import Order, Side, Transaction
+from src.lob.rbtree import RedBlackTree, Node
+from src.lob.order import Order, Side, Transaction
 
 
 class Singleton:
@@ -102,9 +102,9 @@ class Book:
             ask_order.quantity -= quantity
             bid_order.quantity -= quantity
 
-            transactions.append(Transaction(quantity,
-                                            np.round(ask_level.price, self.tick),
-                                            (ask_level.top(), bid_level.top())))
+            transaction = Transaction(quantity, np.round(ask_level.price, self.tick),
+                                      (ask_level.top(), bid_level.top()))
+            transactions.append(transaction)
 
             if ask_order.quantity == 0:
                 self.remove(ask_level.data, self.asks)
@@ -173,7 +173,7 @@ class Book:
             quantity = sum([self.orders[order_id].quantity for order_id in level.orders])
             bid_levels.append((level.price, quantity))
 
-        return ask_levels, bid_levels
+        return ask_levels[:levels], bid_levels[:levels]
 
 
 if __name__ == "__main__":
@@ -204,3 +204,21 @@ if __name__ == "__main__":
     print("\nBids:")
     for level in book.bids.inorder():
         print(level.price, sum([book.orders[order_id].quantity for order_id in level.orders]))
+
+    # plotting book
+    import matplotlib.pyplot as plt
+
+    asks, bids = book.state()
+
+    # accumulate quantities per side
+    ask_prices, ask_quantities = zip(*asks)
+    bid_prices, bid_quantities = zip(*bids)
+
+    ask_quantities = np.cumsum(ask_quantities)
+    bid_quantities = np.cumsum(bid_quantities)
+
+    plt.plot(ask_prices, ask_quantities, label='Asks')
+    plt.plot(bid_prices, bid_quantities, label='Bids')
+
+    plt.legend()
+    plt.show()

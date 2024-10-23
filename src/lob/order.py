@@ -3,8 +3,8 @@ from enum import Enum
 
 class Order:
     def __init__(self, price, quantity, side):
-        self.price = price
         self.quantity = quantity
+        self.price = price
         self.side = side
 
     @classmethod

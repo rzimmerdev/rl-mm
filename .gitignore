@@ -1,3 +1,7 @@
 .idea
 *.xlsx
 /src/dataset/
+
+**/__pycache__/
+*.gz
+*.pyc

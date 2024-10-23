@@ -10,7 +10,7 @@ class Environment(ABC):
         self.reward_space = reward_space
 
     @abstractmethod
-    def step(self, action: np.array) -> (np.array, np.array, bool):
+    def step(self, action: np.array) -> (np.array, bool):
         """
         Take a step in the simulator.
 
@@ -62,3 +62,10 @@ class Environment(ABC):
         The remaining duration of the episode.
         """
         raise NotImplementedError("No remaining measure specified for this environment.")
+
+    @abstractmethod
+    def start(self):
+        """
+        Start the environment.
+        """
+        pass
