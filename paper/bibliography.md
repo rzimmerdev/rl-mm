@@ -50,6 +50,7 @@ Tags:
 - Q-Learning, 
 - DQN, 
 - DDQN, etc.
+- Analytical;
 
 6. Multi-Agent RL:
 Determines if the paper considers interactions between multiple agents, which is vital for realistic market simulations.
