@@ -1,9 +1,11 @@
-from typing import Union
-
+import matplotlib
 import numpy as np
+import plotly.graph_objects as go
 
+from src.agents.avstoikov import AvellanedaStoikov
+from src.agents.ppo_agent import PPOAgent
 from src.framework import Agent, RewardSpace
-from src.simulator.environment import LobEnvironment, MarketInterfaceMock, LobActionSpace, LobStateSpace
+from src.simulator.environment import LobEnvironment, MarketInterfaceMock, LobActionSpace
 from src.simulator.simulator import Simulator
 
 
@@ -11,36 +13,13 @@ class Rewards(RewardSpace):
     def contains(self, action) -> bool:
         return True
 
-class PPOAgent(Agent):
-    def __init__(self):
-        self.ask_price = None
-        self.ask_quantity = None
-        self.bid_price = None
-        self.bid_quantity = None
 
-    def act(self, state: Union[np.array]) -> np.array:
-        if state is None:
-            return None
-        ask, bid = LobStateSpace().lob_top(state)
-        ask_price = np.random.normal(ask[0], 1)
-        if not self.ask_price or np.abs(ask_price - self.ask_price) > 10:
-            self.ask_price = np.maximum(ask_price, 0)
-            self.ask_quantity = 1
-        bid_price = np.random.normal(bid[0], 1)
-        if not self.bid_price or np.abs(bid_price - self.bid_price) > 10:
-            self.bid_price = np.maximum(bid_price, 0)
-            self.bid_quantity = 1
-
-        return np.array([self.ask_price, self.ask_quantity, self.bid_price, self.bid_quantity])
-
-    def update(self, next_state, reward, done):
-        pass
 
 
 def main():
-    agent = PPOAgent()
+    agent = AvellanedaStoikov()
     market_dt = 1e-1
-    market_time = 50
+    market_time = 1e2 * 5
     api = MarketInterfaceMock(market_dt)
     environment = LobEnvironment(api, LobActionSpace(), Rewards(), market_time)
 
@@ -81,8 +60,36 @@ def main():
     plt.show()
 
     # plot quote line graph
-    plt.plot(environment.quotes[100:])
-    plt.show()
+    # quotes[:, 1] is market time in ms, plot in seconds
+    fig = go.Figure()
+
+    # Add market quotes line
+    fig.add_trace(go.Scatter(
+        x=environment.quotes[100:, 0],
+        y=environment.quotes[100:, 1],
+        mode='lines',
+        name='Market Quotes'
+    ))
+
+    # Add agent ask and bid quotes with smaller markers
+    fig.add_trace(go.Scatter(
+        x=environment.agent_quotes[100:, 0],
+        y=environment.agent_quotes[100:, 1],
+        mode='markers',
+        marker=dict(color='red', size=5),
+        name='Agent Ask Quotes'
+    ))
+
+    fig.add_trace(go.Scatter(
+        x=environment.agent_quotes[100:, 0],
+        y=environment.agent_quotes[100:, 2],
+        mode='markers',
+        marker=dict(color='green', size=5),
+        name='Agent Bid Quotes'
+    ))
+
+    # Show the figure
+    fig.show()
 
 
 if __name__ == "__main__":

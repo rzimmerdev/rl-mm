@@ -92,24 +92,21 @@ class MarketInterfaceMock(MarketInterface):
 
         return next_event, order, spread, rf
 
-    def equity_change(self, transaction):
+    def agent_side(self, transaction):
         # decide if agent is buyer or seller based on transaction.order_id: Tuple and self.ask and self.bid
         # first, test if id 0 or id 1 of order_id is == to self.ask or self.bid
         # if it is, then the agent is the buyer or seller
         # then, decide if the agent is the buyer or seller based if == self.ask or self.bid
-        side = None
         if transaction.order_id[0] == self.ask or transaction.order_id[1] == self.ask:
-            side = Side.BUY
+            return Side.BUY
         elif transaction.order_id[0] == self.bid or transaction.order_id[1] == self.bid:
-            side = Side.SELL
+            return Side.SELL
         else:
-            return 0
-
-        return transaction.quantity * side.value
+            return None
 
     def listen(self, transactions=None):
         if self.previous_event + self.next_event <= self.market_time:
-            self.market_time = self.previous_event + self.next_event
+            self.market_time = np.max([self.previous_event + self.next_event, self.market_time])
             self.previous_event = self.market_time
 
             mid_price = self.quote() or np.random.normal(100, 1)
@@ -128,7 +125,14 @@ class MarketInterfaceMock(MarketInterface):
 
         transactions = self.lob.match() + (transactions or [])
         if transactions:
-            self.equity += sum([self.equity_change(transaction) for transaction in transactions])
+            for idx, transaction in enumerate(transactions):
+                side = self.agent_side(transaction)
+                if side == Side.BUY:
+                    self.equity -= transaction.price * transaction.quantity
+                elif side == Side.SELL:
+                    self.equity += transaction.price * transaction.quantity
+                else:
+                    transactions.pop(idx)
 
         if not self.quote():
             self.market_time = self.previous_event + self.next_event
@@ -242,16 +246,16 @@ class LobEnvironment(Environment):
     The environment encapsulates the MarketInterface of a LOB.
     The state is a fabricated representation of the LOB and depends on the Environment's interpretation of the LOB.
     """
-
     def __init__(self,
                  api: MarketInterface,
                  action_space: ActionSpace,
                  reward_space: RewardSpace,
-                 market_time: int = 1000,
+                 market_time: float = 1000,
                  lob_levels=5):
         super().__init__(LobStateSpace(), action_space, reward_space)
         self.api = api
-        self.quotes = np.array([])
+        self.quotes = np.empty((0, 2))
+        self.agent_quotes = np.empty((0, 3))
         self.market_time = market_time
         self.lob_levels = lob_levels
 
@@ -261,7 +265,8 @@ class LobEnvironment(Environment):
 
     def reset(self) -> np.array:
         self.api.clear()
-        self.quotes = np.array([])
+        self.quotes = np.empty((0, 2))
+        self.agent_quotes = np.empty((0, 3))
 
     def step(self, action: np.array) -> (np.array, bool):
         self.action_space.contains(action)
@@ -282,16 +287,23 @@ class LobEnvironment(Environment):
         except AssertionError:
             raise ValueError("State is not in the state space")
 
-        self.quotes = np.append(self.quotes, self.api.quote())
-        delta_p = self.quotes[-1] - self.quotes[-2] if len(self.quotes) > 1 else 0
+        self.quotes = np.append(self.quotes, np.array([[market_time, self.api.quote()]]), axis=0)
 
-        # Reward = Utility(realized pnl + position)
+        if action is not None:
+            self.agent_quotes = np.append(self.agent_quotes, np.array([[market_time, action[0], action[2]]]), axis=0)
+
+        delta_p = self.quotes[-1][0] - self.quotes[-2][0] if len(self.quotes) > 1 else 0
+
         eta = 0.2
-        alpha = 1
-        w_t = np.sum([transaction.price * transaction.quantity for transaction in transactions]) if transactions else 0
+        alpha = 1e-2
+        midprice = self.api.quote()
+        w_t = np.sum([(transaction.price - midprice) * transaction.quantity for transaction in transactions]) if transactions else 0
         w_p = prev_equity * (delta_p - np.max(eta * delta_p, 0))
 
-        reward = 1 - (1 / alpha) * np.exp(-alpha * (w_t + w_p))
+        reward = 100 - (1 / alpha) * np.exp(-alpha * (w_t + w_p))
+
+        if abs(reward) > 100:
+            print("Reward is too large")
 
         done = market_time > self.duration
 
@@ -321,6 +333,5 @@ class LobEnvironment(Environment):
 
     def start(self):
         self.api.market_time = 0
-        self.quotes = np.array([])
-
+        self.api.clear()
         self.api.listen()

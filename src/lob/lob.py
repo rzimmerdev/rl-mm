@@ -102,7 +102,7 @@ class Book:
             ask_order.quantity -= quantity
             bid_order.quantity -= quantity
 
-            transaction = Transaction(quantity, np.round(ask_level.price, self.tick),
+            transaction = Transaction(np.round(ask_level.price, self.tick), quantity,
                                       (ask_level.top(), bid_level.top()))
             transactions.append(transaction)
 
