@@ -6,7 +6,7 @@ import plotly.express as px
 import pandas as pd
 
 # Load the cleaned data (replace with your actual path)
-data_path = "references.csv"  # Save the earlier output to this path
+data_path = "../src/bibliography/references.csv"  # Save the earlier output to this path
 data = pd.read_csv(data_path)
 
 # Select custom fields

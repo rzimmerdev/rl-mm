@@ -1,0 +1,4 @@
+{
+    "Data": {"simulated": "Simulated Data", "historical": "Historical Data"},
+    "StateSpace": {"lob": "Limit Order Book"}
+}

@@ -5,3 +5,5 @@
 **/__pycache__/
 *.gz
 *.pyc
+
+*.mp4
