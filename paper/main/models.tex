@@ -1,0 +1,19 @@
+\section{Implementation and Models}
+
+
+\begin{algorithmic}
+\State \textbf{Initialize} the environment and the Actor-Critic model
+\For{each episode}
+    \State Initialize the environment state: $state$
+    \For{each time step in the episode}
+        \State Select an action $a$ using the Actor network
+        \State Execute the action $a$ and observe the reward $r$ and the new state $state'$
+        \State Store the transition $(state, a, r, state')$ in the replay buffer
+        \State Sample a random minibatch of $N$ transitions $(s, a, r, s')$ from the replay buffer
+        \State Calculate the target value: $y = r + \gamma Q'(s', \mu'(s'))$
+        \State Update the Critic by minimizing the loss: $L = \frac{1}{N} \sum_i (y_i - Q(s_i, a_i))^2$
+        \State Update the Actor using the sampled policy gradient:
+        \
+    \EndFor
+\EndFor
+\end{algorithmic}

@@ -1,6 +1,6 @@
 .idea
 *.xlsx
-/src/dataset/
+/dataset/
 
 **/__pycache__/
 *.gz
