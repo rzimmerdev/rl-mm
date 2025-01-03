@@ -33,6 +33,19 @@ class MLP(nn.Module):
         return x
 
 
+class ValueNetwork(nn.Module):
+    def __init__(self, in_dim):
+        super(ValueNetwork, self).__init__()
+        self.layers = nn.Sequential(
+            layer_init(nn.Linear(in_dim, 128)),
+            nn.ReLU(),
+            layer_init(nn.Linear(128, 1), std=1)
+        )
+
+    def forward(self, x):
+        return self.layers(x)
+
+
 class PolicyNetwork(nn.Module):
     def __init__(self, in_dim, out_dim):
         super(PolicyNetwork, self).__init__()
@@ -50,45 +63,52 @@ class PolicyNetwork(nn.Module):
         action_probs = self(state)
         dist = Categorical(action_probs)
         action = dist.sample()
-        return action, dist, dist.log_prob(action)
+        return action, dist.log_prob(action), dist
+
+    def get_action(self, action):
+        return action.item()
 
 
 class MultiHeadPolicyNetwork(nn.Module):
-    def __init__(self, in_dim, out_dims):
+    def __init__(self, in_dim, out_dims, hidden_dims=(128, 128), dropout_prob=0.2):
         super(MultiHeadPolicyNetwork, self).__init__()
+
         self.shared_layers = nn.Sequential(
-            layer_init(nn.Linear(in_dim, 64)),
+            layer_init(nn.Linear(in_dim, hidden_dims[0])),
             nn.ReLU(),
-            layer_init(nn.Linear(64, 64)),
-            nn.ReLU()
+            nn.LayerNorm(hidden_dims[0]),  # Use LayerNorm instead of BatchNorm1d
+            nn.Dropout(p=dropout_prob),
+            *[
+                nn.Sequential(
+                    layer_init(nn.Linear(dim1, dim2)),
+                    nn.ReLU(),
+                    nn.LayerNorm(dim2),  # Use LayerNorm instead of BatchNorm1d
+                    nn.Dropout(p=dropout_prob)
+                ) for dim1, dim2 in zip(hidden_dims[:-1], hidden_dims[1:])
+            ]
         )
+
         self.output_layers = nn.ModuleList([
-            nn.Sequential(layer_init(nn.Linear(64, dim)), nn.Softmax(dim=-1)) for dim in out_dims
+            nn.Sequential(
+                layer_init(nn.Linear(hidden_dims[-1], out_dim), std=0.01),
+                nn.Softmax(dim=-1)
+            ) for out_dim in out_dims
         ])
 
-    def forward(self, observations):
-        shared_features = self.shared_layers(observations)
-        probs = [layer(shared_features) for layer in self.output_layers]
-        return probs
+    def forward(self, x):
+        shared_features = self.shared_layers(x)
+        outputs = [output_layer(shared_features) for output_layer in self.output_layers]
+        return outputs
 
     def act(self, state):
         probs = self(state)
         dist = [Categorical(prob) for prob in probs]
         action = [d.sample() for d in dist]
-        return action, dist, [d.log_prob(a) for d, a in zip(dist, action)]
+        return action, [d.log_prob(a) for d, a in zip(dist, action)], dist
 
+    def get_action(self, actions):
+        return np.array([a.item() for a in actions])
 
-class ValueNetwork(nn.Module):
-    def __init__(self, in_dim):
-        super(ValueNetwork, self).__init__()
-        self.layers = nn.Sequential(
-            layer_init(nn.Linear(in_dim, 128)),
-            nn.ReLU(),
-            layer_init(nn.Linear(128, 1), std=1)
-        )
-
-    def forward(self, x):
-        return self.layers(x)
 
 
 def shape_sanity():
