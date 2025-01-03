@@ -32,17 +32,17 @@ class TestMarketSimulator(unittest.TestCase):
         plt.title("Price distribution")
         plt.show()
 
-    def test_sample(self):
+    def test_manual_sample(self):
         trading_hours = 6.5
         sim = MarketSimulator(
             435,
             .15,
             .0,
-            .1 * np.sqrt(60),
-            1,
-            .1,
+            .01 * np.sqrt(60),
+            1e-1,
+            1e-2,
             1 / 252 / trading_hours / 60,
-            event_size_mean=100,
+            event_size_mean=.1,
         )
 
         p = sim.starting_value
@@ -139,6 +139,55 @@ class TestMarketSimulator(unittest.TestCase):
         ax.set_xlabel("Time (hours)")
         ax.set_ylabel("Price")
         ax.set_xlim(0, 6.5)
+        plt.show()
+
+    def test_step(self):
+        trading_hours = 6.5
+        sim = MarketSimulator(
+            435,
+            .15,
+            .0,
+            .15 * np.sqrt(60),
+            1e-3,
+            1e-2,
+            1 / 252 / trading_hours / 60,
+            event_size_mean=1,
+        )
+
+        p = []
+        t = []
+        while sim.market_timestep < 1 / 252:
+            transactions = sim.step()
+            p.append(sim.market_variables["midprice"])
+            t.append(sim.market_timestep)
+
+        # get only every 10 minutes
+
+        # Assuming t and p are populated
+        t_scaled = np.linspace(0, 390, len(t))  # Map t to 0-390 minutes
+        t_resampled = t_scaled[::10]  # Get only every 10 minutes
+        p_resampled = p[::10]
+
+        # Convert t_resampled to time labels (HH:MM)
+        def format_time(minutes):
+            total_minutes = 9 * 60 + 30 + minutes  # Start from 9:30
+            hours = total_minutes // 60
+            mins = total_minutes % 60
+            return f"{int(hours):02}:{int(mins):02}"
+
+        # Generate time labels for the resampled t values
+        time_labels = [format_time(m) for m in t_resampled]
+
+        # Plot with corrected labels
+        plt.figure(figsize=(10, 6))
+        plt.plot(t_resampled, p_resampled, label="Midprice")
+        plt.xticks(t_resampled[::3], time_labels[::3], rotation=45)  # Label every 30 minutes
+        plt.ylim(425, 445)
+        plt.xlabel("Time (HH:MM)")
+        plt.ylabel("Midprice")
+        plt.title("Midprice from 9:30 to 16:00")
+        plt.legend()
+        plt.grid()
         plt.show()
 
 

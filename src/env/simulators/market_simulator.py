@@ -2,7 +2,7 @@ import numpy as np
 
 from env.lob import LimitOrderBook, Order
 
-from ..dynamics import GeometricBrownianMotion, CoxIngersollRoss, OrnsteinUhlenbeck, Hawkes
+from env.dynamics import GeometricBrownianMotion, CoxIngersollRoss, OrnsteinUhlenbeck, Hawkes
 
 
 class MarketSimulator:
@@ -19,6 +19,7 @@ class MarketSimulator:
             event_size_mean=1,
             risk_free_reversion: float = 0.5,
             spread_reversion: float = 1e-2,
+            order_eps: float = 5e-2,
     ):
         self.dt = dt
         self.risk_free_mean = risk_free_mean
@@ -42,7 +43,7 @@ class MarketSimulator:
         self.event_size_mean = event_size_mean
 
         self.tick_size = 6
-        self.lob = LimitOrderBook(self.tick_size)
+        self.lob: LimitOrderBook = LimitOrderBook(self.tick_size)
 
         self.starting_value = starting_value
         self.risk_free = risk_free_mean
@@ -55,6 +56,15 @@ class MarketSimulator:
             "spread": self.spread,
             "timestep": 0,
             "events": []
+        }
+
+        self.agent_variables = {
+            "bid_price": None,
+            "ask_price": None,
+            "bid_quantity": None,
+            "ask_quantity": None,
+            "ask_order": None,
+            "bid_order": None,
         }
 
         self.next_event = self.event_process.sample(0, self.dt, np.array(self.market_variables['events']))
@@ -102,12 +112,39 @@ class MarketSimulator:
 
         return np.array(orders)
 
-    def step(self):
+    def set_order(self, bid=None, ask=None):
+        # replace price and quantity of desired order.
+        # if price of existing market order is order_eps different from the desired order, then cancel the existing order and replace
+        if bid:
+            self.agent_variables["bid_price"] = bid.price
+            self.agent_variables["bid_quantity"] = bid.quantity
+
+            existing_order = self.agent_variables.get("bid_order", None)
+            if existing_order is not None and abs(existing_order.price - bid.price) > self.order_eps:
+                self.lob.cancel_order(existing_order)
+                self.agent_variables["bid_order"] = self.lob.send_order(bid)
+
+        if ask:
+            self.agent_variables["ask_price"] = ask.price
+            self.agent_variables["ask_quantity"] = ask.quantity
+
+            existing_order = self.agent_variables.get("ask_order", None)
+            if existing_order is not None and abs(existing_order.price - ask.price) > self.order_eps:
+                self.lob.cancel_order(existing_order)
+                self.agent_variables["ask_order"] = self.lob.send_order(ask)
+
+    def step(self, action=None):
         transactions = []
+
+        if action:
+            bid = Order(action[0], action[1], 'bid')
+            ask = Order(action[2], action[3], 'ask')
+            self.set_order(bid, ask)
+
         if self.market_variables['timestep'] >= self.next_event:
             self.market_variables['events'].append(self.next_event)
             self.previous_event = self.next_event
-            orders = self._sample_orders(self.market_variables['last_transaction'])
+            orders = self._sample_orders(self.market_variables['midprice'])
             self.next_event = self.event_process.sample(self.market_variables['timestep'], self.dt,
                                                         np.array(self.market_variables['events']))
             np.random.shuffle(orders)
@@ -124,11 +161,6 @@ class MarketSimulator:
         self.market_variables['spread'] = self.spread_process.sample(self.market_variables['spread'], self.dt)
         self.ask_process.mean = self.market_variables['risk_free_rate'] + self.market_variables['spread'] / 2
         self.bid_process.mean = self.market_variables['risk_free_rate'] - self.market_variables['spread'] / 2
-
-        if transactions:
-            self.market_variables["last_transaction"] = np.sum([t.price * t.quantity for t in transactions]) / np.sum([t.quantity for t in transactions])
-        else:
-            self.market_variables["last_transaction"] = self.market_variables['midprice']
 
         return transactions
 

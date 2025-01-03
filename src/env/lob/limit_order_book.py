@@ -44,6 +44,16 @@ class LimitOrderBook:
         self.orders: Dict[UUID, Order] = {}
         self.tick_size = tick_size
 
+    def cancel_order(self, order_id):
+        order = self.orders[order_id]
+        tree = self.asks if order.side == 'ask' else self.bids
+        level = tree.search(order.price)
+        if level is not None:
+            level.value.orders = deque(filter(lambda x: x.uuid != order_id, level.value.orders))
+            if not level.value.orders:
+                tree.delete(order.price)
+        del self.orders[order_id]
+
     def send_order(self, order: Order):
         order.price = round(order.price, self.tick_size)
         tree = self.asks if order.side == 'ask' else self.bids
@@ -149,7 +159,8 @@ class LimitOrderBook:
         ax.grid(True, linestyle="--", alpha=0.7)
 
         # plot midprice as a vertical line
-        midprice = (ask_prices[0] + bid_prices[0]) / 2 if ask_prices and bid_prices else (ask_prices[0] if ask_prices else bid_prices[0])
+        midprice = (ask_prices[0] + bid_prices[0]) / 2 if ask_prices and bid_prices else (
+            ask_prices[0] if ask_prices else bid_prices[0])
         ax.axvline(x=midprice, color='black', linestyle='--', label='Midprice')
 
         ax.set_xlabel("Price")
