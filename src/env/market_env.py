@@ -1,11 +1,23 @@
+from itertools import islice
+
 import numpy as np
-import gymnasium as gym
-from gymnasium.spaces import Box
 
 from env.simulators import MarketSimulator
 
 
-class MarketEnv(gym.Env):
+class Space:
+    def __init__(self, low: np.ndarray, high: np.ndarray):
+        self.low = low
+        self.high = high
+
+    def sample(self):
+        return np.random.uniform(self.low, self.high)
+
+    def contains(self, x):
+        return (self.low <= x).all() and (x <= self.high).all()
+
+
+class MarketEnv:
     def __init__(
             self,
             n_levels=10,
@@ -39,64 +51,118 @@ class MarketEnv(gym.Env):
             order_eps,
         )
 
-        # Observation Space
-        obs_low = np.array(
-            [-np.inf] * (5 + 2 * self.n_levels), dtype=np.float32
-        )  # 5 core states + bid/ask prices and quantities
-        obs_high = np.array(
-            [np.inf] * (5 + 2 * self.n_levels), dtype=np.float32
-        )
-        self.observation_space = Box(obs_low, obs_high, dtype=np.float32)
+        self.quotes = []
+        self.financial_returns = []
+        self.window = int(5e2)
+        self.eta = 0.01
+        self.alpha = 0.1
+        self.duration = 390
 
-        # Action Space
-        action_low = np.array([0, 0, 0, 0], dtype=np.float32)  # [bid_price, bid_quantity, ask_price, ask_quantity]
-        action_high = np.array([np.inf, np.inf, np.inf, np.inf], dtype=np.float32)
-        self.action_space = Box(action_low, action_high, dtype=np.float32)
+        self.observation_space = Space(
+            np.array([0, 0, 0, 0, 0] + [0, 0] * 2 * self.n_levels),
+            np.array([100, 10, 1e3, 1e3, 100] + [1e4, 1e4] * 2 * self.n_levels)
+        )
+
+        self.action_space = Space(
+            np.array([0, 0, 0, 0]),
+            np.array([1e2, 1e2, 1e2, 1e2])
+        )
+
+    @property
+    def events(self):
+        return self.simulator.market_variables["events"]
 
     def reset(self, **kwargs):
         self.simulator.reset()
         state = self._get_state()
         return state, {}
 
+    def returns(self, position, starting_position):
+        return (position - starting_position) / starting_position
+
     def step(self, action):
-        transactions = self.simulator.step(action)
+        previous_midprice = self.simulator.market_variables["midprice"]
+        transactions, position, transaction_pnl = self.simulator.step(action)
+
+        self.quotes.append(self.simulator.market_variables["midprice"])
+        inventory = self.simulator.user_variables["inventory"]
+        delta_midprice = self.simulator.market_variables["midprice"] - previous_midprice
+
         next_state = self._get_state()
 
-        reward = self._calculate_reward(transactions)
-        done = False  # Define your criteria for termination
-        trunc = False  # Gym truncation is generally unused but available
+        reward = self._calculate_reward(transaction_pnl, inventory, delta_midprice)
+        done = self.simulator.market_timestep >= self.duration
 
-        return next_state, reward, done, trunc, {}
+        return next_state, reward, done, False, {}
+
+    def _calculate_reward(self, transaction_pnl, inventory, delta_midprice):
+        w = transaction_pnl + inventory * delta_midprice - np.max(self.eta * inventory * delta_midprice, 0)
+        return 1 - np.exp(-self.alpha * w)
 
     def _get_state(self):
         lob = self.simulator.lob
-        best_ask_price, best_ask_quantity = 5, 4
-        best_bid_price, best_bid_quantity = 4.5, 5
+
+        bids = list(islice(lob.bids.ordered_traversal(reverse=True), self.n_levels))
+        asks = list(islice(lob.asks.ordered_traversal(), self.n_levels))
+
         state = [
             self._calculate_rsi(),
             self._calculate_volatility(),
             self.simulator.midprice(),
             self._calculate_inventory(),
-            self._calculate_order_imbalance(),
+            self._calculate_order_imbalance(bids, asks),
         ]
 
-        levels = self.n_levels
-        for i in range(levels):
-            ask_price, ask_quantity = [(5, 4), (5.1, 3), (5.2, 2), (5.3, 1), (5.4, 1)][i]
-            bid_price, bid_quantity = [(4.5, 5), (4.4, 4), (4.3, 3), (4.2, 2), (4.1, 1)][i]
-            state.extend([ask_price, ask_quantity, bid_price, bid_quantity])
+        bids = np.array([
+            [order.price, order.quantity] for level in bids for order in level.orders
+        ]).flatten()
+        bids = np.pad(bids, (0, 2 * self.n_levels - len(bids)), 'constant')
+
+        asks = np.array([
+            [order.price, order.quantity] for level in asks for order in level.orders
+        ]).flatten()
+        unpadded = len(asks)
+        asks = np.pad(asks, (0, 2 * self.n_levels - len(asks)), 'constant')
+        asks[unpadded::2] = 1e4
+
+        state += list(bids) + list(asks)
 
         return np.array(state, dtype=np.float32)
 
     def _calculate_rsi(self):
+        if len(self.quotes) < self.window:
+            return 50
+        returns = np.diff(self.quotes)[-self.window:]
+        up, down = returns.clip(min=0), -returns.clip(max=0)
+
+        avg_up = np.mean(up)
+        avg_down = np.mean(down)
+
+        rs = avg_up / avg_down
+
+        return 100 - 100 / (1 + rs)
 
     def _calculate_volatility(self):
+        if len(self.quotes) < self.window:
+            return 0
+        returns = np.diff(self.quotes)[-self.window:]
+        return np.std(returns)
 
     def _calculate_inventory(self):
+        if "inventory" not in self.simulator.user_variables:
+            self.simulator.user_variables["inventory"] = 0
 
-    def _calculate_order_imbalance(self):
+        return self.simulator.user_variables["inventory"]
 
-    def _calculate_reward(self, transactions):
+    def _calculate_order_imbalance(self, bids, asks):
+        if not bids or not asks:
+            return 0
+        bid_level = bids[0].value
+        ask_level = asks[0].value
+        num_bids = sum(order.quantity for order in bid_level.orders)
+        num_asks = sum(order.quantity for order in ask_level.orders)
+
+        return (num_bids - num_asks) / (num_bids + num_asks)
 
 
 if __name__ == "__main__":
