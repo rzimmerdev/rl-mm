@@ -1,4 +1,72 @@
 {
-    "Data": {"simulated": "Simulated Data", "historical": "Historical Data"},
-    "StateSpace": {"lob": "Limit Order Book"}
+  "Data": {
+    "historical": "Historical Data",
+    "simulated": "Simulated (Model-Based)",
+    "simulated_agent_based": "Simulated (Agent-Based)",
+    "real_time": "Real-Time Data",
+    "non_data": "No Data Used"
+  },
+  "StateSpace": {
+    "lob": "Limit Order Book",
+    "inventory": "Inventory",
+    "bid_ask_spreads": "Bid-Ask Spreads",
+    "midprice": "Mid Price",
+    "volume": "Volume",
+    "volatility": "Volatility",
+    "order_imbalance": "Order Imbalance",
+    "price_prediction": "Price Prediction",
+    "time": "Market Time",
+    "order_status": "Order Status"
+  },
+  "ActionSpace": {
+    "bid_ask_levels": "Bid-Ask Levels",
+    "bid_ask_spreads": "Bid-Ask Spreads",
+    "bid_ask_spread": "Bid-Ask Spread",
+    "inventory": "Inventory",
+    "buy_sell_hold_signals": "Buy/Sell/Hold Signals"
+  },
+  "Rewards": {
+    "pnl": "End of Day PnL",
+    "running_pnl": "Running PnL",
+    "inventory_penalty": "Inventory Penalty",
+    "cara": "CARA Utility",
+    "adverse_cross_spread": "Adverse Cross Spread"
+  },
+  "Algorithm": {
+    "closed_form_expression": "Closed-Form Expression",
+    "dqn": "DQN/DDQN",
+    "ppo": "PPO",
+    "a2c": "A2C",
+    "q_learning": "Q-Learning",
+    "sarsa": "SARSA",
+    "value_based": "'Vanilla' Value-Based",
+    "genetic_algorithm": "Genetic Algorithm",
+    "sac": "SAC"
+  },
+  "MultiAgent": {
+    "no": "No",
+    "yes_dueling": "Yes (Dueling)",
+    "yes": "Yes",
+    "yes_market_agents": "Yes (Market Agents)"
+  },
+  "ModelFree": {
+    "yes": "Yes",
+    "no": "No"
+  },
+  "Metrics": {
+    "sharpe": "Sharpe or Sortino Ratio",
+    "returns": "Returns",
+    "position": "Overnight Position",
+    "stddev": "Volatility",
+    "maximum_drawdown": "Maximum Drawdown"
+  },
+  "Benchmark": {
+    "rule_based": "Rule-Based",
+    "dqn": "Competing Reinforcement Agent",
+    "no_benchmark": "No Benchmark",
+    "random": "Random",
+    "monte_carlo_estimation": "Monte Carlo Estimation",
+    "avellaneda_stoikov": "Avellaneda-Stoikov",
+    "long_only": "Long-Only"
+  }
 }
