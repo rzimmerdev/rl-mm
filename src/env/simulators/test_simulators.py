@@ -190,6 +190,33 @@ class TestMarketSimulator(unittest.TestCase):
         plt.grid()
         plt.show()
 
+    def test_set_order(self):
+        sim = MarketSimulator(
+            435,
+            .15,
+            .0,
+            .15 * np.sqrt(60),
+            1e-3,
+            1e-2,
+            1 / 252 / 6.5 / 60,
+            event_size_mean=1,
+        )
+
+        sim.set_order(bid=Order(side='bid', price=100, quantity=100))
+
+        print(sim.lob.orders)
+
+        sim.set_order(bid=Order(side='bid', price=100 + sim.order_eps, quantity=100))
+
+        print(sim.lob.orders)
+
+        uuid = list(sim.lob.orders.keys())[0]
+
+        sim.set_order(bid=Order(side='bid', price=100 + 2 * sim.order_eps, quantity=100 ))
+
+        print(sim.lob.orders)  # should have 1 order with different uuid
+        assert len(sim.lob.orders) == 1
+        assert uuid not in sim.lob.orders
 
 if __name__ == '__main__':
     unittest.main()

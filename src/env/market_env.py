@@ -9,6 +9,7 @@ class Space:
     def __init__(self, low: np.ndarray, high: np.ndarray):
         self.low = low
         self.high = high
+        self.shape = low.shape
 
     def sample(self):
         return np.random.uniform(self.low, self.high)
@@ -82,6 +83,10 @@ class MarketEnv:
 
     def step(self, action):
         previous_midprice = self.simulator.market_variables["midprice"]
+
+        action[0] = previous_midprice - action[0]
+        action[2] += previous_midprice
+
         transactions, position, transaction_pnl = self.simulator.step(action)
 
         self.quotes.append(self.simulator.market_variables["midprice"])
@@ -114,12 +119,12 @@ class MarketEnv:
         ]
 
         bids = np.array([
-            [order.price, order.quantity] for level in bids for order in level.orders
+            [order.price, order.quantity] for node in bids for order in node.value.orders
         ]).flatten()
         bids = np.pad(bids, (0, 2 * self.n_levels - len(bids)), 'constant')
 
         asks = np.array([
-            [order.price, order.quantity] for level in asks for order in level.orders
+            [order.price, order.quantity] for node in asks for order in node.value.orders
         ]).flatten()
         unpadded = len(asks)
         asks = np.pad(asks, (0, 2 * self.n_levels - len(asks)), 'constant')

@@ -128,23 +128,35 @@ class MarketSimulator:
             self.user_variables["bid_quantity"] = bid.quantity
 
             existing_order = self.user_variables.get("bid_order", None)
-            if existing_order is not None and abs(existing_order.price - bid.price) > self.order_eps:
-                self.lob.cancel_order(existing_order)
-                self.user_variables["bid_order"] = self.lob.send_order(bid)
+            if existing_order:
+                existing_order = self.lob.orders.get(existing_order.uuid, None)
+            if existing_order is None:
+                self.lob.send_order(bid)
+                self.user_variables["bid_order"] = bid
+            elif abs(existing_order.price - bid.price) > self.order_eps:
+                self.lob.cancel_order(existing_order.uuid)
+                self.lob.send_order(bid)
+                self.user_variables["bid_order"] = bid
 
         if ask:
             self.user_variables["ask_price"] = ask.price
             self.user_variables["ask_quantity"] = ask.quantity
 
             existing_order = self.user_variables.get("ask_order", None)
-            if existing_order is not None and abs(existing_order.price - ask.price) > self.order_eps:
-                self.lob.cancel_order(existing_order)
-                self.user_variables["ask_order"] = self.lob.send_order(ask)
+            if existing_order:
+                existing_order = self.lob.orders.get(existing_order.uuid, None)
+            if existing_order is None:
+                self.lob.send_order(ask)
+                self.user_variables["ask_order"] = ask
+            elif abs(existing_order.price - ask.price) > self.order_eps:
+                self.lob.cancel_order(existing_order.uuid)
+                self.lob.send_order(ask)
+                self.user_variables["ask_order"] = ask
 
     def _participated_side(self, transaction):
-        if transaction.buyer == self.user_variables["bid_order"]:
+        if self.user_variables["bid_order"] and transaction.buyer == self.user_variables["bid_order"].uuid:
             return 'bid'
-        elif transaction.seller == self.user_variables["ask_order"]:
+        elif self.user_variables["ask_order"] and transaction.seller == self.user_variables["ask_order"].uuid:
             return 'ask'
         return None
 
@@ -161,8 +173,11 @@ class MarketSimulator:
 
     def _calculate_pnl(self, transactions):
         bids, asks = self._participated_transactions(transactions)
+        if not bids and not asks:
+            return 0, 0
         delta_inventory = sum([bid.quantity for bid in bids]) - sum([ask.quantity for ask in asks])
-        transaction_pnl = sum([bid.price * bid.quantity for bid in bids]) - sum([ask.price * ask.quantity for ask in asks])
+        transaction_pnl = sum([bid.price * bid.quantity for bid in bids]) - sum(
+            [ask.price * ask.quantity for ask in asks])
         return transaction_pnl, delta_inventory
 
     def position(self):
@@ -197,9 +212,11 @@ class MarketSimulator:
         self.ask_process.mean = self.market_variables['risk_free_rate'] + self.market_variables['spread'] / 2
         self.bid_process.mean = self.market_variables['risk_free_rate'] - self.market_variables['spread'] / 2
 
-        transaction_pnl, delta_inventory = self._calculate_pnl(transactions)
-        self.user_variables["cash"] += transaction_pnl
-        self.user_variables["inventory"] += delta_inventory
+        transaction_pnl = 0
+        if transactions:
+            transaction_pnl, delta_inventory = self._calculate_pnl(transactions)
+            self.user_variables["cash"] += transaction_pnl
+            self.user_variables["inventory"] += delta_inventory
 
         return transactions, self.position(), transaction_pnl
 
