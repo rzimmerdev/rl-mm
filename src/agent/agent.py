@@ -43,6 +43,7 @@ class PPOAgent:
         advantages = []
         advantage = 0
         value = values.tolist()
+        value = [value] if isinstance(value, float) else value
         value.append(0)
         for t in reversed(range(len(rewards))):
             delta = rewards[t] + self.gamma * value[t + 1] * (1 - dones[t]) - value[t]

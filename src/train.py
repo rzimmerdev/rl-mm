@@ -17,20 +17,20 @@ def config_reshape(action, size, low, high):
 def train():
     env = MarketEnv()
     precision = int(1e3)
-    action_reshape = lambda action: config_reshape(action, precision, env.action_space.low, env.action_space.high / 100)
+    action_reshape = lambda action: config_reshape(action, precision, env.action_space.low, env.action_space.high)
     state_dim = env.observation_space.shape[0]
     action_dim = [int(precision) for _ in range(env.action_space.shape[0])]
     agent = PPOAgent(
         state_dim=state_dim,
         action_dim=action_dim,
-        policy_hidden_dims=(state_dim * 10, state_dim, int(np.sqrt(10 * state_dim))),
-        value_hidden_dims=(state_dim * 10, state_dim, int(np.sqrt(10 * state_dim))),
+        policy_hidden_dims=(state_dim * 10, state_dim * 10, state_dim ** 2),
+        value_hidden_dims=(state_dim * 10, state_dim, int(np.sqrt(state_dim))),
         action_reshape=action_reshape,
-        lr=1e-4,
+        lr=1e-3,
         gamma=0.99,
         eps_clip=0.2,
-        gae_lambda=0.99,
-        entropy_coef=0.001
+        gae_lambda=0.98,
+        entropy_coef=0.01
     )
 
     trainer = RLTrainer(env, agent)
@@ -41,6 +41,8 @@ def train():
 
 def plot_rewards(reward_history, plot_dir="plots"):
     plt.figure(figsize=(12, 6))
+    # remove outliers
+    reward_history = [r for r in reward_history if abs(r) < 5000]
     plt.plot(reward_history, label='Episode Reward')
     plt.xlabel('Episode')
     plt.ylabel('Reward')

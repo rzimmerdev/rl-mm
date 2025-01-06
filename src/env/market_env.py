@@ -56,7 +56,7 @@ class MarketEnv:
         self.financial_returns = []
         self.window = int(5e2)
         self.eta = 0.01
-        self.alpha = 0.1
+        self.alpha = 0.01
         self.duration = 390
 
         self.observation_space = Space(
@@ -75,6 +75,7 @@ class MarketEnv:
 
     def reset(self, **kwargs):
         self.simulator.reset()
+        self.simulator.fill(10)
         state = self._get_state()
         return state, {}
 
@@ -83,26 +84,35 @@ class MarketEnv:
 
     def step(self, action):
         previous_midprice = self.simulator.market_variables["midprice"]
+        previous_inventory = self._calculate_inventory()
 
-        action[0] = previous_midprice - action[0]
-        action[2] += previous_midprice
+        action[0] = self.simulator.midprice() - action[0]
+        action[2] += self.simulator.midprice()
 
         transactions, position, transaction_pnl = self.simulator.step(action)
 
         self.quotes.append(self.simulator.market_variables["midprice"])
         inventory = self.simulator.user_variables["inventory"]
+
         delta_midprice = self.simulator.market_variables["midprice"] - previous_midprice
+        delta_inventory = inventory - previous_inventory
 
         next_state = self._get_state()
 
-        reward = self._calculate_reward(transaction_pnl, inventory, delta_midprice)
+        reward = self._calculate_reward(transaction_pnl, inventory, delta_inventory, delta_midprice)
+        trunc = False
+
+        if np.abs(reward) > 1e4:
+            trunc = True
+
         done = self.simulator.market_timestep >= self.duration
 
-        return next_state, reward, done, False, {}
+        return next_state, reward, done, trunc, {}
 
-    def _calculate_reward(self, transaction_pnl, inventory, delta_midprice):
-        w = transaction_pnl + inventory * delta_midprice - np.max(self.eta * inventory * delta_midprice, 0)
-        return 1 - np.exp(-self.alpha * w)
+    def _calculate_reward(self, transaction_pnl, inventory, delta_inventory, delta_midprice):
+        w = self.simulator.virtual_pnl(transaction_pnl, delta_inventory) + inventory * delta_midprice - np.max(
+            self.eta * inventory * delta_midprice, 0)
+        return 1 - np.exp(-self.alpha * w / self.simulator.market_variables["midprice"])
 
     def _get_state(self):
         lob = self.simulator.lob
@@ -154,9 +164,6 @@ class MarketEnv:
         return np.std(returns)
 
     def _calculate_inventory(self):
-        if "inventory" not in self.simulator.user_variables:
-            self.simulator.user_variables["inventory"] = 0
-
         return self.simulator.user_variables["inventory"]
 
     def _calculate_order_imbalance(self, bids, asks):

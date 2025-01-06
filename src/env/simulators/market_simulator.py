@@ -92,18 +92,22 @@ class MarketSimulator:
         }
         self.next_event = self.event_process.sample(0, self.dt, np.array([]))
 
+    def fill(self, n):
+        # generate n events to fill the order book
+        for _ in range(n):
+            orders = self._sample_orders(self.market_variables['midprice'])
+            for order in orders:
+                self.lob.send_order(order)
+            self.market_variables['midprice'] = self.midprice()
+            self.market_variables['timestep'] += self.dt
+
     def midprice(self):
         best_ask = self.lob.asks.bottom().value.price if self.lob.asks.bottom() is not None else None
         best_bid = self.lob.bids.top().value.price if self.lob.bids.top() is not None else None
 
-        if best_ask is None and best_bid is None:
-            return self.market_variables['midprice']
-        elif best_ask is None:
-            return best_bid
-        elif best_bid is None:
-            return best_ask
-
-        return (best_ask + best_bid) / 2
+        if best_ask is not None and best_bid is not None:
+            return (best_ask + best_bid) / 2
+        return self.market_variables['midprice']
 
     def _sample_orders(self, price):
         bid_size = self.event_size_distribution(self.event_size_mean)
@@ -176,9 +180,20 @@ class MarketSimulator:
         if not bids and not asks:
             return 0, 0
         delta_inventory = sum([bid.quantity for bid in bids]) - sum([ask.quantity for ask in asks])
-        transaction_pnl = sum([bid.price * bid.quantity for bid in bids]) - sum(
+        transaction_pnl = -sum([bid.price * bid.quantity for bid in bids]) + sum(
             [ask.price * ask.quantity for ask in asks])
         return transaction_pnl, delta_inventory
+
+    def best(self, side):
+        best = self.lob.bids.top() if side == 'bid' else self.lob.asks.bottom()
+        return best.value.price if best is not None else self.midprice()
+
+    def virtual_pnl(self, pnl, quantity):
+        # pnl + (inventory value - liquidation premium) -> liquidation premium assumes no large lob walking
+        best_price = self.best('bid' if quantity > 0 else 'ask')
+        liquidation_pnl = quantity * best_price
+
+        return pnl + liquidation_pnl
 
     def position(self):
         return self.user_variables["inventory"] * self.market_variables["midprice"], self.user_variables["cash"]
