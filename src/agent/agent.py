@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.optim as optim
 import gymnasium as gym
 
-from src.agent.model import PolicyNetwork, ValueNetwork, MultiHeadPolicyNetwork, MLP
+from src.agent.model import PolicyNetwork, MultiHeadPolicyNetwork, MLP
 from src.agent.replay_buffer import ReplayBuffer
 
 
@@ -14,17 +14,17 @@ def default_reshape(action):
 
 class PPOAgent:
     def __init__(
-            self,
-            state_dim,
-            action_dim,
-            policy_hidden_dims=(128, 128),
-            value_hidden_dims=(128, 128),
-            action_reshape=default_reshape,
-            lr=1e-4,
-            gamma=0.99,
-            eps_clip=0.2,
-            gae_lambda=0.95,
-            entropy_coef=0.01
+        self,
+        state_dim,
+        action_dim,
+        policy_hidden_dims=(128, 128),
+        value_hidden_dims=(128, 128),
+        action_reshape=default_reshape,
+        lr=1e-4,
+        gamma=0.99,
+        eps_clip=0.2,
+        gae_lambda=0.95,
+        entropy_coef=0.01
     ):
         self.policy_network = MultiHeadPolicyNetwork(state_dim, action_dim, policy_hidden_dims).cuda() \
             if isinstance(action_dim, list) else PolicyNetwork(state_dim, action_dim).cuda()
@@ -82,6 +82,8 @@ class PPOAgent:
         dataset = torch.utils.data.TensorDataset(states, actions, old_log_probs, advantages, returns)
         data_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
+        episode_loss = 0
+
         for epoch in range(epochs):  # Number of training epochs
             for batch_states, batch_actions, batch_old_log_probs, batch_advantages, batch_returns in data_loader:
                 _, _, dist = self.policy_network.act(batch_states)
@@ -103,6 +105,10 @@ class PPOAgent:
                 loss.backward()
                 self.optimizer.step()
 
+                episode_loss += loss.item()
+
+        return episode_loss / epochs
+
     def logprobs(self, dists, actions):
         if isinstance(dists, list):
             return torch.stack([dist.log_prob(act) for dist, act in zip(dists, actions.T)]).T
@@ -112,6 +118,17 @@ class PPOAgent:
         if isinstance(dists, list):
             return torch.stack([dist.entropy() for dist in dists]).mean()
         return dists.entropy().mean()
+
+    def save_weights(self, path):
+        torch.save({
+            'policy_state_dict': self.policy_network.state_dict(),
+            'value_state_dict':  self.value_network.state_dict()
+        }, path)
+
+    def load_weights(self, path):
+        checkpoint = torch.load(path, weights_only=True)
+        self.policy_network.load_state_dict(checkpoint['policy_state_dict'])
+        self.value_network.load_state_dict(checkpoint['value_state_dict'])
 
 
 def test_ppo_agent_multidimensional():

@@ -206,7 +206,7 @@ class MarketSimulator:
             ask = Order(action[2], action[3], 'ask')
             self.set_order(bid, ask)
 
-        if self.market_variables['timestep'] >= self.next_event:
+        if self.market_variables['timestep'] + self.dt >= self.next_event:
             self.market_variables['events'].append(self.next_event)
             self.previous_event = self.next_event
             orders = self._sample_orders(self.market_variables['midprice'])

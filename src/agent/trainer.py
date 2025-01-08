@@ -13,12 +13,12 @@ class RLTrainer:
         try:
             for episode in range(num_episodes):
                 trajectories = self.agent.collect_trajectories(self.env)
-                self.agent.update(trajectories)
+                episode_loss = self.agent.update(trajectories)
                 episode_reward = sum(trajectories.rewards)
                 reward_history.append(episode_reward)
 
                 if episode % 10 == 0:
-                    print(f'Episode {episode}, Reward: {episode_reward}')
+                    print(f'Episode {episode}, Reward: {episode_reward}, Loss: {episode_loss}')
         except KeyboardInterrupt:
             pass
 

@@ -37,6 +37,7 @@ class MarketEnv:
     ):
         super().__init__()
         self.n_levels = n_levels
+        self.starting_value = starting_value
         self.simulator = MarketSimulator(
             starting_value,
             risk_free_mean,
@@ -53,7 +54,6 @@ class MarketEnv:
         )
 
         self.quotes = []
-        self.financial_returns = []
         self.window = int(5e2)
         self.eta = 0.01
         self.alpha = 0.01
@@ -81,6 +81,10 @@ class MarketEnv:
 
     def returns(self, position, starting_position):
         return (position - starting_position) / starting_position
+
+    @property
+    def done(self):
+        return self.simulator.market_timestep >= self.duration
 
     def step(self, action):
         previous_midprice = self.simulator.market_variables["midprice"]
@@ -112,7 +116,7 @@ class MarketEnv:
     def _calculate_reward(self, transaction_pnl, inventory, delta_inventory, delta_midprice):
         w = self.simulator.virtual_pnl(transaction_pnl, delta_inventory) + inventory * delta_midprice - np.max(
             self.eta * inventory * delta_midprice, 0)
-        return 1 - np.exp(-self.alpha * w / self.simulator.market_variables["midprice"])
+        return np.exp(-self.alpha * w / self.starting_value) - 1
 
     def _get_state(self):
         lob = self.simulator.lob
@@ -128,17 +132,21 @@ class MarketEnv:
             self._calculate_order_imbalance(bids, asks),
         ]
 
-        bids = np.array([
-            [order.price, order.quantity] for node in bids for order in node.value.orders
-        ]).flatten()
-        bids = np.pad(bids, (0, 2 * self.n_levels - len(bids)), 'constant')
+        try:
+            bids = np.array([
+                [order.price, order.quantity] for node in bids for order in node.value.orders
+            ]).flatten()
+            bids = np.pad(bids, (0, 2 * self.n_levels - len(bids)), 'constant')
 
-        asks = np.array([
-            [order.price, order.quantity] for node in asks for order in node.value.orders
-        ]).flatten()
-        unpadded = len(asks)
-        asks = np.pad(asks, (0, 2 * self.n_levels - len(asks)), 'constant')
-        asks[unpadded::2] = 1e4
+            asks = np.array([
+                [order.price, order.quantity] for node in asks for order in node.value.orders
+            ]).flatten()
+            unpadded = len(asks)
+            asks = np.pad(asks, (0, 2 * self.n_levels - len(asks)), 'constant')
+            asks[unpadded::2] = 1e4
+        except:
+            a = 2
+            raise
 
         state += list(bids) + list(asks)
 
