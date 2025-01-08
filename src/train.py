@@ -23,20 +23,24 @@ def train():
     agent = PPOAgent(
         state_dim=state_dim,
         action_dim=action_dim,
-        policy_hidden_dims=(state_dim * 10, state_dim * 10, state_dim ** 2),
+        policy_hidden_dims=(state_dim * 5, state_dim * 10, state_dim * 10),
         value_hidden_dims=(state_dim * 10, state_dim, int(np.sqrt(state_dim))),
         action_reshape=action_reshape,
-        lr=1e-3,
+        lr=1e-4,
         gamma=0.99,
         eps_clip=0.2,
         gae_lambda=0.98,
-        entropy_coef=0.01
+        entropy_coef=0.02
     )
 
     trainer = RLTrainer(env, agent)
     rewards = trainer.train(num_episodes=int(1e4))
 
     plot_rewards(rewards)
+
+    print("Saving agent weights")
+    agent.save_weights('agent_weights.pth')
+
 
 
 def plot_rewards(reward_history, plot_dir="plots"):
