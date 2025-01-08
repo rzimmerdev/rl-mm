@@ -3,7 +3,7 @@
 
 A bibliographical research was performed to determine the state of the art in the field of the project,
 both in terms of the models and algorithms used as well as the chosen state and action spaces which perform best
-with regard to realistic environment simulations.
+with regard to simulating realistic, real-world market dynamics.
 The search was made using the Web of Science repository, covering the last 5 years, with the following search key:
 
 \begin{verbatim}
@@ -35,11 +35,12 @@ The references were selected based on their relevance to the project and tagged 
 \end{itemize}
 
 \subsection{State, Action, and Reward Spaces}
-
+\label{subsec:state-action-and-reward-spaces}
 State-of-the-art references defined state spaces primarily based on market-level observations,
-specifically top-of-book quotes and n-depth book levels which align well with the real-time data available to market-making agents \cite{he2023integrating, bakshaev2020marketmaking}.
-Additionally, agent inventory was also a common feature, reflecting the importance of managing risk and liquidity in market-making strategies \cite{patel2018optimizing, ganesh2019reinforcement}.
-Action spaces included possible multiple bid-ask spreads or just one pair of quotes. Some references also used discrete book levels as actions.
+specifically top-of-book quotes and n-depth book levels which align well with the real-time data available to market-making agents~\cite{he2023integrating, Bakshaev2020}.
+Additionally, agent inventory was also a common feature, reflecting the importance of managing risk and liquidity in market-making strategies~\cite{patel2018optimizing, Ganesh2019}.
+Action spaces included mostly only one pair of quotes, with some references allowing the choice of multiple bid-ask levels.
+Some references also used book levels as discrete action space variables.
 
 \begin{figure}[H]
     \centering
@@ -48,14 +49,14 @@ Action spaces included possible multiple bid-ask spreads or just one pair of quo
         \begin{subfigure}{.5\textwidth}
             \centering
             \includegraphics[width=\textwidth]{images/reward_space}
-            \caption{State Space 3}
+            \caption{Tagged reward space function variables}
             \label{fig:figure3}
         \end{subfigure}
         \hspace{0.02\textwidth} % Adjust spacing between figures
         \begin{subfigure}{0.5\textwidth}
             \centering
             \includegraphics[width=\textwidth]{images/action_space}
-            \caption{State Space 2}
+            \caption{Tagged action space variables}
             \label{fig:figure2}
         \end{subfigure}
     }
@@ -65,21 +66,23 @@ Action spaces included possible multiple bid-ask spreads or just one pair of quo
         \begin{subfigure}{0.7\textwidth}
             \centering
             \includegraphics[width=\textwidth]{images/state_space}
-            \caption{State Space 1}
+            \caption{Taged state space variables}
             \label{fig:figure1}
         \end{subfigure}
     }
 \end{figure}
 
-Finally, almost all reward structures used some form of PnL and end-of-day liquidation or inventory penalties,
-mostly due to the need to balance profitability and inventory risk \cite{sun2020marketmaking, gasperov2021marketmaking}.
+Finally, almost all reward structures used some form of PnL and end-of-day or running liquidation and inventory penalties,
+mostly due to the need to balance profitability and inventory risk~\cite{sun2020marketmaking, gasperov2021marketmaking}.
 However, the inclusion of additional explicit constraints or reward penalties, such as inventory and overnight risk penalties was rarely discussed or mentioned,
-even though being essential to ensure practical applicability and risk management in live trading scenarios \cite{jerome2022modelbased, selser2021optimal}.
+even though being essential to ensure practical applicability and risk management in live trading scenarios~\cite{jerome2022modelbased, selser2021optimal}.
 
 \subsection{Algorithms and Performance Metrics}
-Recent trends in reinforcement learning research emphasize model-free approaches, particularly Deep Q-Learning and Actor-Critic methods,
-which leverage neural networks to approximate value functions or policies to deal with the high-dimensional nature of limit order books \cite{patel2018optimizing, ganesh2019reinforcement}.
-The literature showed that model-free approaches had strong adaptability capabilities towards changing market conditions while still maintaining acceptable training times.
+\label{subsec:algorithms-and-performance-metrics}
+Recent trends in reinforcement learning research emphasize mostly model-free approaches, particularly Deep Q-Learning and Actor-Critic methods,
+which leverage neural networks to approximate value functions or policies to deal with the high-dimensional nature of limit order books~\cite{patel2018optimizing, ganesh2019reinforcement}.
+The literature showed that model-free approaches had strong adaptability capabilities towards changing market conditions
+while still maintaining acceptable training times, with PPO and SAC being the best performers in terms of convergence and stability ~\cite{sun2020marketmaking, gasperov2021marketmaking}.
 
 \begin{figure}[H]
     \centering
@@ -101,9 +104,11 @@ The literature showed that model-free approaches had strong adaptability capabil
     }
 \end{figure}
 
-The use of overnight position penalties was also mentioned in only 3 references, which leads to worse long-term sharpe ratios of the proposed strategies \cite{gasperov2021marketmaking}.
+While market makers that maintain overnight positions obtain a worse long-term sharpe ratio compared to strategies that at end-of-day have null inventories,
+the use of overnight position penalties was only mentioned in 3 of the references~\cite{gasperov2021marketmaking}.
 
-In summary, the bibliographical review underscores the relevance of reinforcement learning in optimizing market-making strategies,
+Overall, the bibliographical review underscores the growing relevance and preference for reinforcement learning algorithms in the market-making domain,
 particularly when combined with realistic state, action, and reward spaces.
-The insights gained from this review inform the choice of the spaces used in this paper, as well as the design of our proposed restriction-based RL framework,
-which seeks to enhance the stability and interpretability of market-making algorithms specifically addressing overnight risk and inventory constraints.
+The insights gained from the state and action spaces, as well as the reward function guided our choice for the space variables used in this paper,
+as well as the design for our chosen neural network architecture,
+while still showing a gap in the literature regarding usage of restrictions in the RL framework, both as hard limits and incentives.
