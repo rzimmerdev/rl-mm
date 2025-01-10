@@ -12,6 +12,7 @@
 \usepackage{algorithmicx}
 \usepackage{graphicx}
 \usepackage{subcaption}
+\usepackage{natbib}
 \renewcommand{\baselinestretch}{1}
 \setlength{\textheight}{9in}
 \setlength{\textwidth}{6.5in}
@@ -23,18 +24,18 @@
 \setlength{\parindent}{.3in}
 
 \begin{document}
+    % cover
+    \input{cover}
+    % content
+    \input{content/introduction}
 
-    \leftline{Zimmer, R.}
-    \leftline{Costa, O.}
-    \leftline{October 5th, 2024}
+    \input{content/bibliography}
 
-    \input{introduction}
+    \input{content/methodology}
 
-    \input{bibliography}
+    \input{content/models}
 
-    \input{methodology}
-
-    \input{models}
+    \input{content/results}
 
     \bibliographystyle{plain}
     \bibliography{references}

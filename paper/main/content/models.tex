@@ -1,19 +1,71 @@
-\section{Implementation and Models}
+\section{Implementation and Model Description}
+\label{sec:implementation-and-model-description}
 
+\subsection{Model Architecture}
+\label{subsec:model-architecture}
+
+\subsection{Main Training Loop}
+\begin{algorithmic}
+    \State \textbf{Initialize} the environment, Actor-Critic model, and optimizer
+    \For{each episode in range $num\_episodes$}
+        \State \textbf{Collect trajectories:}
+        \State \hspace{1em} Initialize the state: $state$
+        \State \hspace{1em} Initialize an empty trajectory buffer
+        \For{each timestep in the episode}
+            \State \hspace{1em} Select action $a$ using the Actor network
+            \State \hspace{1em} Execute action $a$ and observe reward $r$ and next state $state'$
+            \State \hspace{1em} Store transition $(state, a, r, state')$ in the trajectory buffer
+            \State \hspace{1em} Set $state = state'$
+            \If{episode ends or maximum timestep reached}
+                \State \hspace{1em} Break out of timestep loop
+            \EndIf
+        \EndFor
+        \State \textbf{Compute GAE and Returns:}
+        \State \hspace{1em} Compute advantages and returns using GAE
+        \State \textbf{Update model:}
+        \State \hspace{1em} Update the Actor and Critic networks using the collected trajectories
+        \State \hspace{1em} Compute episode reward and store it in reward history
+    \EndFor
+\end{algorithmic}
+
+
+\subsection{Generalized Advantage Estimation and Weight Update Mechanism}
+\begin{algorithmic}
+    \State \textbf{Input:} rewards $r_t$, values $V_t$, done flags $d_t$
+    \State \textbf{Initialize} advantages as an empty list
+    \State advantage $\gets 0$
+    \State value $\gets$ append terminal value $0$ to $V_t$ (last value)
+    \For{each timestep $t$ in reversed range of trajectory length}
+        \State \textbf{Compute TD-error:}
+        \State \hspace{1em} $\delta_t = r_t + \gamma \cdot V_{t+1} \cdot (1 - d_t) - V_t$
+        \State \textbf{Compute advantage:}
+        \State \hspace{1em} advantage = $\delta_t + \gamma \cdot \lambda \cdot (1 - d_t) \cdot advantage$
+        \State \hspace{1em} Insert advantage at the beginning of advantages list
+    \EndFor
+    \State \textbf{Return:} advantages, returns $R_t = V_t + \text{advantages}$
+\end{algorithmic}
 
 \begin{algorithmic}
-\State \textbf{Initialize} the environment and the Actor-Critic model
-\For{each episode}
-    \State Initialize the environment state: $state$
-    \For{each time step in the episode}
-        \State Select an action $a$ using the Actor network
-        \State Execute the action $a$ and observe the reward $r$ and the new state $state'$
-        \State Store the transition $(state, a, r, state')$ in the replay buffer
-        \State Sample a random minibatch of $N$ transitions $(s, a, r, s')$ from the replay buffer
-        \State Calculate the target value: $y = r + \gamma Q'(s', \mu'(s'))$
-        \State Update the Critic by minimizing the loss: $L = \frac{1}{N} \sum_i (y_i - Q(s_i, a_i))^2$
-        \State Update the Actor using the sampled policy gradient:
-        \
+    \State \textbf{Input:} trajectories, number of epochs $epochs$, batch size $batch\_size$
+    \For{each epoch in range $epochs$}
+        \State \textbf{Shuffle and create data batches from trajectories}
+        \For{each batch of states, actions, old log probs, advantages, returns in data loader}
+            \State \textbf{Compute new log probs:}
+            \State \hspace{1em} Use the policy network to compute action probabilities and log probs for the batch
+            \State \textbf{Calculate the ratios:}
+            \State \hspace{1em} ratios = $\exp(\text{log\_probs} - \text{old\_log\_probs})$
+            \State \textbf{Compute surrogate loss:}
+            \State \hspace{1em} surr1 = ratios $\cdot$ advantages
+            \State \hspace{1em} surr2 = $\text{clip}(ratios, 1 - \epsilon, 1 + \epsilon) \cdot$ advantages
+            \State \hspace{1em} policy loss = $-\min(surr1, surr2) \text{.mean()}$
+            \State \textbf{Compute value loss:}
+            \State \hspace{1em} value\_loss = $\text{MSELoss}(\text{state\_values}, \text{returns})$
+            \State \textbf{Compute entropy:}
+            \State \hspace{1em} entropy = $\text{entropy of the action distribution}$
+            \State \textbf{Compute total loss:}
+            \State \hspace{1em} lo<ss = policy loss + value loss - \text{entropy\_coef} \cdot entropy
+            \State \textbf{Backpropagation:}
+            \State \hspace{1em} Zero gradients, perform backward pass, and update network parameters
+        \EndFor
     \EndFor
-\EndFor
 \end{algorithmic}

@@ -140,18 +140,22 @@ or numerically by approximating its transition probabilities, as in~\citet{Guean
 Closed-form expression for $\mathcal{L}$ are obtainable for simple models, that usually require that market order impact be not disconsidered,
 which is not the case for our proposed model, and solving for the generator operator is therefore outside the scope of this paper.
 A numerical approach will be used furthermore when we define a neural network approximator for the actor's policy using the
-Proximal Policy Optimization (PPO) algorithm for model weight optimization in Section 4 <inserir link>, as well as both restriction formulations.
+Proximal Policy Optimization (PPO) algorithm for model weight optimization in~\hyperref[sec:implementation-and-models]{Section~\ref*{sec:implementation-and-model-description}}.
+as well as both restriction formulations.
 
 \subsection{Market Model Description and Environment Dynamics}
 \label{subsec:market-model-description-and-environment-dynamics}
 
-For our model of the limit order book the timing of events follow a \textit{Hawkes process} so as to represent a continuous-time MDP that captures the usual observed pattern of clustered order arrival times.
+For our model of the limit order book the timing of events follows a \textit{Hawkes process}
+to represent a continuous-time MDP that captures the observed stylized fact of clustered order arrival times.
 
-The Hawkes process is a \textit{self-exciting process}, where the intensity \( \lambda(t) \) depends on past events. Formally, the intensity \( \lambda(t) \) evolves as:
+The Hawkes process is a \textit{self-exciting process}, where the intensity \( \lambda(t) \) depends on past events.
+Formally, the intensity \( \lambda(t) \) evolves according to the following equation:
 \[
     \lambda(t) = \mu + \sum_{t_i < t} \phi(t - t_i),
 \]
-where \( \mu > 0 \) is the baseline intensity, and \( \phi(t - t_i) \) is the \textit{kernel function} that governs the decay of influence from past events \( t_i \). A common choice for \( \phi \) is an exponential decay:
+where \( \mu > 0 \) is the baseline intensity, and \( \phi(t - t_i) \) is the \textit{kernel function} that governs the decay of influence from past events \( t_i \).
+A common choice for \( \phi \) is an exponential decay:
 \[
     \phi(t - t_i) = \alpha e^{-\beta (t - t_i)},
 \]
@@ -170,7 +174,8 @@ The bid and ask spreads $\delta_t^{\text{bid}}$ and $ \delta_t^{\text{ask}}$ for
     \delta_{t+1}^{\text{ask}} \sim \mathcal{N}(\mu + M_{t} + s_t, \sigma^2), \quad a_{t+1}^{\text{bid}} \sim \mathcal{N}(\mu + M_{t} - s_t, \sigma^2),
 \]
 
-Whenever a new limit order that narrows the bid-ask spread or a market order arrive the midprice is updated to reflect the top-of-book orders. The midprice $M_{t+1}$ is therefore obtained by averaging the current top-of-book bid and ask prices:
+Whenever a new limit order that narrows the bid-ask spread or a market order arrive the midprice is updated to reflect the top-of-book orders.
+The midprice $M_{t+1}$ is therefore obtained by averaging the current top-of-book bid and ask prices:
 
 \[
     M_{t+1} \coloneqq \frac{2M_t + \delta^{ask}_{t} - \delta^{bid}_{t}}{2}
@@ -210,10 +215,10 @@ The Bellman equation underpins the process of optimal policy derivation, where t
 
 Thus, the RL approach is a way of obtaining the optimal control $\pi^*$ given an agent's \textbf{objective} that maximizes the expected return for all states. For our approach, a numerical approximation of the policy is taken due to computational space limitations, the use of neural networks for the underlying approximator is a viable approach and the current State-of-the-art, as proposed by <ref>. The design of a \textbf{loss function}, a neural network architecture and choice of optimizer will be discussed in the following section shortly after a small overview of the considered algorithms.
 
-\subsubsection{Loss Function and Gradient Optimization}
+\subsubsection{Deep Reinforcement Learning and Chosen Loss Function}
 
 In the context of deep reinforcement learning the loss function is a derivation from the usual return function \( G(\tau) \).
-In the context of \textbf{Proximal Policy Optimization (PPO)} and \textbf{Advantage Actor-Critic (A2C)},
+In the context of \textbf{Proximal Policy Optimization (PPO)} and Actor Critic algorithms overall,
 this loss function can be interpreted as the negative of the expected return, which we aim to minimize during training.
 The model is trained to improve its policy such that the chosen actions maximize the cumulative rewards over time,
 directly aligning with the Bellman equation's goal of maximizing the value function.
@@ -226,47 +231,18 @@ For \textbf{PPO}, the loss function is:
 
 where \( r_t(\theta) \) is the probability ratio between the new and old policies, \( \hat{A}_t \) is the advantage function,
 and the clipped term ensures that updates to the policy do not deviate excessively from the previous policy, promoting stability during training.
-
-In \textbf{A2C}, the loss function for the actor is:
-
-\[
-    L_{\text{actor}} = - \mathbb{E}_t \left[ \hat{A}_t \log(\pi(a_t | s_t)) \right],
-\]
-
-where \( \hat{A}_t \) represents the advantage, and the critic loss is:
+The critic loss is defined as:
 
 \[
     L_{\text{critic}} = \mathbb{E}_t \left[ \left( R_t - V(s_t) \right)^2 \right],
 \]
 
-which minimizes the error between the predicted value \( V(s_t) \) and the actual return \( R_t \). Both losses are minimized simultaneously during training to improve the policy and the value function.
+which minimizes the error between the predicted value \( V(s_t) \) and the actual return \( R_t \).
+Both losses are minimized simultaneously during training to improve the policy and the value function,
+through multiple sequential backward passes over batches of gathered episodes.
+Each pass updates the model's weights by applying the usual backward propagation pass for neural networks to minimize the loss function according to the Adam optimizer.
 
-\subsubsection{Neural Networks for Policy Approximation}
-
-As mentioned, a neural network (NN) is used to approximate the optimal deterministic policy (for A2C) $a^* = \pi^*(s)$ or policy distribution (for PPO) $\pi^*(a | s)$, where $a$ is an action and $s$ is the current state. The architecture of the NN is chosen as to map high-dimensional state representations (such as our given market condition state space) to actions, effectively approximating the optimal policy that maximizes the expected return under computational space limitations. The key to training the neural network is the gradient of the loss function with respect to the network parameters. The network parameters $\theta$ are updated to maximize the expected return, which is derived from the Bellman equation.
-
-The Stochastic Gradient Descent (SGD), the gradient of the loss with respect to the network parameters \( \theta \) is computed as:
-
-\[
-    \frac{\partial L}{\partial \theta} = \mathbb{E}_t \left[ \frac{\partial L}{\partial \pi} \cdot \frac{\partial \pi}{\partial \theta} \right],
-\]
-
-where \(\frac{\partial L}{\partial \pi}\) is the derivative of the loss function with respect to the policy
-and \(\frac{\partial \pi}{\partial \theta}\) is the Jacobian of the policy with respect to the network parameters.
-This gradient guides the parameter update in the direction that maximizes the cumulative reward.
-
-However, the Adam optimizer (Adaptive Moment Estimation) is commonly used instead of standard SGD,
-as it modifies the gradient update by maintaining moving averages of the first and second moments of the gradients, adjusting the learning rate for each parameter.
-The Adam update rule is:
-
-\[
-    \theta_{t+1} = \theta_t - \frac{\alpha}{\sqrt{v_t} + \epsilon} \cdot m_t,
-\]
-
-where $m_t$ and $v_t$ are the first and second moment estimates of the gradient, respectively, and $\epsilon$ is a small constant to avoid division by zero.
-Adam stabilizes training and speeds up convergence by adaptively adjusting learning rates based on the gradients' magnitudes.
-
-\subsubsection{Base Analytical Solution for Simplified Model}
+\subsubsection{Benchmark Closed-Form Expression for Simplified Model}
 
 To guide the agent's learning, we incorporate a closed-form expression for the best bid-ask pair prices derived from a simplified version of the environment.
 This analytical solution offers an initial policy for the agent to start from,

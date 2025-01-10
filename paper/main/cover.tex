@@ -1,15 +1,22 @@
-%! Author = rzimmerdev
-%! Date = 1/13/25
+\title{A Comparative Study of Constraint-Driven Reinforcement Learning Towards Managing Market Making Risk}
+\author{Zimmer, R. and Costa, O.}
+\date{\today}
 
-% Preamble
-\documentclass[11pt]{article}
+\maketitle
 
-% Packages
-\usepackage{amsmath}
+\begin{abstract}
+    Reinforcement Learning (RL) has emerged as a promising framework for developing adaptive and data-driven strategies,
+    enabling market makers to optimize decision-making policies based on interactions with the limit order book environment.
+    This paper explores the integration of risk management constraints into reinforcement learning-based market making to address challenges
+    such as inventory risk, adverse market movements, and overnight exposure.
+    We explore two types of restrictions: hard limits, which enforce strict conditions like zero inventory at market close,
+    and incentive-based restrictions, which penalize risky behaviors via penalties in the reward structure.
+    These mechanisms aim to enhance stability and incorporate domain-specific knowledge into the RL framework.
 
-% Document
-\begin{document}
-
-
-
-\end{document}
+    Our contributions include a practical implementation of a restricted RL agent using the PPO algorithm,
+    alongside a comparative evaluation of restriction types against an unrestricted benchmark under a simplified market model.
+    Experimental results, conducted under synthetic-realistic market conditions,
+    demonstrate the effectiveness of incorporating restrictions in balancing profitability and risk management,
+    as evidenced by an analysis of the financial return analysis and risk metrics.
+    These findings allow for a path towards more robust and replicable approaches to dynamic risk management in market making.
+\end{abstract}
