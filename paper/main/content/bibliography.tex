@@ -37,8 +37,8 @@ The references were selected based on their relevance to the project and tagged 
 \subsection{State, Action, and Reward Spaces}
 \label{subsec:state-action-and-reward-spaces}
 State-of-the-art references defined state spaces primarily based on market-level observations,
-specifically top-of-book quotes and n-depth book levels which align well with the real-time data available to market-making agents~\cite{he2023integrating, Bakshaev2020}.
-Additionally, agent inventory was also a common feature, reflecting the importance of managing risk and liquidity in market-making strategies~\cite{patel2018optimizing, Ganesh2019}.
+specifically top-of-book quotes and n-depth book levels which align well with the real-time data available to market-making agents~\cite{He2023, Bakshaev2020}.
+Additionally, agent inventory was also a common feature, reflecting the importance of managing risk and liquidity in market-making strategies~\cite{Patel2018, Ganesh2019}.
 Action spaces included mostly only one pair of quotes, with some references allowing the choice of multiple bid-ask levels.
 Some references also used book levels as discrete action space variables.
 
@@ -73,39 +73,53 @@ Some references also used book levels as discrete action space variables.
 \end{figure}
 
 Finally, almost all reward structures used some form of PnL and end-of-day or running liquidation and inventory penalties,
-mostly due to the need to balance profitability and inventory risk~\cite{sun2020marketmaking, gasperov2021marketmaking}.
+mostly due to the need to balance profitability and inventory risk~\cite{Sun2022, Gasperov2021}.
 However, the inclusion of additional explicit constraints or reward penalties, such as inventory and overnight risk penalties was rarely discussed or mentioned,
-even though being essential to ensure practical applicability and risk management in live trading scenarios~\cite{jerome2022modelbased, selser2021optimal}.
+even though being essential to ensure practical applicability and risk management in live trading scenarios~\cite{Jerome2022a, Selser2021a}.
+The tagged action space variables include a separate ``Inventory`` variable that refeers to portfolio strategies that output a target maximum inventory.
+For implementations that use specific quantities per order, no additional tags were used, as only one reference did not add quantities as part of the action space and instead used fixed quantities.
 
 \subsection{Algorithms and Performance Metrics}
 \label{subsec:algorithms-and-performance-metrics}
 Recent trends in reinforcement learning research emphasize mostly model-free approaches, particularly Deep Q-Learning and Actor-Critic methods,
-which leverage neural networks to approximate value functions or policies to deal with the high-dimensional nature of limit order books~\cite{patel2018optimizing, ganesh2019reinforcement}.
+which leverage neural networks to approximate value functions or policies to deal with the high-dimensional nature of limit order books~\cite{Patel2018, Ganesh2019}.
 The literature showed that model-free approaches had strong adaptability capabilities towards changing market conditions
-while still maintaining acceptable training times, with PPO and SAC being the best performers in terms of convergence and stability ~\cite{sun2020marketmaking, gasperov2021marketmaking}.
+while still maintaining acceptable training times, with PPO and DQN (and some DDQN) being the best performers in terms of convergence and stability~\cite{Sun2022, Gasperov2021a}.
 
 \begin{figure}[H]
     \centering
     % graph: images/state_space.png
     \makebox[\textwidth][c]{%
-        \begin{subfigure}{.5\textwidth}
+        \begin{subfigure}{1\textwidth}
             \centering
-            \includegraphics[width=\textwidth]{images/reward_space}
-            \caption{State Space 3}
+            \includegraphics[width=\textwidth]{images/chosen_algorithms}
+            \caption{Algorithms used as main research focus}
             \label{fig:figure4}
-        \end{subfigure}
-        \hspace{0.02\textwidth} % Adjust spacing between figures
-        \begin{subfigure}{0.5\textwidth}
-            \centering
-            \includegraphics[width=\textwidth]{images/action_space}
-            \caption{State Space 2}
-            \label{fig:figure5}
         \end{subfigure}
     }
 \end{figure}
 
 While market makers that maintain overnight positions obtain a worse long-term sharpe ratio compared to strategies that at end-of-day have null inventories,
-the use of overnight position penalties was only mentioned in 3 of the references~\cite{gasperov2021marketmaking}.
+the use of overnight position penalties was only mentioned in 3 of the references~\citep{Jerome2022a, Selser2021a, Sun2022}.
+
+\begin{figure}[H]
+    \centering
+    % graph: images/state_space.png
+    \makebox[\textwidth][c]{%
+        \begin{subfigure}{.4\textwidth}
+            \centering
+            \includegraphics[width=\textwidth]{images/model_free}
+            \caption{Principal algorithm is model free}
+            \label{fig:figure5}
+        \end{subfigure}
+        \begin{subfigure}{.5\textwidth}
+            \centering
+            \includegraphics[width=\textwidth]{images/multi_agent}
+            \caption{Multiple agents used in training}
+            \label{fig:figure6}
+        \end{subfigure}
+    }
+\end{figure}
 
 Overall, the bibliographical review underscores the growing relevance and preference for reinforcement learning algorithms in the market-making domain,
 particularly when combined with realistic state, action, and reward spaces.
