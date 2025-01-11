@@ -20,20 +20,20 @@ class Space:
 
 class MarketEnv:
     def __init__(
-            self,
-            n_levels=10,
-            starting_value=100,
-            risk_free_mean=0.02,
-            risk_free_std=0.01,
-            volatility=0.1,
-            spread_mean=0.1,
-            spread_std=0.01,
-            dt=1,
-            base_event_intensity=0.5,
-            event_size_mean=1,
-            risk_free_reversion=0.5,
-            spread_reversion=1e-2,
-            order_eps=5e-2,
+        self,
+        n_levels=10,
+        starting_value=100,
+        risk_free_mean=0.02,
+        risk_free_std=0.01,
+        volatility=0.1,
+        spread_mean=150,
+        spread_std=0.01,
+        dt=1 / 252 / 6.5 / 60,
+        base_event_intensity=0.5,
+        event_size_mean=1,
+        risk_free_reversion=0.5,
+        spread_reversion=1e-2,
+        order_eps=2e-2,
     ):
         super().__init__()
         self.n_levels = n_levels
@@ -57,7 +57,7 @@ class MarketEnv:
         self.window = int(5e2)
         self.eta = 0.01
         self.alpha = 0.01
-        self.duration = 390
+        self.duration = 1 / 252
 
         self.observation_space = Space(
             np.array([0, 0, 0, 0, 0] + [0, 0] * 2 * self.n_levels),
@@ -75,7 +75,7 @@ class MarketEnv:
 
     def reset(self, **kwargs):
         self.simulator.reset()
-        self.simulator.fill(10)
+        self.simulator.fill(100)
         state = self._get_state()
         return state, {}
 
@@ -87,18 +87,19 @@ class MarketEnv:
         return self.simulator.market_timestep >= self.duration
 
     def step(self, action):
-        previous_midprice = self.simulator.market_variables["midprice"]
+        previous_midprice = self.simulator.midprice()
         previous_inventory = self._calculate_inventory()
 
-        action[0] = self.simulator.midprice() - action[0]
-        action[2] += self.simulator.midprice()
+        if action is not None:
+            action[0] = self.simulator.midprice() - action[0]
+            action[2] += self.simulator.midprice()
 
         transactions, position, transaction_pnl = self.simulator.step(action)
 
-        self.quotes.append(self.simulator.market_variables["midprice"])
+        self.quotes.append(self.simulator.midprice())
         inventory = self.simulator.user_variables["inventory"]
 
-        delta_midprice = self.simulator.market_variables["midprice"] - previous_midprice
+        delta_midprice = self.simulator.midprice() - previous_midprice
         delta_inventory = inventory - previous_inventory
 
         next_state = self._get_state()
@@ -121,31 +122,34 @@ class MarketEnv:
     def _get_state(self):
         lob = self.simulator.lob
 
-        bids = list(islice(lob.bids.ordered_traversal(reverse=True), self.n_levels))
-        asks = list(islice(lob.asks.ordered_traversal(), self.n_levels))
+        bids_list = list(islice(lob.bids.ordered_traversal(reverse=True), self.n_levels))
+        asks_list = list(islice(lob.asks.ordered_traversal(), self.n_levels))
 
         state = [
             self._calculate_rsi(),
             self._calculate_volatility(),
             self.simulator.midprice(),
             self._calculate_inventory(),
-            self._calculate_order_imbalance(bids, asks),
+            self._calculate_order_imbalance(bids_list, asks_list),
         ]
 
         try:
-            bids = np.array([
-                [order.price, order.quantity] for node in bids for order in node.value.orders
-            ]).flatten()
+            bids = []
+            for price_level in bids_list:
+                level_quantity = sum(order.quantity for order in price_level.value.orders)
+                bids.append([price_level.key, level_quantity])
+            bids = np.array(bids).flatten()
             bids = np.pad(bids, (0, 2 * self.n_levels - len(bids)), 'constant')
 
-            asks = np.array([
-                [order.price, order.quantity] for node in asks for order in node.value.orders
-            ]).flatten()
+            asks = []
+            for price_level in asks_list:
+                level_quantity = sum(order.quantity for order in price_level.value.orders)
+                asks.append([price_level.key, level_quantity])
+            asks = np.array(asks).flatten()
             unpadded = len(asks)
             asks = np.pad(asks, (0, 2 * self.n_levels - len(asks)), 'constant')
             asks[unpadded::2] = 1e4
         except:
-            a = 2
             raise
 
         state += list(bids) + list(asks)
@@ -160,6 +164,9 @@ class MarketEnv:
 
         avg_up = np.mean(up)
         avg_down = np.mean(down)
+
+        if avg_down == 0:
+            return 100
 
         rs = avg_up / avg_down
 

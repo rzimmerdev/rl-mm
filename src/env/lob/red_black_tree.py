@@ -15,6 +15,7 @@ class RedBlackTree:
     def __init__(self):
         TNULL.color = 'black'
         self.root = TNULL
+        self.len = 0
 
     def left_rotate(self, x):
         y = x.right
@@ -30,6 +31,9 @@ class RedBlackTree:
             x.parent.right = y
         y.left = x
         x.parent = y
+
+    def __len__(self):
+        return self.len
 
     def right_rotate(self, x):
         y = x.left
@@ -71,6 +75,8 @@ class RedBlackTree:
             y.left = node
         else:
             y.right = node
+
+        self.len += 1
 
         if node.parent is None:
             node.color = 'black'
@@ -171,6 +177,8 @@ class RedBlackTree:
         if y_original_color == 'black':
             self.fix_delete(x)
 
+        self.len -= 1
+
     def fix_delete(self, x):
         while x != self.root and x.color == 'black':
             if x == x.parent.left:
@@ -270,11 +278,19 @@ class RedBlackTree:
             return None
         return self.minimum(self.root)
 
-    def _ordered_transversal(self, node, reverse=False):  # generator for producing nodes in order
+    def _ordered_transversal(self, node):  # generator for producing nodes in order
         if node != TNULL:
-            yield from self._ordered_transversal(node.left) if not reverse else self._ordered_transversal(node.right)
+            yield from self._ordered_transversal(node.left)
             yield node
-            yield from self._ordered_transversal(node.right) if not reverse else self._ordered_transversal(node.left)
+            yield from self._ordered_transversal(node.right)
+
+    def _reverse_transversal(self, node):
+        if node != TNULL:
+            yield from self._reverse_transversal(node.right)
+            yield node
+            yield from self._reverse_transversal(node.left)
 
     def ordered_traversal(self, reverse=False):
-        return self._ordered_transversal(self.root, reverse)
+        if reverse:
+            return self._reverse_transversal(self.root)
+        return self._ordered_transversal(self.root)

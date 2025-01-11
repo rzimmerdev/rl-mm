@@ -22,7 +22,7 @@ class MarketSimulator:
             event_size_mean=1,
             risk_free_reversion: float = 0.5,
             spread_reversion: float = 1e-2,
-            order_eps: float = 5e-2,
+            order_eps: float = 2e-2,
             starting_cash: float = 0,
             starting_inventory: float = 0
     ):
@@ -47,18 +47,17 @@ class MarketSimulator:
         self.event_size_distribution = np.random.poisson
         self.event_size_mean = event_size_mean
 
-        self.tick_size = 6
+        self.tick_size = 2
         self.lob: LimitOrderBook = LimitOrderBook(self.tick_size)
 
         self.starting_value = starting_value
         self.risk_free = risk_free_mean
-        self.spread = spread_mean
 
         self.market_variables = {
             "last_transaction": self.starting_value,
-            "midprice": self.starting_value,
+            "midprice": [self.starting_value],
             "risk_free_rate": self.risk_free,
-            "spread": self.spread,
+            "spread": self.spread_mean,
             "timestep": 0,
             "events": []
         }
@@ -84,21 +83,31 @@ class MarketSimulator:
         self.lob = LimitOrderBook(self.tick_size)
         self.market_variables = {
             "last_transaction": self.starting_value,
-            "midprice": self.starting_value,
+            "midprice": [self.starting_value],
             "risk_free_rate": self.risk_free,
-            "spread": self.spread,
+            "spread": self.spread_mean,
             "timestep": 0,
             "events": []
+        }
+        self.user_variables = {
+            "bid_price": None,
+            "ask_price": None,
+            "bid_quantity": None,
+            "ask_quantity": None,
+            "ask_order": None,
+            "bid_order": None,
+            "cash": 0,
+            "inventory": 0
         }
         self.next_event = self.event_process.sample(0, self.dt, np.array([]))
 
     def fill(self, n):
         # generate n events to fill the order book
         for _ in range(n):
-            orders = self._sample_orders(self.market_variables['midprice'])
+            orders = self._sample_orders(self.midprice())
             for order in orders:
                 self.lob.send_order(order)
-            self.market_variables['midprice'] = self.midprice()
+            self.market_variables['midprice'].append(self.midprice())
             self.market_variables['timestep'] += self.dt
 
     def midprice(self):
@@ -107,7 +116,8 @@ class MarketSimulator:
 
         if best_ask is not None and best_bid is not None:
             return (best_ask + best_bid) / 2
-        return self.market_variables['midprice']
+        # else, return mean of last 5 midprices
+        return np.mean(self.market_variables['midprice'][-5:])
 
     def _sample_orders(self, price):
         bid_size = self.event_size_distribution(self.event_size_mean)
@@ -196,7 +206,7 @@ class MarketSimulator:
         return pnl + liquidation_pnl
 
     def position(self):
-        return self.user_variables["inventory"] * self.market_variables["midprice"], self.user_variables["cash"]
+        return self.user_variables["inventory"] * self.midprice(), self.user_variables["cash"]
 
     def step(self, action=None):
         transactions = []
@@ -209,7 +219,7 @@ class MarketSimulator:
         if self.market_variables['timestep'] + self.dt >= self.next_event:
             self.market_variables['events'].append(self.next_event)
             self.previous_event = self.next_event
-            orders = self._sample_orders(self.market_variables['midprice'])
+            orders = self._sample_orders(self.midprice())
             self.next_event = self.event_process.sample(self.market_variables['timestep'], self.dt,
                                                         np.array(self.market_variables['events']))
             np.random.shuffle(orders)
@@ -220,7 +230,7 @@ class MarketSimulator:
         else:
             self.market_variables['timestep'] += self.dt
 
-        self.market_variables['midprice'] = self.midprice()
+        self.market_variables['midprice'].append(self.midprice())
         self.market_variables['risk_free_rate'] = self.risk_free_process.sample(self.market_variables['risk_free_rate'],
                                                                                 self.dt)
         self.market_variables['spread'] = self.spread_process.sample(self.market_variables['spread'], self.dt)

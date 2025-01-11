@@ -54,6 +54,10 @@ class LimitOrderBook:
                 tree.delete(order.price)
         del self.orders[order_id]
 
+    @property
+    def shape(self):
+        return len(self.bids), len(self.asks)
+
     def send_order(self, order: Order):
         order.price = round(order.price, self.tick_size)
         tree = self.asks if order.side == 'ask' else self.bids
@@ -117,7 +121,7 @@ class LimitOrderBook:
     def update_order(self, order):
         self.orders[order.uuid] = order
 
-    def plot(self):
+    def plot(self, n_levels=5):
         """
         Plots the limit order book as an area under a line chart with bids and asks prices on the x-axis
         and accumulated quantities on the y-axis.
@@ -141,6 +145,11 @@ class LimitOrderBook:
             cumulative_quantity += sum(order.quantity for order in level.orders)
             ask_prices.append(level.price)
             ask_quantities.append(cumulative_quantity)
+
+        bid_prices = bid_prices[:n_levels]
+        bid_quantities = bid_quantities[:n_levels]
+        ask_prices = ask_prices[:n_levels]
+        ask_quantities = ask_quantities[:n_levels]
 
         if not bid_prices and not ask_prices:
             plt.figure(figsize=(12, 6))

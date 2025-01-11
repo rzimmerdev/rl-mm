@@ -196,10 +196,9 @@ class TestLOB(unittest.TestCase):
         self.assertEqual(100.5, (best_ask.value.price + best_bid.value.price) / 2)
 
     def test_plot(self):
-        self.lob.send_order(Order(uuid=0, side='bid', price=99, quantity=10))
-        self.lob.send_order(Order(uuid=1, side='bid', price=100, quantity=10))
-        self.lob.send_order(Order(uuid=2, side='ask', price=101, quantity=10))
-        self.lob.send_order(Order(uuid=3, side='ask', price=102, quantity=10))
+        for i in range(10):
+            self.lob.send_order(Order(uuid=i, side='bid', price=100 - i, quantity=10))
+            self.lob.send_order(Order(uuid=i, side='ask', price=100 + i, quantity=10))
 
         self.lob.plot()
         plt.show()

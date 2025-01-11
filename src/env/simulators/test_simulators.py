@@ -144,11 +144,11 @@ class TestMarketSimulator(unittest.TestCase):
     def test_step(self):
         trading_hours = 6.5
         sim = MarketSimulator(
-            435,
+            415,
             .15,
             .0,
             .15 * np.sqrt(60),
-            1e-3,
+            1,
             1e-2,
             1 / 252 / trading_hours / 60,
             event_size_mean=1,
@@ -158,7 +158,7 @@ class TestMarketSimulator(unittest.TestCase):
         t = []
         while sim.market_timestep < 1 / 252:
             transactions = sim.step()
-            p.append(sim.market_variables["midprice"])
+            p.append(sim.midprice())
             t.append(sim.market_timestep)
 
         # get only every 10 minutes
@@ -182,7 +182,7 @@ class TestMarketSimulator(unittest.TestCase):
         plt.figure(figsize=(10, 6))
         plt.plot(t_resampled, p_resampled, label="Midprice")
         plt.xticks(t_resampled[::3], time_labels[::3], rotation=45)  # Label every 30 minutes
-        plt.ylim(425, 445)
+        plt.ylim(410, 420)
         plt.xlabel("Time (HH:MM)")
         plt.ylabel("Midprice")
         plt.title("Midprice from 9:30 to 16:00")
@@ -212,11 +212,12 @@ class TestMarketSimulator(unittest.TestCase):
 
         uuid = list(sim.lob.orders.keys())[0]
 
-        sim.set_order(bid=Order(side='bid', price=100 + 2 * sim.order_eps, quantity=100 ))
+        sim.set_order(bid=Order(side='bid', price=100 + 2 * sim.order_eps, quantity=100))
 
         print(sim.lob.orders)  # should have 1 order with different uuid
         assert len(sim.lob.orders) == 1
         assert uuid not in sim.lob.orders
+
 
 if __name__ == '__main__':
     unittest.main()
