@@ -1,10 +1,8 @@
-from typing import List, Tuple
+from typing import List
 
 import numpy as np
-from jedi.inference.gradual.typing import Tuple
 
 from env.lob import LimitOrderBook, Order, Transaction
-
 from env.dynamics import GeometricBrownianMotion, CoxIngersollRoss, OrnsteinUhlenbeck, Hawkes
 
 
@@ -38,10 +36,13 @@ class MarketSimulator:
         self.bid_process = GeometricBrownianMotion(bid_center, volatility)
         self.ask_process = GeometricBrownianMotion(ask_center, volatility)
 
-        self.risk_free_process = CoxIngersollRoss(risk_free_reversion, risk_free_mean, risk_free_std)
-        self.spread_process = OrnsteinUhlenbeck(spread_reversion, spread_mean, spread_std)
+        self.risk_free_process = CoxIngersollRoss(
+            risk_free_reversion, risk_free_mean, risk_free_std)
+        self.spread_process = OrnsteinUhlenbeck(
+            spread_reversion, spread_mean, spread_std)
 
-        self.event_process = Hawkes(base_event_intensity, branching_ratio=1e-1, decay=0.3)
+        self.event_process = Hawkes(
+            base_event_intensity, branching_ratio=1e-1, decay=0.3)
 
         self.quantity_distribution = np.random.poisson
         self.event_size_distribution = np.random.poisson
@@ -74,7 +75,8 @@ class MarketSimulator:
             "inventory": starting_inventory
         }
 
-        self.next_event = self.event_process.sample(0, self.dt, np.array(self.market_variables['events']))
+        self.next_event = self.event_process.sample(
+            0, self.dt, np.array(self.market_variables['events']))
         self.previous_event = 0
 
     def reset(self):
@@ -111,7 +113,8 @@ class MarketSimulator:
             self.market_variables['timestep'] += self.dt
 
     def midprice(self):
-        best_ask = self.lob.asks.bottom().value.price if self.lob.asks.bottom() is not None else None
+        best_ask = self.lob.asks.bottom(
+        ).value.price if self.lob.asks.bottom() is not None else None
         best_bid = self.lob.bids.top().value.price if self.lob.bids.top() is not None else None
 
         if best_ask is not None and best_bid is not None:
@@ -130,7 +133,8 @@ class MarketSimulator:
         asks_quantity = np.array(self.quantity_distribution(size=ask_size) + 1)
 
         orders = [Order(price, quantity, 'ask') for price, quantity in zip(asks, asks_quantity)] + \
-                 [Order(price, quantity, 'bid') for price, quantity in zip(bids, bids_quantity)]
+                 [Order(price, quantity, 'bid')
+                  for price, quantity in zip(bids, bids_quantity)]
 
         return np.array(orders)
 
@@ -189,7 +193,8 @@ class MarketSimulator:
         bids, asks = self._participated_transactions(transactions)
         if not bids and not asks:
             return 0, 0
-        delta_inventory = sum([bid.quantity for bid in bids]) - sum([ask.quantity for ask in asks])
+        delta_inventory = sum([bid.quantity for bid in bids]) - \
+            sum([ask.quantity for ask in asks])
         transaction_pnl = -sum([bid.price * bid.quantity for bid in bids]) + sum(
             [ask.price * ask.quantity for ask in asks])
         return transaction_pnl, delta_inventory
@@ -233,13 +238,17 @@ class MarketSimulator:
         self.market_variables['midprice'].append(self.midprice())
         self.market_variables['risk_free_rate'] = self.risk_free_process.sample(self.market_variables['risk_free_rate'],
                                                                                 self.dt)
-        self.market_variables['spread'] = self.spread_process.sample(self.market_variables['spread'], self.dt)
-        self.ask_process.mean = self.market_variables['risk_free_rate'] + self.market_variables['spread'] / 2
-        self.bid_process.mean = self.market_variables['risk_free_rate'] - self.market_variables['spread'] / 2
+        self.market_variables['spread'] = self.spread_process.sample(
+            self.market_variables['spread'], self.dt)
+        self.ask_process.mean = self.market_variables['risk_free_rate'] + \
+            self.market_variables['spread'] / 2
+        self.bid_process.mean = self.market_variables['risk_free_rate'] - \
+            self.market_variables['spread'] / 2
 
         transaction_pnl = 0
         if transactions:
-            transaction_pnl, delta_inventory = self._calculate_pnl(transactions)
+            transaction_pnl, delta_inventory = self._calculate_pnl(
+                transactions)
             self.user_variables["cash"] += transaction_pnl
             self.user_variables["inventory"] += delta_inventory
 
