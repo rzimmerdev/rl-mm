@@ -63,7 +63,7 @@
             \State \textbf{Compute entropy:}
             \State \hspace{1em} entropy = $\text{entropy of the action distribution}$
             \State \textbf{Compute total loss:}
-            \State \hspace{1em} lo<ss = policy loss + value loss - \text{entropy\_coef} \cdot entropy
+            \State \hspace{1em} $loss = policy loss + value loss - \text{entropy\_coef} \cdot entropy$
             \State \textbf{Backpropagation:}
             \State \hspace{1em} Zero gradients, perform backward pass, and update network parameters
         \EndFor

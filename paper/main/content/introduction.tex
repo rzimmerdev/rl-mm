@@ -1,30 +1,33 @@
 \section{Introduction}
 \label{sec:introduction}
 
-Market making in financial markets involves continuously quoting buy and sell prices, and Dealing with supply and demand imbalances,
-as well as the risks of holding inventory and speculation is an intrinsic aspect of market making and a focus of recent research~\cite{Cartea2015, Gasperov2021}.
-Market makers are essential, as they help narrowing bid-ask spreads, reduce price volatility, and maintain market stability,
-particularly in times of uncertainty by trading and providing liquidity in the market~\cite{Glosten1985, OHara1995}.
-Correctly reducing inventory risk benefits not only individual market makers but all market participants as a whole.
-With the increase of computational power and data-driven automated systems, placing optimal bid and ask prices as a market maker is becoming an almost completely automatized task,
-but such a transition comes with additional caveats, such as slippage, overnight inventory and adverse market movements risks on agent inventory~\cite{Cartea2015, Avellaneda2008}.
+Market making (MM) in financial markets involves continuously quoting buy and sell prices, and dealing with supply and demand imbalances,
+and the associated risks of holding inventory and speculation are an intrinsic aspect of market making and focus of recent research~\cite{Cartea2015, Gasperov2021}.
+Market makers are essential, as they help narrow bid-ask spreads, reduce price volatility, and maintain market stability,
+particularly in times of uncertainty by providing liquidity in the market~\cite{Glosten1985, OHara1995}.
+Correctly reducing inventory risk benefits not only individual market makers but all market participants as a whole, 
+due to the reduced spread required for an agent to obtain positive return.
+With the increase of computational power in data-driven trading systems, 
+placing optimal bid and ask prices as a market maker is becoming an almost completely automatized task,
+but such a transition comes with additional caveats, such as $\text{negative, not-advantageous? or what}$ slippage, overnight inventory and adverse market movements risks on agent inventory~\cite{Cartea2015, Avellaneda2008}.
 
 Recent research focusing on Reinforcement Learning (RL) shows promising results for optimizing placed bid-ask prices by market making strategies.
-The RL framework defines market makers as agents that learn by interacting with an environment - which in our case is the limit order book -
-and optimizing their decision-making policies through trial and error and the respective outcome
+Through the RL framework market makers can be defined as agents that learn by interacting with an environment - which in the case of MM is the limit order book -
+and adapt their decision-making policies through trial and error and the respective outcome score
 (also called reward \footnote{Not to be confused with financial returns or rewards.}) of the environment.
 The primary objective of RL-based market making is to find the so called optimal policy that maximizes cumulative rewards,
-which translates to choosing prices that provide positive spread differences while minimizing risk factors such as agent inventory or price volatility.
+which translates to choosing prices that incur in transactions with positive spreads while minimizing risk factors such as agent inventory or price volatility.
 The RL approach is based on the Bellman equation for state values or state-action pair values,
-which recursively define the value of a policy by considering the expected return of discounted future rewards.
-A common implementation of the RL approach is to continuously update the agent's policy based on the sampled environment information and rewards,
-allowing the agents to dynamically change their price choosing strategies and adapt to changing market conditions in real-time~\cite{Sutton2018}.
+which recursively define the state-value of a policy as the expected return of discounted future rewards.
+A common implementation of the RL approach is to continuously update the agent's policy based on the sampled environment information (also called the state) and episodic rewards,
+allowing the agents to dynamically change their price-choosing strategies according to changing market observations~\cite{Sutton2018}.
 
-Unrestricted RL-based market making, however, can lead to potentially risky behaviors.
-In financial markets, and in long high-frequency intervals of trading, inventory risk and market impact are not to be ignored,
-as agents accumulating large inventory positions become exposed to significant price fluctuations and adverse market direction changes.
-This makes holding inventory result in an unwanted market exposition to the market making agent, becoming thus subject to undesired risks.
-Recent literature discusses the means of implementing restrictions in the RL framework to ensure stability and applicability towards real-world implementations.
+Unrestricted RL-based market making, however, can result in strategies with potentially high risk behavior.
+In financial markets with high-frequency data ticks long intervals of trading inactivity, inventory risk and market impact are not to be ignored,
+as agents accumulating large inventory positions become exposed to significant price fluctuations and adverse market direction changes, especially overnight after closing hours.
+Holding large inventories therefore result in unwanted market exposition for the market making agent, and thus, undesired risk.
+% Recent literature discusses the means of implementing restrictions in the RL framework to ensure stability and applicability towards real-world implementations.
+% what literature? no need for text, just the reference as to why unrestriction leads to risky behavior.
 
 In the context of this paper we will discuss restrictions in two possible forms:
 as hard equality or interval limits, or as incentives integrated into the agent's reward structure.
@@ -35,8 +38,8 @@ which will be discussed in further sections.
 Such restrictions are aimed to reduce target volatility and increase the possibilities of introducing domain knowledge
 and known stylized facts of the market into the learning process of the agent~\cite{Jerome2022, Selser2021}.
 
-Our main contributions aims to be a pragmatic implementation of restrictions for market making within an RL framework,
-contributing with a replicable way of minimizing undesired risk taken by the agent while maintaining the computational feasibility of the chosen architecture.
+Our main contributions is a pragmatic implementation and analysis of restriction-based RL agents in the context of market making.
+% A replicable way of minimizing undesired risk taken by the agent while maintaining the computational feasibility of the chosen architecture.
 Finally, the impact on the financial returns of the RL agents averse to overnight risk will be
 benchmarked against a closed-expression optimal solution under a simplified market model,
 aiming to validate the usage of hand-crafted restrictions in real-world implementations.
