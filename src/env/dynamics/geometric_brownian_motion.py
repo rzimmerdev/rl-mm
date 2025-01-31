@@ -53,8 +53,7 @@ class GeometricBrownianMotion(StochasticProcess):
         Returns:
             np.ndarray: Simulated trajectory of the process over time.
         """
-        assert (isinstance(x, (int, float)) and not isinstance(x, complex)) or isinstance(x, np.ndarray),
-        "Argument must be a non-complex number or a NumPy array"
+        assert ((isinstance(x, (int, float)) and not isinstance(x, complex)) or isinstance(x, np.ndarray)), "Argument must be a non-complex number or a NumPy array"
 
         num_steps = int(t / dt)
         trajectory = np.zeros((num_steps, size))
