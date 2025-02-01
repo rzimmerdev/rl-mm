@@ -4,16 +4,34 @@
 \subsection{Experiment Setup}
 \label{subsec:experiment-setup}
 
-The experiments were conducted using the OpenAI Gym environment for the limit order book, which was implemented in Python.
-The environment was set up with a limit order book with dynamics according to the equations described in
+The experiments were conducted using a Red-black tree implementation for the limit order book, while new orders follow the event dynamics described in
 ~\hyperref[subsec:market-model-description-and-environment-dynamics]{Section~\ref*{subsec:market-model-description-and-environment-dynamics}}.
-
-Both restricted agents were trained using the Proximal Policy Optimization (PPO) algorithm, which is a model-free, on-policy algorithm that optimizes the policy directly.
-A total of 10,000 episodes were simulated, with each episode consisting of a total time of at least 390 minutes (or 6.5 hours), with about 1 time step per minute.
-Per gathered trajectory, 500 epochs were used for updating both the policy and value networks.
+Both restricted agents were implemented through the Proximal Policy Optimization (PPO) algorithm, which is a model-free, on-policy algorithm that optimizes the policy directly.
+A max episode value of 10,000 episodes was used, with each episode consisting on average of 390 observations (or 1 event per corresponding market minute).
+Per gathered trajectory, 500 epochs were used for the policy improvement step, with a batch size of 64.
 We used the Adam optimizer with a learning rate of $10^{-4}$ and a discount factor of 0.99.
 For comparison metrics, we used the Sharpe ratio, the average daily return, and the average daily volatility.
 
 \subsection{Experiment Results}
+\label{subsec:experiment-results}
 
-The agent's policy was trained using the PPO algorithm with no restrictions on the agent's actions.
+% Graphs:
+% average financial return + confidence interval (+- volatility) x episode number
+% average financial return (+- volatility) x current timestep (per 100x trajectories after training)
+% average inventory x current timestep (per 100x trajectories after training)
+% average reward moving average x episode number
+
+% Table:
+% Cols: agent with restriction, agent without restriction, benchmark
+% Training
+% Rows: Training time +- std
+%       Time per episode +- std
+%       Mean processing time actor +- std per episode
+%       Mean processing time critic +- std per episode
+%       Mean financial return +- std
+
+% Test (after last episode or convergence)
+% Rows: Mean financial return +- std
+%       Mean Sharpe ratio +- std
+%       Agent action latency +- std
+%       Mean inventory at market close

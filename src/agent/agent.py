@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.optim as optim
 import gymnasium as gym
 
-from src.agent.model import PolicyNetwork, MultiHeadPolicyNetwork, MLP
+from src.agent.model import PolicyNetwork, MultiHeadPolicyNetwork, MMPolicyNetwork, MLP
 from src.agent.replay_buffer import ReplayBuffer
 
 
@@ -26,13 +26,23 @@ class PPOAgent:
         gae_lambda=0.95,
         entropy_coef=0.01
     ):
-        self.policy_network = MultiHeadPolicyNetwork(state_dim, action_dim, policy_hidden_dims).cuda() \
-            if isinstance(action_dim, list) else PolicyNetwork(state_dim, action_dim).cuda()
+        self.policy_network = MMPolicyNetwork(
+            in_features=5,
+            in_depth=10,
+            hidden_dims_features=(128, 128),
+            attention_heads=4,
+            hidden_dims=policy_hidden_dims,
+            out_dims=action_dim
+        ).cuda()
         self.value_network = MLP(state_dim, 1, hidden_units=value_hidden_dims).cuda()
         self.optimizer = optim.Adam([
             {'params': self.policy_network.parameters()},
             {'params': self.value_network.parameters()}
-        ], lr=lr)
+        ],
+            lr=lr,
+            betas=(0.9, 0.999),
+        )
+        scheduler = optim.lr_scheduler.StepLR(self.optimizer, step_size=1000, gamma=0.9)
         self.action_reshape = action_reshape
         self.gamma = gamma
         self.eps_clip = eps_clip
@@ -66,7 +76,7 @@ class PPOAgent:
 
         return trajectories
 
-    def update(self, trajectories, epochs=20, batch_size=512):
+    def update(self, trajectories, epochs=200, batch_size=512):
         states = torch.tensor(np.array(trajectories.states), dtype=torch.float32).cuda()
         actions = torch.tensor(trajectories.actions).cuda()
         old_log_probs = torch.tensor(trajectories.log_probs, dtype=torch.float32).cuda()

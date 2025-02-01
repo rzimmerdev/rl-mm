@@ -1,4 +1,5 @@
 import os
+import csv
 
 import matplotlib.pyplot as plt
 
@@ -20,6 +21,13 @@ class RLTrainer:
         reward_history = []
         loss_history = []
 
+        # use env's snapshot_columns to start storing env metrics
+        if not os.path.exists(self.newest_path):
+            os.makedirs(self.newest_path)
+
+        snapshots = {col: [] for col in self.env.snapshot_columns}
+        snapshots["episode"] = []
+
         try:
             for episode in range(num_episodes):
                 trajectories = self.agent.collect_trajectories(self.env)
@@ -27,14 +35,22 @@ class RLTrainer:
                 episode_reward = sum(trajectories.rewards)
                 reward_history.append(episode_reward)
                 loss_history.append(episode_loss)
+                snapshot = self.env.snapshot()
+                snapshot["episode"] = episode
+
+                for col in snapshots.keys():
+                    snapshots[col].append(snapshot[col])
 
                 if episode % 10 == 0:
                     print(f'Episode {episode}, Reward: {episode_reward}, Loss: {episode_loss}')
         except KeyboardInterrupt:
             pass
 
-        if not os.path.exists(self.newest_path):
-            os.makedirs(self.newest_path)
+        with open(f'{self.newest_path}/snapshots.csv', 'w') as f:
+            writer = csv.DictWriter(f, fieldnames=snapshots.keys())
+            writer.writeheader()
+            for i in range(len(snapshots['financial_return'])):
+                writer.writerow({col: snapshots[col][i] for col in snapshots.keys()})
 
         # store loss, rewards and agent weights
         self.agent.save_weights(f"{self.newest_path}/model.pth")

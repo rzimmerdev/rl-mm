@@ -30,8 +30,8 @@ class MarketSimulator:
         self.spread_mean = spread_mean
         self.spread_std = spread_std
 
-        bid_center = risk_free_mean - spread_mean / 2
-        ask_center = risk_free_mean + spread_mean / 2
+        bid_center = self.risk_free_mean - self.spread_mean / 2 / self.dt
+        ask_center = self.risk_free_mean + self.spread_mean / 2 / self.dt
 
         self.bid_process = GeometricBrownianMotion(bid_center, volatility)
         self.ask_process = GeometricBrownianMotion(ask_center, volatility)
@@ -80,8 +80,8 @@ class MarketSimulator:
         self.previous_event = 0
 
     def reset(self):
-        self.bid_process.mean = self.risk_free_mean - self.spread_mean / 2
-        self.ask_process.mean = self.risk_free_mean + self.spread_mean / 2
+        self.bid_process.mean = self.risk_free_mean - self.spread_mean / 2 / self.dt
+        self.ask_process.mean = self.risk_free_mean + self.spread_mean / 2 / self.dt
         self.lob = LimitOrderBook(self.tick_size)
         self.market_variables = {
             "last_transaction": self.starting_value,
@@ -257,3 +257,10 @@ class MarketSimulator:
     @property
     def market_timestep(self):
         return self.market_variables['timestep']
+
+
+if __name__ == "__main__":
+    simulator = MarketSimulator(100, spread_mean=.1)
+    simulator.fill(10)
+
+    simulator.lob.plot()

@@ -1,5 +1,5 @@
-import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import torch
 import matplotlib.pyplot as plt
 from env import MarketEnv
@@ -87,39 +87,23 @@ def test():
     plt.grid()
     plt.show()
 
-    # value = [np.sum(env.simulator.position())]
-    # t = [0]
-    #
-    # state, _ = env.reset()
-    #
-    # while not env.done:
-    #     action, log_prob, _ = agent.policy_network.act(torch.tensor(state, dtype=torch.float32).cuda().unsqueeze(0))
-    #     next_state, reward, done, trunc, _ = env.step(action_reshape(agent.policy_network.get_action(action)))
-    #     value.append(np.sum(env.simulator.position()))
-    #     t.append(env.simulator.market_timestep)
-    #
-    # value = np.array(value)
-    # t = np.array(t)
-    #
-    # # remove elements up to the first non-zero return
-    # idx = np.argmax(value != 0)
-    # value = value[idx:]
-    # t = t[idx:]
-    #
-    # # Take elements spaced every cumulative increase of 5 units in t
-    # selected_indices = [0]  # Start with the first element
-    # cumulative_time = t[0]
-    #
-    # for i in range(1, len(t)):
-    #     if t[i] - cumulative_time >= 5:
-    #         selected_indices.append(i)
-    #         cumulative_time = t[i]
-    #
-    # # Extract the selected values and times
-    # value = value[selected_indices]
-    # t = t[selected_indices]
-    #
-    # plot_financial_return(value, t)
+    # plot checkpoint's snapshot.csv file. Use "episode" as x axis, and plot each column in separate subplot
+    snapshot = pd.read_csv(f'{trainer.latest_path}/snapshots.csv')
+    snapshot = snapshot.set_index('episode')
+    n_plots = len(snapshot.columns)
+    # 10 window size moving average
+    snapshot = snapshot.rolling(window=50).mean()
+
+    fig, axs = plt.subplots(n_plots, 1, figsize=(12, 6 * n_plots))
+    for i, col in enumerate(snapshot.columns):
+        axs[i].plot(snapshot.index, snapshot[col])
+        axs[i].set_title(col)
+        axs[i].set_xlabel('Episode')
+        axs[i].set_ylabel(col)
+        axs[i].grid()
+
+    plt.show()
+
 
 
 def plot_financial_return(value, t):

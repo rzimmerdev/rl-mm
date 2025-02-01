@@ -1,24 +1,13 @@
-from itertools import islice
-
 import numpy as np
-
+import gymnasium as gym
+from gymnasium import spaces
+from itertools import islice
 from env.simulators import MarketSimulator
 
 
-class Space:
-    def __init__(self, low: np.ndarray, high: np.ndarray):
-        self.low = low
-        self.high = high
-        self.shape = low.shape
+class MarketEnv(gym.Env):
+    metadata = {"render_modes": ["human"], "render_fps": 60}
 
-    def sample(self):
-        return np.random.uniform(self.low, self.high)
-
-    def contains(self, x):
-        return (self.low <= x).all() and (x <= self.high).all()
-
-
-class MarketEnv:
     def __init__(
         self,
         n_levels=10,
@@ -56,35 +45,27 @@ class MarketEnv:
         self.quotes = []
         self.window = int(5e2)
         self.eta = 0.01
-        self.alpha = 0.01
+        self.alpha = 1
         self.duration = 1 / 252
 
-        self.observation_space = Space(
-            np.array([0, 0, 0, 0, 0] + [0, 0] * 2 * self.n_levels),
-            np.array([100, 10, 1e3, 1e3, 100] + [1e4, 1e4] * 2 * self.n_levels)
+        self.observation_space = spaces.Box(
+            low=np.array([0, 0, 0, 0, 0] + [0, 0] * 2 * self.n_levels, dtype=np.float32),
+            high=np.array([100, 10, 1e3, 1e3, 100] + [1e4, 1e4] * 2 * self.n_levels, dtype=np.float32),
+            dtype=np.float32,
         )
 
-        self.action_space = Space(
-            np.array([0, 0, 0, 0]),
-            np.array([1e2, 1e2, 1e2, 1e2])
+        self.action_space = spaces.Box(
+            low=np.array([0, 0, 0, 0], dtype=np.float32),
+            high=np.array([1e2, 1e2, 1e2, 1e2], dtype=np.float32),
+            dtype=np.float32,
         )
 
-    @property
-    def events(self):
-        return self.simulator.market_variables["events"]
-
-    def reset(self, **kwargs):
+    def reset(self, seed=None, options=None):
+        super().reset(seed=seed)
         self.simulator.reset()
         self.simulator.fill(100)
         state = self._get_state()
         return state, {}
-
-    def returns(self, position, starting_position):
-        return (position - starting_position) / starting_position
-
-    @property
-    def done(self):
-        return self.simulator.market_timestep >= self.duration
 
     def step(self, action):
         previous_midprice = self.simulator.midprice()
@@ -103,14 +84,9 @@ class MarketEnv:
         delta_inventory = inventory - previous_inventory
 
         next_state = self._get_state()
-
         reward = self._calculate_reward(transaction_pnl, inventory, delta_inventory, delta_midprice)
-        trunc = False
-
-        if np.abs(reward) > 1e4:
-            trunc = True
-
         done = self.simulator.market_timestep >= self.duration
+        trunc = np.abs(reward) > 1e4
 
         return next_state, reward, done, trunc, {}
 
@@ -121,7 +97,6 @@ class MarketEnv:
 
     def _get_state(self):
         lob = self.simulator.lob
-
         bids_list = list(islice(lob.bids.ordered_traversal(reverse=True), self.n_levels))
         asks_list = list(islice(lob.asks.ordered_traversal(), self.n_levels))
 
@@ -133,50 +108,33 @@ class MarketEnv:
             self._calculate_order_imbalance(bids_list, asks_list),
         ]
 
-        try:
-            bids = []
-            for price_level in bids_list:
-                level_quantity = sum(order.quantity for order in price_level.value.orders)
-                bids.append([price_level.key, level_quantity])
-            bids = np.array(bids).flatten()
-            bids = np.pad(bids, (0, 2 * self.n_levels - len(bids)), 'constant')
-
-            asks = []
-            for price_level in asks_list:
-                level_quantity = sum(order.quantity for order in price_level.value.orders)
-                asks.append([price_level.key, level_quantity])
-            asks = np.array(asks).flatten()
-            unpadded = len(asks)
-            asks = np.pad(asks, (0, 2 * self.n_levels - len(asks)), 'constant')
-            asks[unpadded::2] = 1e4
-        except:
-            raise
-
+        bids = self._extract_order_book_side(bids_list)
+        asks = self._extract_order_book_side(asks_list, fill_value=1e4)
         state += list(bids) + list(asks)
 
         return np.array(state, dtype=np.float32)
+
+    def _extract_order_book_side(self, side_list, fill_value=0.0):
+        levels = []
+        for price_level in side_list:
+            level_quantity = sum(order.quantity for order in price_level.value.orders)
+            levels.append([price_level.key, level_quantity])
+        levels = np.array(levels).flatten()
+        levels = np.pad(levels, (0, 2 * self.n_levels - len(levels)), 'constant', constant_values=fill_value)
+        return levels
 
     def _calculate_rsi(self):
         if len(self.quotes) < self.window:
             return 50
         returns = np.diff(self.quotes)[-self.window:]
         up, down = returns.clip(min=0), -returns.clip(max=0)
-
-        avg_up = np.mean(up)
-        avg_down = np.mean(down)
-
-        if avg_down == 0:
-            return 100
-
-        rs = avg_up / avg_down
-
-        return 100 - 100 / (1 + rs)
+        avg_up, avg_down = np.mean(up), np.mean(down)
+        return 100 if avg_down == 0 else 100 - 100 / (1 + avg_up / avg_down)
 
     def _calculate_volatility(self):
         if len(self.quotes) < self.window:
             return 0
-        returns = np.diff(self.quotes)[-self.window:]
-        return np.std(returns)
+        return np.std(np.diff(self.quotes)[-self.window:])
 
     def _calculate_inventory(self):
         return self.simulator.user_variables["inventory"]
@@ -184,16 +142,48 @@ class MarketEnv:
     def _calculate_order_imbalance(self, bids, asks):
         if not bids or not asks:
             return 0
-        bid_level = bids[0].value
-        ask_level = asks[0].value
-        num_bids = sum(order.quantity for order in bid_level.orders)
-        num_asks = sum(order.quantity for order in ask_level.orders)
-
+        num_bids = sum(order.quantity for order in bids[0].value.orders)
+        num_asks = sum(order.quantity for order in asks[0].value.orders)
         return (num_bids - num_asks) / (num_bids + num_asks)
 
+    def render(self, mode="human"):
+        print(f"Midprice: {self.simulator.midprice()}, Inventory: {self._calculate_inventory()}")
+
+    @property
+    def done(self):
+        return self.simulator.market_timestep >= self.duration
+
+    @property
+    def events(self):
+        return self.simulator.market_variables["events"]
+
+    @property
+    def snapshot_columns(self):
+        return [
+            "financial_return",
+            "midprice",
+            "inventory",
+            "events",
+            "market_timestep",
+        ]
+
+    def snapshot(self):
+        financial_return = self.simulator.user_variables["cash"] + self.simulator.user_variables[
+            "inventory"] * self.simulator.midprice()
+        return {
+            "financial_return": financial_return,
+            "midprice":         self.simulator.midprice(),
+            "inventory":        self._calculate_inventory(),
+            "events":           self.events[-1],
+            "market_timestep":  self.simulator.market_timestep,
+        }
 
 if __name__ == "__main__":
-    env = MarketEnv()
+    env = MarketEnv(spread_mean=1000, volatility=0.6)
     state, _ = env.reset()
     action = np.array([1.0, 10.0, 1.2, 5.0])  # Example action
-    next_state, reward, done, trunc, _ = env.step(action)
+    lob_state, _, _, _, _ = env.step(action)
+    # print asks
+    print(lob_state[5:5 + 10 * 2])
+    # print bids
+    print(lob_state[5 + 10 * 2:])

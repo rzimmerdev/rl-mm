@@ -4,10 +4,15 @@
 \subsection{Model Architecture}
 \label{subsec:model-architecture}
 
-\subsection{Trajectory Gathering and Generalized Advantage Estimation}
-\label{subsec:trajectory-gathering-and-gae}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/architecture}
+    \caption{Actor-Critic Model Architecture}
+    \label{fig:model-architecture}
+\end{figure}\
 
 \subsection{Main Training Loop}
+\label{subsec:main-training-loop}
 \begin{algorithmic}
     \State \textbf{Initialize} the environment, Actor-Critic model, and optimizer
     \For{each episode in range $num\_episodes$}
