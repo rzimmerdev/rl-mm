@@ -14,23 +14,40 @@ def default_reshape(action):
 
 class PPOAgent:
     def __init__(
-        self,
-        state_dim,
-        action_dim,
-        policy_hidden_dims=(128, 128),
-        value_hidden_dims=(128, 128),
-        action_reshape=default_reshape,
-        lr=1e-4,
-        gamma=0.99,
-        eps_clip=0.2,
-        gae_lambda=0.95,
-        entropy_coef=0.01
+            self,
+            state_dim,
+            action_dim,
+            policy_hidden_dims=(128, 128),
+            value_hidden_dims=(128, 128),
+            attention_heads=8,
+            action_reshape=default_reshape,
+            lr=1e-4,
+            gamma=0.99,
+            eps_clip=0.2,
+            gae_lambda=0.95,
+            entropy_coef=0.01
     ):
+        """
+        Initialize the PPO agent.
+
+        Args:
+            state_dim: The dimension of the state space.
+            action_dim: The dimension of the action space.
+            policy_hidden_dims (tuple): The dimensions of the hidden layers in the policy network.
+            value_hidden_dims (tuple): The dimensions of the hidden layers in the value network.
+            attention_heads (int): The number of attention heads in the policy network.
+            action_reshape (function): A function to reshape the action output from the policy network.
+            lr (float): The learning rate for the optimizer.
+            gamma (float): Discount factor for returns.
+            eps_clip (float): Clip parameter used in loss calculation.
+            gae_lambda (float): GAE coefficient, affects the balance between bias and variance.
+            entropy_coef (float): Entropy coefficient, affects the exploration-exploitation trade-off.
+        """
         self.policy_network = MMPolicyNetwork(
             in_features=5,
             in_depth=10,
-            hidden_dims_features=(128, 128),
-            attention_heads=4,
+            hidden_dims_features=(policy_hidden_dims[0], policy_hidden_dims[0]),
+            attention_heads=attention_heads,
             hidden_dims=policy_hidden_dims,
             out_dims=action_dim
         ).cuda()
@@ -41,12 +58,13 @@ class PPOAgent:
         ],
             lr=lr,
             betas=(0.9, 0.999),
+            weight_decay=1e-5
         )
-        scheduler = optim.lr_scheduler.StepLR(self.optimizer, step_size=1000, gamma=0.9)
         self.action_reshape = action_reshape
         self.gamma = gamma
         self.eps_clip = eps_clip
         self.gae_lambda = gae_lambda
+        self._entropy_coef = entropy_coef
         self.entropy_coef = entropy_coef
 
     def compute_gae(self, rewards, values, dones):
@@ -61,7 +79,7 @@ class PPOAgent:
             advantages.insert(0, advantage)
         return advantages, [adv + val for adv, val in zip(advantages, value[:-1])]
 
-    def collect_trajectories(self, env, rollout_length=1000):
+    def collect_trajectories(self, env, rollout_length=2048):
         trajectories = ReplayBuffer()
         state, _ = env.reset()
 
@@ -76,7 +94,7 @@ class PPOAgent:
 
         return trajectories
 
-    def update(self, trajectories, epochs=200, batch_size=512):
+    def update(self, trajectories, epochs=100, batch_size=32):
         states = torch.tensor(np.array(trajectories.states), dtype=torch.float32).cuda()
         actions = torch.tensor(trajectories.actions).cuda()
         old_log_probs = torch.tensor(trajectories.log_probs, dtype=torch.float32).cuda()
@@ -104,12 +122,12 @@ class PPOAgent:
 
                 surr1 = ratios * batch_advantages
                 surr2 = torch.clamp(ratios, 1 - self.eps_clip, 1 + self.eps_clip) * batch_advantages
-                policy_loss = -torch.min(surr1, surr2).mean() - self.entropy_coef * entropy
-
                 state_values = self.value_network(batch_states).squeeze()
-                value_loss = nn.MSELoss()(state_values, batch_returns)
 
-                loss = policy_loss + value_loss
+                actor_loss = -torch.min(surr1, surr2).mean() - self.entropy_coef * entropy
+                critic_loss = nn.MSELoss()(state_values, batch_returns)
+
+                loss = actor_loss + 0.5 * critic_loss
 
                 self.optimizer.zero_grad()
                 loss.backward()
@@ -117,7 +135,12 @@ class PPOAgent:
 
                 episode_loss += loss.item()
 
+        self.entropy_coef *= 0.999  # Anneal entropy coefficient
+
         return episode_loss / epochs
+
+    def reset(self):
+        self.entropy_coef = self._entropy_coef
 
     def logprobs(self, dists, actions):
         if isinstance(dists, list):
@@ -132,7 +155,7 @@ class PPOAgent:
     def save_weights(self, path):
         torch.save({
             'policy_state_dict': self.policy_network.state_dict(),
-            'value_state_dict':  self.value_network.state_dict()
+            'value_state_dict': self.value_network.state_dict()
         }, path)
 
     def load_weights(self, path):

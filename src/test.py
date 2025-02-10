@@ -14,25 +14,38 @@ def config_reshape(action, size, low, high):
 def test():
     env = MarketEnv()
     precision = int(1e3)
-    action_reshape = lambda action: config_reshape(action, precision, env.action_space.low, env.action_space.high)
+    action_reshape = lambda action: config_reshape(action, precision, env.action_space.low, env.action_space.high / 2000)
     state_dim = env.observation_space.shape[0]
     action_dim = [int(precision) for _ in range(env.action_space.shape[0])]
     agent = PPOAgent(
         state_dim=state_dim,
         action_dim=action_dim,
-        policy_hidden_dims=(state_dim * 5, state_dim * 10, state_dim * 10),
-        value_hidden_dims=(state_dim * 10, state_dim, int(np.sqrt(state_dim))),
+        policy_hidden_dims=(state_dim * 8, state_dim * 8),
+        value_hidden_dims=(state_dim * 8, state_dim * 5, state_dim * 2),
         action_reshape=action_reshape,
-        lr=1e-4,
+        lr=1e-3,
         gamma=0.99,
         eps_clip=0.2,
-        gae_lambda=0.98,
-        entropy_coef=0.02
+        gae_lambda=0.95,
+        entropy_coef=0.05
     )
+    trainer = RLTrainer(env, agent)
 
     # try to load weights if path exists
-    trainer = RLTrainer(env, agent)
     agent = trainer.load()
+
+    # plot metrics.csv episode,reward,loss
+    metrics = pd.read_csv(f'{trainer.latest_path}/metrics.csv')
+    # moving average of 10
+    metrics['reward'] = metrics['reward'].rolling(window=100).mean()
+    plt.figure(figsize=(12, 6))
+    plt.plot(metrics['episode'], metrics['reward'], label='Reward')
+    plt.xlabel('Episode')
+    plt.ylabel('Reward')
+    plt.title('Reward vs Episode')
+    plt.legend()
+    plt.grid()
+    plt.show()
 
     # Simulate multiple runs
     num_simulations = 20
@@ -103,7 +116,6 @@ def test():
         axs[i].grid()
 
     plt.show()
-
 
 
 def plot_financial_return(value, t):

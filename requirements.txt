@@ -1,12 +1,5 @@
-numpy~=1.26.4
-matplotlib~=3.9.2
-tqdm~=4.66.5
-pandas~=2.2.2
-scipy~=1.11.4
-rich~=13.9.3
-plotly~=5.24.1
-dxlib~=0.0.1
-pytorch~=2.5.1
-jax~=0.4.35
-flax~=0.10.2
-dash~=2.18.1
+numpy~=2.1.2
+matplotlib>=3.9.2
+pandas>=2.2.2
+scipy>=1.11.4
+plotly>=5.24.1

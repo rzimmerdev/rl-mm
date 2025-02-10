@@ -1,7 +1,7 @@
 \section{Introduction}
 \label{sec:introduction}
 
-Market making (MM) in financial markets involves continuously quoting buy and sell prices, and dealing with supply and demand imbalances,
+Market making in financial markets involves continuously quoting buy and sell prices, and dealing with supply and demand imbalances,
 and the associated risks of holding inventory and speculation are an intrinsic aspect of market making and focus of recent research~\cite{Cartea2015, Gasperov2021}.
 Market makers are essential, as they help narrow bid-ask spreads, reduce price volatility, and maintain market stability,
 particularly in times of uncertainty by providing liquidity in the market~\cite{Glosten1985, OHara1995}.
@@ -12,10 +12,10 @@ placing optimal bid and ask prices as a market maker is becoming an almost compl
 but such a transition comes with additional caveats, such as $\text{negative, not-advantageous? or what}$ slippage, overnight inventory and adverse market movements risks on agent inventory~\cite{Cartea2015, Avellaneda2008}.
 
 Recent research focusing on Reinforcement Learning (RL) shows promising results for optimizing placed bid-ask prices by market making strategies.
-Through the RL framework market makers can be defined as agents that learn by interacting with an environment - which in the case of MM is the limit order book -
-and adapt their decision-making policies through trial and error and the respective outcome score
-(also called reward \footnote{Not to be confused with financial returns or rewards.}) of the environment.
-The primary objective of RL-based market making is to find the so called optimal policy that maximizes cumulative rewards,
+Through the RL framework market makers can be defined as agents that learn by interacting with an environment,
+and adapt their decision-making policies through trial and error and a numerical outcome
+(also called the reward \footnote{Not to be confused with financial returns or rewards.}).
+The primary objective of RL-based market making is to find the so-called optimal policy that maximizes cumulative rewards,
 which translates to choosing prices that incur in transactions with positive spreads while minimizing risk factors such as agent inventory or price volatility.
 The RL approach is based on the Bellman equation for state values or state-action pair values,
 which recursively define the state-value of a policy as the expected return of discounted future rewards.

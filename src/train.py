@@ -1,4 +1,3 @@
-
 import numpy as np
 
 from src.agent.agent import PPOAgent
@@ -21,14 +20,15 @@ def train():
     agent = PPOAgent(
         state_dim=state_dim,
         action_dim=action_dim,
-        policy_hidden_dims=(state_dim * 4, state_dim * 8),
-        value_hidden_dims=(state_dim * 10, state_dim, state_dim // 2),
+        policy_hidden_dims=(state_dim * 32, state_dim * 8, state_dim * 4),
+        value_hidden_dims=(state_dim * 12, state_dim * 6, state_dim // 2),
         action_reshape=action_reshape,
-        lr=3e-4,
+        attention_heads=16,
+        lr=1e-4,
         gamma=0.99,
         eps_clip=0.2,
-        gae_lambda=0.95,
-        entropy_coef=0.05
+        gae_lambda=0.98,
+        entropy_coef=0.1
     )
 
     trainer = RLTrainer(env, agent)

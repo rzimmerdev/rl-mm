@@ -122,9 +122,10 @@ where $a$ is choosen by our control agent according to a policy $\pi (s)$.
 $\mathcal{L}$ is the generator operator and governs the dynamics of the state transitions given the current time.
 
 In continuous-time and state MDPs, the state dynamics is reflected by $\mathcal{L}$ and modern approaches to optimal control
-solve analytically by obtaining a closed-form expression for the model's evolution equations, as in~\citet{Avellaneda2008, Gueant2017}.
-or numerically by approximating its transition probabilities, as in~\citet{Gueant2022, Selser2021a, FalcesMarin2022}.
-Closed-form expressions for $\mathcal{L}$ are obtainable for simple models, by usually disconsidering market impact,
+solve analytically by obtaining a closed-form expression for the model's evolution equations, as originally proposed by
+Avellaneda et al. (2008)~\cite{Avellaneda2008} and Gueant et al. (2017)~\cite{Gueant2017}.
+or numerically by approximating its transition probabilities~\cite{Gueant2022, Selser2021a, FalcesMarin2022}.
+Closed-form expressions for $\mathcal{L}$ are obtainable for simple environment models, by usually disconsidering market impact,
 which is not the case for our proposed model, and solving for the generator operator is therefore outside the scope of this paper.
 A numerical approach will be used furthermore as an approximation for the policy distribution according to observed environment trajectories.
 We will use a neural network as the approximator function for the actor's policy through the Proximal Policy Optimization (PPO) algorithm

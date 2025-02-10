@@ -110,8 +110,6 @@ class MultiHeadPolicyNetwork(nn.Module):
         return np.array([a.item() for a in actions])
 
 
-
-
 class MMPolicyNetwork(nn.Module):
     def __init__(self, in_features, in_depth, hidden_dims_features=(128, 128),
                  attention_heads=4, hidden_dims=(128, 128), dropout_prob=0.2, out_dims=(4,)):
@@ -210,7 +208,6 @@ class MMPolicyNetwork(nn.Module):
         return np.array([a.item() for a in actions])
 
 
-
 def shape_sanity():
     batch_size = 5
     in_features = 3  # Number of market indicators
@@ -235,7 +232,8 @@ def shape_sanity():
     probs = model(x)
     assert len(probs) == len(out_dims), "Number of outputs does not match out_dims"
     for i, prob in enumerate(probs):
-        assert prob.shape == (batch_size, out_dims[i]), f"Output {i} shape mismatch: expected {(batch_size, out_dims[i])}, got {prob.shape}"
+        assert prob.shape == (
+        batch_size, out_dims[i]), f"Output {i} shape mismatch: expected {(batch_size, out_dims[i])}, got {prob.shape}"
 
     actions, log_probs, dist = model.act(x)
     assert len(actions) == len(out_dims), "Number of sampled actions mismatch"

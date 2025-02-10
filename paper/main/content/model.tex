@@ -13,26 +13,34 @@
 
 \subsection{Main Training Loop}
 \label{subsec:main-training-loop}
-\begin{algorithmic}
-    \State \textbf{Initialize} the environment, Actor-Critic model, and optimizer
-    \For{each episode in range $num\_episodes$}
-        \State \textbf{Collect trajectories:}
-        \State \hspace{1em} Initialize the state: $state$
-        \State \hspace{1em} Initialize an empty trajectory buffer
-        \For{each timestep in the episode}
-            \State \hspace{1em} Select action $a$ using the Actor network
-            \State \hspace{1em} Execute action $a$ and observe reward $r$ and next state $state'$
-            \State \hspace{1em} Store transition $(state, a, r, state')$ in the trajectory buffer
-            \State \hspace{1em} Set $state = state'$
-            \If{episode ends or maximum timestep reached}
-                \State \hspace{1em} Break out of timestep loop
-            \EndIf
+
+\begin{algorithm}[H]
+    \begin{algorithmic}[1]
+        \Require Environment, Actor-Critic model, optimizer, number of episodes $num\_episodes$
+        \State \textbf{Initialize} the environment, Actor-Critic model, and optimizer
+        \For{each episode in range $num\_episodes$}
+            \State \textbf{Collect trajectories:}
+            \State \hspace{1em} Initialize the state: $\text{s} = \text{env.reset()}$
+            \State \hspace{1em} Initialize an empty trajectory buffer
+            \For{each timestep in the episode}
+                \State \hspace{1em} Select action $a \sim \pi_{\theta}(s)$
+                \State \hspace{1em} Observe reward $R_t$ and next state $s'$
+                \State \hspace{1em} Store transition $(s, a, r)$ in the trajectory buffer
+                \State \hspace{1em} Set $s \leftarrow s'$
+                \If{environment done}
+                    \State \hspace{1em} \textbf{end} episode
+                \EndIf
+            \EndFor
+            \State \textbf{Compute GAE and Returns:}
+            \State \hspace{1em} Compute advantages and returns using GAE
+            \State \textbf{Update actor and critic according to \hyperref[alg:algorithm]{Algorithm~\ref{alg:ppo}}}
         \EndFor
-        \State \textbf{Compute GAE and Returns:}
-        \State \hspace{1em} Compute advantages and returns using GAE
-        \State \textbf{Update model:}
-        \State \hspace{1em} Update the Actor and Critic networks using the collected trajectories
-        \State \hspace{1em} Compute episode reward and store it in reward history
-    \EndFor
+    \end{algorithmic}
+    \caption{Training Loop}
+    \label{alg:algorithm}
+\end{algorithm}
+
+\begin{algorithmic}
+
 \end{algorithmic}
 
