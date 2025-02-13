@@ -15,57 +15,64 @@ def default_reshape(action):
 class PPOAgent:
     def __init__(
             self,
-            state_dim,
+            num_features,
+            num_depth,
             action_dim,
             policy_hidden_dims=(128, 128),
             value_hidden_dims=(128, 128),
             attention_heads=8,
             action_reshape=default_reshape,
-            lr=1e-4,
             gamma=0.99,
             eps_clip=0.2,
             gae_lambda=0.95,
-            entropy_coef=0.01
+            entropy_coef=0.01,
+            lr=1e-3,
+            batch_size=32
     ):
         """
         Initialize the PPO agent.
 
         Args:
-            state_dim: The dimension of the state space.
+            num_features: The number of features in the state space.
+            num_depth: The depth of the state space.
             action_dim: The dimension of the action space.
             policy_hidden_dims (tuple): The dimensions of the hidden layers in the policy network.
             value_hidden_dims (tuple): The dimensions of the hidden layers in the value network.
             attention_heads (int): The number of attention heads in the policy network.
             action_reshape (function): A function to reshape the action output from the policy network.
-            lr (float): The learning rate for the optimizer.
             gamma (float): Discount factor for returns.
             eps_clip (float): Clip parameter used in loss calculation.
             gae_lambda (float): GAE coefficient, affects the balance between bias and variance.
             entropy_coef (float): Entropy coefficient, affects the exploration-exploitation trade-off.
         """
         self.policy_network = MMPolicyNetwork(
-            in_features=5,
-            in_depth=10,
+            in_features=num_features,
+            in_depth=num_depth,
             hidden_dims_features=(policy_hidden_dims[0], policy_hidden_dims[0]),
             attention_heads=attention_heads,
             hidden_dims=policy_hidden_dims,
             out_dims=action_dim
         ).cuda()
-        self.value_network = MLP(state_dim, 1, hidden_units=value_hidden_dims).cuda()
-        self.optimizer = optim.Adam([
-            {'params': self.policy_network.parameters()},
-            {'params': self.value_network.parameters()}
-        ],
-            lr=lr,
-            betas=(0.9, 0.999),
-            weight_decay=1e-5
-        )
+        self.value_network = MLP(num_features + 4 * num_depth, 1, hidden_units=value_hidden_dims).cuda()
+
         self.action_reshape = action_reshape
         self.gamma = gamma
         self.eps_clip = eps_clip
         self.gae_lambda = gae_lambda
         self._entropy_coef = entropy_coef
         self.entropy_coef = entropy_coef
+
+        self.lr = lr
+        self.batch_size = batch_size
+
+    def parameters(self):
+        # return list(self.policy_network.parameters()) + list(self.value_network.parameters())
+        # separate learning rates for policy and value networks
+        lr_policy, lr_value = self.lr if isinstance(self.lr, list) else [self.lr, self.lr]
+        return [
+            {'params': self.policy_network.parameters(), 'lr': lr_policy},
+            {'params': self.value_network.parameters(), 'lr': lr_value}
+        ]
 
     def compute_gae(self, rewards, values, dones):
         advantages = []
@@ -80,21 +87,38 @@ class PPOAgent:
         return advantages, [adv + val for adv, val in zip(advantages, value[:-1])]
 
     def collect_trajectories(self, env, rollout_length=2048):
-        trajectories = ReplayBuffer()
+        trajectory = ReplayBuffer()
         state, _ = env.reset()
 
         for _ in range(rollout_length):
             action, log_prob, _ = self.policy_network.act(torch.tensor(state, dtype=torch.float32).cuda().unsqueeze(0))
             next_state, reward, done, trunc, _ = env.step(self.action_reshape(self.policy_network.get_action(action)))
             done = done or trunc
-            trajectories.add(state, action, log_prob, reward, done)
+            trajectory.add(state, action, log_prob, reward, done)
             state = next_state
             if done:
                 break
 
-        return trajectories
+        return trajectory
 
-    def update(self, trajectories, epochs=100, batch_size=32):
+    # def collect_trajectories(self, env, num_trajectories=4, rollout_length=2048):
+    #     trajectories = [self._collect_trajectories(env, rollout_length) for _ in range(num_trajectories)]
+    #     states = np.concatenate([trajectory.states for trajectory in trajectories])
+    #     actions = np.concatenate([trajectory.actions for trajectory in trajectories])
+    #     log_probs = np.concatenate([trajectory.log_probs for trajectory in trajectories])
+    #     rewards = np.concatenate([trajectory.rewards for trajectory in trajectories])
+    #     dones = np.concatenate([trajectory.dones for trajectory in trajectories])
+    #
+    #     trajectories = ReplayBuffer()
+    #     trajectories.states = states
+    #     trajectories.actions = actions
+    #     trajectories.log_probs = log_probs
+    #     trajectories.rewards = rewards
+    #     trajectories.dones = dones
+    #
+    #     return trajectories
+
+    def update(self, trajectories, optimizer, epochs=5):
         states = torch.tensor(np.array(trajectories.states), dtype=torch.float32).cuda()
         actions = torch.tensor(trajectories.actions).cuda()
         old_log_probs = torch.tensor(trajectories.log_probs, dtype=torch.float32).cuda()
@@ -108,9 +132,10 @@ class PPOAgent:
         returns = torch.tensor(returns, dtype=torch.float32).cuda()
 
         dataset = torch.utils.data.TensorDataset(states, actions, old_log_probs, advantages, returns)
-        data_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True)
+        data_loader = torch.utils.data.DataLoader(dataset, batch_size=self.batch_size, shuffle=True)
 
-        episode_loss = 0
+        ep_actor_loss = 0
+        ep_critic_loss = 0
 
         for epoch in range(epochs):  # Number of training epochs
             for batch_states, batch_actions, batch_old_log_probs, batch_advantages, batch_returns in data_loader:
@@ -126,18 +151,26 @@ class PPOAgent:
 
                 actor_loss = -torch.min(surr1, surr2).mean() - self.entropy_coef * entropy
                 critic_loss = nn.MSELoss()(state_values, batch_returns)
+                # loss = actor_loss + 0.5 * critic_loss
 
-                loss = actor_loss + 0.5 * critic_loss
+                optimizer.zero_grad()
+                actor_loss.backward()
+                optimizer.step()
 
-                self.optimizer.zero_grad()
-                loss.backward()
-                self.optimizer.step()
+                optimizer.zero_grad()
+                critic_loss.backward()
+                optimizer.step()
 
-                episode_loss += loss.item()
+                # episode_loss += loss.item()
+                ep_actor_loss += actor_loss.item()
+                ep_critic_loss += critic_loss.item()
 
-        self.entropy_coef *= 0.999  # Anneal entropy coefficient
+        self.entropy_coef *= 0.999
 
-        return episode_loss / epochs
+        return {
+            "actor_loss": ep_actor_loss / epochs,
+            "critic_loss": ep_critic_loss / epochs
+        }
 
     def reset(self):
         self.entropy_coef = self._entropy_coef
@@ -162,42 +195,3 @@ class PPOAgent:
         checkpoint = torch.load(path, weights_only=True)
         self.policy_network.load_state_dict(checkpoint['policy_state_dict'])
         self.value_network.load_state_dict(checkpoint['value_state_dict'])
-
-
-def test_ppo_agent_multidimensional():
-    # Create a multidimensional mock environment
-    class MultiDimEnv:
-        def __init__(self):
-            self.observation_space = gym.spaces.Box(low=-1, high=1, shape=(4,))
-            self.action_space = gym.spaces.Box(low=-1, high=1, shape=(2,))
-            self.state = np.zeros(self.observation_space.shape)
-
-        def reset(self):
-            self.state = np.random.uniform(-1, 1, self.observation_space.shape)
-            return self.state, {}
-
-        def step(self, action):
-            next_state = np.random.uniform(-1, 1, self.observation_space.shape)
-            reward = -np.sum((self.state - next_state) ** 2)
-            done = np.random.rand() > 0.9  # Randomly terminate the episode
-            trunc = False
-            return next_state, reward, done, trunc, {}
-
-    env = MultiDimEnv()
-
-    # Initialize the agent
-    state_dim = env.observation_space.shape[0]
-    action_dim = env.action_space.shape[0]
-    agent = PPOAgent(state_dim, [int(1e4) for _ in range(action_dim)])
-
-    # Collect trajectories
-    trajectories = agent.collect_trajectories(env, rollout_length=100)
-
-    # Perform an update
-    agent.update(trajectories, epochs=1, batch_size=32)
-    print("Update method executed without errors for multidimensional environment.")
-
-
-# Call the test function
-if __name__ == "__main__":
-    test_ppo_agent_multidimensional()

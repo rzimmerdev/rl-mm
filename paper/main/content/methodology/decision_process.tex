@@ -6,17 +6,17 @@ state in terms of the immediate reward and the expected value of subsequent stat
 For a given policy $\pi$, the Bellman equation for the value function $V(s)$ with respect to the chosen reward function is:
 \begin{equation*}
     \begin{aligned}
-        V^\pi(s) &= \sum_{a \in \mathcal{A}} \pi(a \mid s) \sum_{s' \in \mathcal{S}} P(s' \mid s, a) \left[ \mathbb{E}[R_t \mid s, a, s'] + \gamma V^\pi(s') \right]\\
+        V^\pi(s) &= \sum_{a \in \mathcal{A}} \pi(a \mid s) \sum_{s' \in \mathcal{S}} P(s'_{t+1} \mid s_{t}, a) \left[ R_t + \gamma V^\pi(s'_{t+1}) \right]\\
         V^\pi(s) &= \mathbb{E}_\pi \left[ R_t + \gamma V^\pi(s_{t+1}) \mid s_t = s \right]\\
     \end{aligned}
 \end{equation*}
 
 where $V(s)$ is the value function, representing the expected return (cumulative discounted rewards) starting from state $s$,
-going to state $s'$ by taking action $a$ and continuing the episode, $R_t$ is the reward obtained from the action taken at time $t$,
-and $\gamma$ is the discount factor, which weighs the value favorably towards immediate in comparison to future rewards.
+going to state $s'$ by taking action $a$ and continuing the episode, $R_t$ is the reward obtained from the action taken,
+and $\gamma$ is the discount factor, used to weigh the value favorably towards immediate rather than future rewards.
 The Bellman equation underpins the process of optimal policy derivation, where the goal is to find the optimal policy $\pi^*$,
 that is, the control for our action space $\mathcal{A}$ that maximizes the expected return,
-and can be formulated as solving for the policy that maximizes the value function:
+and can solved by maximizing for the value function:
 
 \begin{gather*}
     V^*(s) = \max_a \mathbb{E} \left[ R_t + \gamma V^*(s_{t+1}) \mid s_t = s, a_t = a \right]\\
@@ -31,25 +31,28 @@ These methods require storing values for each state or state-action pair, which 
 Recently, neural networks have been used to approximate both the value function or the optimal actions directly,
 and have been shown to produce state-of-the-art results in various domains, including games, robotics, and finance.
 Our simulation environment is complex and a \textbf{model-free approach} has to be used, that is, not assuming the underlying dynamics of the environment,
-so we use a \textbf{Deep Reinforcement Learning} approach, where the agent learns a policy directly from the environment's observations.
+so we use a \textbf{policy gradient} approach, where the agent learns a policy directly from the environment's observations
+through consecutive gradient ascent steps on the policy parameters.
 
-\subsubsection{Generalized Policy Iteration and Deep Reinforcement Learning}
+\subsubsection{Generalized Policy Iteration and Policy Gradient}
 
-Generalized Policy Iteration (GPI) algorithms are a family of algorithms that combines policy evaluation and policy improvement steps iteratively,
+Generalized Policy Iteration algorithms are a family of algorithms that combines policy evaluation and policy improvement steps iteratively,
 so that the policy is updated based on the value function, and the value function is updated based on the policy.
-Simpler methods directly estimate state values or state-action values, such as Q-learning, while more complex methods,
+While simpler methods directly estimate state values or state-action values, such as Q-learning, more complex methods
 such as Actor-Critic algorithms, estimate both the policy and the value function.
 The critic estimates $V^\pi$, or $A^{\pi} = Q^{\pi} - V^{\pi}$, if using the advantage function.
 This first step is the policy evaluation, where the value function is estimated for the current policy.
 The actor updates the policy distribution during the policy improvement step,
 according to the chosen algorithm update rule, such as policy gradient ascent for neural network based policy approximators,
 as expressed by the following equations,
-where $\theta$ is the policy parameters, $\alpha$ is the learning rate, and $\nabla J(\theta)$ is the policy gradient:
+where $\theta$ is the policy parameters, $\phi$ is the value function parameters,
+$\alpha$ is the learning rate, and $\nabla$ the gradient operator:
 \begin{gather*}
     \nabla_{\theta} J(\theta) = \mathbb{E}_{\tau \sim \pi_{\theta}} \left[ \sum_{t=0}^{T} \nabla_{\theta} \log \pi_{\theta}(a_t \mid s_t) A^{\pi}(s_t, a_t) \right]\\
     \nabla_{\phi} J(\phi) = \mathbb{E}_{\tau \sim \pi_{\theta}} \left[ \sum_{t=0}^{T} \nabla_{\phi} \left( V^{\pi}(s_t) - R_t \right)^2 \right]\\
-    \pi_{\theta} \leftarrow \pi_{\theta} + \alpha \nabla_{\theta} J(\theta), \phi \leftarrow \phi + \alpha \nabla_{\phi} J(\phi)\\
+    \pi_{\theta} \leftarrow \pi_{\theta} + \alpha \nabla_{\theta} J(\theta), \phi \leftarrow \phi + \alpha \nabla_{\phi} J(\phi)
 \end{gather*}
+
 In the context of \textbf{Proximal Policy Optimization (PPO)}
 the model is trained to improve its policy such that the chosen actions maximize the cumulative rewards over time,
 directly aligning with the Bellman equation's goal of maximizing the value function.
@@ -65,7 +68,7 @@ The critic loss which minimizes the error between the predicted value \( V(s_t) 
 and a Generalized Advantage Estimation (GAE) used to estimate the advantage function \( A^{\text{GAE}}_t \) are also used in the training loop.
 
 \begin{gather*}
-    L^{\text{critic}} = \mathbb{E}_t \left[ \left( R_t - V(s_t) \right)^2 \right],\\
+    L^{\text{critic}} = \mathbb{E}_t \left[ \left( V(s_t) - R_t \right)^2 \right],\\
     A^{\text{GAE}}_t = \sum_{l=0}^{\infty} (\gamma \lambda)^l \delta_{t+l}.
 \end{gather*}
 
@@ -140,6 +143,9 @@ erf is the error function, which serves as a measure of the spread of the normal
 \[
     \text{erf}(x) = \frac{2}{\sqrt{\pi}} \int_{0}^{x} e^{-t^2} dt.
 \]
+
+And the optimal bid-ask spread pair is simply: $\text{bid} = \mu - \delta^*$ and $\text{ask} = \mu + \delta^*$.
+A fixed quantity of shares, $1$, as originally proposed by Avellaneda et al. (2008)~\cite{Avellaneda2008}, is used.
 
 % <escrever descricao passo a passo do por que:
 % - é off-policy: trajectory gathering

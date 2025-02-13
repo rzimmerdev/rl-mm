@@ -267,8 +267,8 @@
             <mxPoint x="140" y="446" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="2bZv3P-puytxl4U08sOy-91" value="6x" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;" vertex="1" parent="1">
-          <mxGeometry x="125" y="176.94" width="30" height="20" as="geometry" />
+        <mxCell id="2bZv3P-puytxl4U08sOy-91" value="6x" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="240" y="149.47" width="30" height="20" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

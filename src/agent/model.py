@@ -70,7 +70,13 @@ class PolicyNetwork(nn.Module):
 
 
 class MultiHeadPolicyNetwork(nn.Module):
-    def __init__(self, in_dim, out_dims, hidden_dims=(128, 128), dropout_prob=0.2):
+    def __init__(
+            self,
+            in_dim,
+            out_dims,
+            hidden_dims=(128, 128),
+            dropout_prob=0.2
+    ):
         super(MultiHeadPolicyNetwork, self).__init__()
 
         self.shared_layers = nn.Sequential(
@@ -111,8 +117,17 @@ class MultiHeadPolicyNetwork(nn.Module):
 
 
 class MMPolicyNetwork(nn.Module):
-    def __init__(self, in_features, in_depth, hidden_dims_features=(128, 128),
-                 attention_heads=4, hidden_dims=(128, 128), dropout_prob=0.2, out_dims=(4,)):
+    def __init__(
+            self,
+            in_features,
+            in_depth,
+            hidden_dims_features=(128, 128),
+            attention_heads=4,
+            hidden_dims=(128, 128),
+            dropout_prob=0.2,
+            out_dims=(4,),
+            num_layers=2
+    ):
         super(MMPolicyNetwork, self).__init__()
 
         self.in_features = in_features
@@ -134,7 +149,7 @@ class MMPolicyNetwork(nn.Module):
             activation="relu",
             batch_first=True
         )
-        self.lob_transformer = nn.TransformerEncoder(encoder_layer, num_layers=2)
+        self.lob_transformer = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
 
         ### Indicator Feature Extractor (Dense + ReLU)
         self.indicator_mlp = nn.Sequential(
@@ -233,7 +248,8 @@ def shape_sanity():
     assert len(probs) == len(out_dims), "Number of outputs does not match out_dims"
     for i, prob in enumerate(probs):
         assert prob.shape == (
-        batch_size, out_dims[i]), f"Output {i} shape mismatch: expected {(batch_size, out_dims[i])}, got {prob.shape}"
+            batch_size,
+            out_dims[i]), f"Output {i} shape mismatch: expected {(batch_size, out_dims[i])}, got {prob.shape}"
 
     actions, log_probs, dist = model.act(x)
     assert len(actions) == len(out_dims), "Number of sampled actions mismatch"

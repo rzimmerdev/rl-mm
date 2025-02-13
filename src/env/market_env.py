@@ -9,20 +9,20 @@ class MarketEnv(gym.Env):
     metadata = {"render_modes": ["human"], "render_fps": 60}
 
     def __init__(
-        self,
-        n_levels=10,
-        starting_value=100,
-        risk_free_mean=0.02,
-        risk_free_std=0.01,
-        volatility=0.4,
-        spread_mean=.150,
-        spread_std=0.01,
-        dt=1 / 252 / 6.5 / 60,
-        base_event_intensity=0.5,
-        event_size_mean=1,
-        risk_free_reversion=0.5,
-        spread_reversion=1e-2,
-        order_eps=2e-2,
+            self,
+            n_levels=10,
+            starting_value=100,
+            risk_free_mean=0.02,
+            risk_free_std=0.01,
+            volatility=0.4,
+            spread_mean=.150,
+            spread_std=0.01,
+            dt=1 / 252 / 6.5 / 60,
+            base_event_intensity=0.5,
+            event_size_mean=1,
+            risk_free_reversion=0.5,
+            spread_reversion=1e-2,
+            order_eps=2e-2,
     ):
         super().__init__()
         self.n_levels = n_levels
@@ -49,8 +49,8 @@ class MarketEnv(gym.Env):
         self.duration = 1 / 252
 
         self.observation_space = spaces.Box(
-            low=np.array([0, 0, 0, 0, 0] + [0, 0] * 2 * self.n_levels, dtype=np.float32),
-            high=np.array([100, 10, 1e3, 1e3, 100] + [1e4, 1e4] * 2 * self.n_levels, dtype=np.float32),
+            low=np.array([-100, -100, -100, -100, 0, 0, -1e3, -1e3] + [0, 0] * 2 * self.n_levels, dtype=np.float32),
+            high=np.array([100, 100, 100, 100, 100, 1e3, 1e3, 1e3] + [1e4, 1e4] * 2 * self.n_levels, dtype=np.float32),
             dtype=np.float32,
         )
 
@@ -64,6 +64,7 @@ class MarketEnv(gym.Env):
         super().reset(seed=seed)
         self.simulator.reset()
         self.simulator.fill(100)
+        self.quotes = []
         state = self._get_state()
         return state, {}
 
@@ -93,7 +94,7 @@ class MarketEnv(gym.Env):
     def _calculate_reward(self, transaction_pnl, inventory, delta_inventory, delta_midprice):
         w = self.simulator.virtual_pnl(transaction_pnl, delta_inventory) + inventory * delta_midprice - np.max(
             self.eta * inventory * delta_midprice, 0)
-        return np.exp(-self.alpha * w / self.starting_value) - 1
+        return 1 - np.exp(-self.alpha * w / self.starting_value)
 
     def _get_state(self):
         lob = self.simulator.lob
@@ -101,9 +102,12 @@ class MarketEnv(gym.Env):
         asks_list = list(islice(lob.asks.ordered_traversal(), self.n_levels))
 
         state = [
+            self._calculate_return(),
+            self._calculate_ma(5),
+            self._calculate_ma(10),
+            self._calculate_ma(50),
             self._calculate_rsi(),
             self._calculate_volatility(),
-            self.simulator.midprice(),
             self._calculate_inventory(),
             self._calculate_order_imbalance(bids_list, asks_list),
         ]
@@ -116,12 +120,26 @@ class MarketEnv(gym.Env):
 
     def _extract_order_book_side(self, side_list, fill_value=0.0):
         levels = []
+        midprice = self.simulator.midprice()
         for price_level in side_list:
             level_quantity = sum(order.quantity for order in price_level.value.orders)
-            levels.append([price_level.key, level_quantity])
+            levels.append([np.abs(price_level.key - midprice), level_quantity])
         levels = np.array(levels).flatten()
         levels = np.pad(levels, (0, 2 * self.n_levels - len(levels)), 'constant', constant_values=fill_value)
         return levels
+
+    def _calculate_return(self):
+        # if no last midprice, return 0
+        if len(self.quotes) < 2:
+            return 0
+        return (self.quotes[-1] - self.quotes[-2]) / self.quotes[-2]
+
+    def _calculate_ma(self, n):
+        # calculate n-tick return moving average
+        if len(self.quotes) < n:
+            return 0
+        returns = np.diff(self.quotes)[-n:]
+        return np.mean(returns)
 
     def _calculate_rsi(self):
         if len(self.quotes) < self.window:
@@ -172,11 +190,12 @@ class MarketEnv(gym.Env):
             "inventory"] * self.simulator.midprice()
         return {
             "financial_return": financial_return,
-            "midprice":         self.simulator.midprice(),
-            "inventory":        self._calculate_inventory(),
-            "events":           self.events[-1],
-            "market_timestep":  self.simulator.market_timestep,
+            "midprice": self.simulator.midprice(),
+            "inventory": self._calculate_inventory(),
+            "events": self.events[-1],
+            "market_timestep": self.simulator.market_timestep,
         }
+
 
 if __name__ == "__main__":
     env = MarketEnv(spread_mean=1000, volatility=0.6)

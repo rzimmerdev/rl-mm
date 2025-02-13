@@ -8,9 +8,15 @@ The experiments were conducted using a Red-black tree implementation for the lim
 ~\hyperref[subsec:market-model-description-and-environment-dynamics]{Section~\ref*{subsec:market-model-description-and-environment-dynamics}}.
 Both restricted agents were implemented through the Proximal Policy Optimization (PPO) algorithm, which is a model-free, on-policy algorithm that optimizes the policy directly.
 A max episode value of 10,000 episodes was used, with each episode consisting on average of 390 observations (or 1 event per corresponding market minute).
-Per gathered trajectory, 500 epochs were used for the policy improvement step, with a batch size of 64.
-We used the Adam optimizer with a learning rate of $10^{-4}$ and a discount factor of 0.99.
+Per gathered trajectory, 10 epochs were used for the policy improvement step.
 For comparison metrics, we used the Sharpe ratio, the average daily return, and the average daily volatility.
+
+% hyperparam optimization
+% --gamma=0.9 --epsilon=0.25 --lambd=0.85 --entropy=0.0012 --lr_policy=3e-4 --lr_value=3e-4  --batch_size=256
+We optimized the hyperparameters using a simple grid search approach.
+We used the Adam optimizer with a learning rate of $3 \times 10^{-4}$ for both the policy and value networks.
+The discount factor $\gamma$ was set to 0.9, the GAE parameter $\lambda$ was set to 0.85, and the PPO clipping parameter $\epsilon$ was set to 0.25.
+The entropy coefficient was set to 0.0012, and the batch size set to 256 samples per episode/update.
 
 \subsection{Experiment Results}
 \label{subsec:experiment-results}
@@ -24,14 +30,50 @@ For comparison metrics, we used the Sharpe ratio, the average daily return, and 
 % Table:
 % Cols: agent with restriction, agent without restriction, benchmark
 % Training
-% Rows: Training time +- std
+% Rows: Training time
+%       3:08:54, , -
 %       Time per episode +- std
+%       0.8458 \pm 0.1044
 %       Mean processing time actor +- std per episode
 %       Mean processing time critic +- std per episode
 %       Mean financial return +- std
+
+% table:
+\begin{table}[H]
+    \centering
+    \small  % or \scriptsize
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        \textbf{Agent}               & \textbf{Mean Financial Return} & \textbf{Sharpe Ratio} & \textbf{Action Latency} & \textbf{Mean Inventory} \\
+        \hline
+        Restricted (Hard Limits)     & $0.0001 \pm 0.0001$            & $0.0001 \pm 0.0001$   & $0.0001 \pm 0.0001$ & $0.0001 \pm 0.0001$ \\
+        Restricted (Incentive-Based) & $0.0001 \pm 0.0001$            & $0.0001 \pm 0.0001$   & $0.0001 \pm 0.0001$ & $0.0001 \pm 0.0001$ \\
+        Unrestricted                 & $0.0001 \pm 0.0001$            & $0.0001 \pm 0.0001$   & $0.0001 \pm 0.0001$     & $0.0001 \pm 0.0001$     \\
+        \hline
+    \end{tabular}
+    \caption{Training Results}
+    \label{tab:training-results}
+\end{table}
+
 
 % Test (after last episode or convergence)
 % Rows: Mean financial return +- std
 %       Mean Sharpe ratio +- std
 %       Agent action latency +- std
 %       Mean inventory at market close
+
+\begin{table}[H]
+    \centering
+    \small  % or \scriptsize
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        \textbf{Agent}               & \textbf{Mean Financial Return} & \textbf{Sharpe Ratio} & \textbf{Action Latency} & \textbf{Mean Inventory} \\
+        \hline
+        Restricted (Hard Limits)     & $0.0001 \pm 0.0001$            & $0.0001 \pm 0.0001$   & $0.0001 \pm 0.0001$ & $0.0001 \pm 0.0001$ \\
+        Restricted (Incentive-Based) & $0.0001 \pm 0.0001$            & $0.0001 \pm 0.0001$   & $0.0001 \pm 0.0001$ & $0.0001 \pm 0.0001$ \\
+        Unrestricted                 & $0.0001 \pm 0.0001$            & $0.0001 \pm 0.0001$   & $0.0001 \pm 0.0001$     & $0.0001 \pm 0.0001$     \\
+        \hline
+    \end{tabular}
+    \caption{Test Results}
+    \label{tab:test-results}
+\end{table}
