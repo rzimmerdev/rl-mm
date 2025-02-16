@@ -1,23 +1,52 @@
 \section{Implementation and Model Description}
 \label{sec:implementation-and-model-description}
 
+The chosen model architecture is an Actor-Critic model, which consists of two neural networks: the Actor and the Critic.
+The Actor network is the model that learns the policy, which is the probability distribution of actions given a state.
+The Critic network is the model that learns the value function, which is the expected return of the policy.
+
+We use a neural network to approximate the policy and value functions, which are trained using the Proximal Policy Optimization (PPO) algorithm.
+The PPO algorithm is a model-free, on-policy algorithm that optimizes the policy directly, using a clipped surrogate objective function to ensure stable training,
+as discussed in \hyperref[alg:ppo]{Section~\ref{alg:ppo}}, and follows the usual Generalized Policy Iteration (GPI) framework.
+
 \subsection{Model Architecture}
 \label{subsec:model-architecture}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{images/policy}
-    \caption{Actor-Critic Model Architecture}
-    \label{fig:model-architecture}
-\end{figure}\
+    \caption{Actor Network Architecture}
+    \label{fig:actor-architecture}
+\end{figure}
+
+The chosen model architecture is an Actor-Critic model, which consists of two neural networks: the Actor and the Critic.
+The Actor network is the model that learns the policy, which is the probability distribution of actions given a state.
+As input layers, we separated the state space into two different inputs: the market features and the LOB data.
+The market features are the general information about the market, such as the spread, and the volume,
+and fabricated features such as the 10-period moving average of the spread and the relative-strength index.
+The LOB data is the information about the limit order book, specifically the N-best bid and ask prices and volumes.
+The architecture passes the LOB data to an attention mechanism,
+aiming to allow the network to create relationships between the different levels of the LOB,
+and the market features are passed through a feed-forward neural network.
+The output of the attention mechanism is concatenated with the market features and passed through the final dense layers of the Actor network.
+
+The Critic network is the model that learns the value function, which is the expected return of the policy.
+The chosen model architecture is a simple feed-forward neural network with two hidden layers, of 128 and 64 units, respectively.
+The Critic network is trained using the Generalized Advantage Estimation (GAE)~\cite{Schulman2015} to estimate the advantages of the actions taken by the Actor network.
+
+The Actor and Critic networks are trained using the Proximal Policy Optimization (PPO) algorithm~\cite{Schulman2017}.
 
 \subsection{Main Training Loop}
 \label{subsec:main-training-loop}
 
+Our training loop is shown in \hyperref[alg:algorithm]{Algorithm~\ref{alg:algorithm}}.
+The loop consists of collecting trajectories, computing the Generalized Advantage Estimation (GAE) and returns,
+and updating the Actor and Critic networks according to the PPO algorithm and the backpropagation of the loss
+shown in \hyperref[alg:ppo]{Algorithm~\ref{alg:ppo}}.
+
 \begin{algorithm}[H]
     \begin{algorithmic}[1]
-        \Require Environment, Actor-Critic model, optimizer, number of episodes $num\_episodes$
-        \State \textbf{Initialize} the environment, Actor-Critic model, and optimizer
+        \Require Environment, PPO model, optimizer, number of episodes $num\_episodes$
         \For{each episode in range $num\_episodes$}
             \State \textbf{Collect trajectories:}
             \State \hspace{1em} Initialize the state: $\text{s} = \text{env.reset()}$
@@ -39,6 +68,9 @@
     \caption{Training Loop}
     \label{alg:algorithm}
 \end{algorithm}
+
+We train the model for a fixed number of episodes, and at the end of each episode, we update the model using the collected trajectories.
+
 
 %\begin{algorithmic}
 %

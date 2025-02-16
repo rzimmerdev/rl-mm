@@ -40,3 +40,8 @@ Finally, the order quantities $q_t^{\text{ask}}$ and $q_t^{\text{bid}}$ are mode
 \[
     q_t^{\text{ask}}, q_t^{\text{bid}} \sim \text{Poisson}(\lambda_q),
 \]
+
+Our simulator was implemented using the Red-black tree structure for the limit order book, while new orders follow the event dynamics described
+by the Geometric Brownian Motion and Poisson processes for order details.
+The individual market regime variables, specifically the spread, order arrival density and return drift,
+are sampled from the aforementioned set of pre-defined distributions, and inserted into the simulator at each event time step.

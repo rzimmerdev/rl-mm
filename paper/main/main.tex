@@ -26,6 +26,10 @@
 \setlength{\evensidemargin}{0in}
 \setlength{\parindent}{.3in}
 
+\usepackage{draftwatermark}
+\SetWatermarkText{PREPRINT}  % Change text as needed
+\SetWatermarkScale{3}      % Adjust size (default is 1)
+
 \begin{document}
     % cover
     \input{cover}
@@ -40,6 +44,8 @@
     \input{content/model}
 
     \input{content/results}
+
+    \input{content/conclusion}
 
     \bibliographystyle{plain}
     \bibliography{references}

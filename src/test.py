@@ -9,6 +9,7 @@ from tensorboard.backend.event_processing.event_accumulator import EventAccumula
 
 from env import MarketEnv
 from src.agent import PPOAgent, RLTrainer
+from src.agent.closed import TestStoikov
 
 
 def config_reshape(action, size, low, high):
@@ -16,10 +17,11 @@ def config_reshape(action, size, low, high):
 
 
 def test():
-    env = MarketEnv()
+    n_levels = 10
+    env = MarketEnv(n_levels)
     precision = int(1e3)
     action_reshape = lambda action: config_reshape(action, precision, env.action_space.low,
-                                                   env.action_space.high / 2000)
+                                                   env.action_space.high / 1000)
     state_dim = env.observation_space.shape[0]
     action_dim = [int(precision) for _ in range(env.action_space.shape[0])]
     agent = PPOAgent(
@@ -101,7 +103,7 @@ def test():
 
     plt.show()
 
-    num_simulations = 50
+    num_simulations = 100
     all_pnl = []
 
     times = {
@@ -110,8 +112,25 @@ def test():
         "critic": []
     }
 
+    test_stoikov = TestStoikov()
+    stoikov_pnl = []
+
+    all_returns = []
+    stoikov_returns = []
+
+    def returns(ppnl):
+        # get pct change returns
+        _pnl = np.array(ppnl) + 100
+        pct_change = np.diff(_pnl) / _pnl[:-1]
+        # remove nan and invalid values (inf, -inf)
+        pct_change = pct_change[~np.isnan(pct_change)]
+        pct_change = pct_change[~np.isinf(pct_change)]
+        return pct_change
+
     for _ in range(num_simulations):
-        pnl = [np.sum(env.simulator.position())]
+        pnl = [0]
+        stoi_pnl = [0]
+
         state, _ = env.reset()
 
         start = time.time()
@@ -127,10 +146,24 @@ def test():
             times["critic"].append(time.time() - critic)
 
             action = action_reshape(agent.policy_network.get_action(action))
+
+            midprice = env.simulator.midprice()
+            spread = env.simulator.spread()
+
+            test_stoikov.observe(midprice, spread)
+
             state, reward, done, trunc, _ = env.step(action)
             pnl.append(np.sum(env.simulator.position()))
+            stoi_pnl.append(test_stoikov.pnl())
 
-        all_pnl.append(np.array(pnl))
+
+        all_pnl.append(pnl)
+        stoikov_pnl.append(stoi_pnl)
+
+        all_returns.append(returns(pnl))
+        stoikov_returns.append(returns(stoi_pnl))
+
+        test_stoikov.reset()
         times["episode"].append(time.time() - start - times["critic"][-1])
 
     for key, value in times.items():
@@ -158,12 +191,46 @@ def test():
         ts, mean_returns - std_returns, mean_returns + std_returns,
         color='blue', alpha=0.2, label="±1 Std Dev"
     )
+
     plt.xlabel("Time Step")
     plt.ylabel("Returns")
     plt.title("Mean Returns with ±1 Std Dev")
     plt.legend()
     plt.grid()
     plt.show()
+
+    # Assuming all_returns and stoikov_returns are lists of PnL data for each simulation
+    std_returns = np.mean([np.std(pnl) for pnl in all_returns]) / np.sqrt(num_simulations)
+    mean_returns = [np.mean(pnl) for pnl in all_returns]
+
+    stoikov_std_returns = np.mean([np.std(pnl) for pnl in stoikov_returns]) / np.sqrt(num_simulations)
+    stoikov_returns = [np.mean(pnl) for pnl in stoikov_returns]
+
+    # Risk-free rate for Sortino (adjusted for daily returns in a trading environment)
+    rf = 0.02 / 1 / 252 / 6.5 / 60
+
+    # Function to calculate downside deviation
+    def downside_deviation(pnls):
+        # Filter out positive returns, keeping only the negative ones
+        negative_returns = [pnl for pnl in pnls if pnl < 0]
+        return np.std(negative_returns) if negative_returns else 0
+
+    # Sortino ratio calculation
+    def sortino(mu, downside_std):
+        return (mu - rf) / downside_std if downside_std != 0 else np.nan
+
+    # Calculate downside deviation for each dataset
+    downside_std_returns = downside_deviation(mean_returns)
+    downside_std_stoikov_returns = downside_deviation(stoikov_returns)
+
+    mean_returns = np.mean(mean_returns)
+    stoikov_returns = np.mean(stoikov_returns)
+
+    # Print results using Sortino ratio
+    print(
+        f"Mean PnL: {mean_returns}, Std PnL: {std_returns}, Sortino Ratio: {sortino(mean_returns, downside_std_returns)}")
+    print(
+        f"Mean Stoikov PnL: {stoikov_returns}, Std Stoikov PnL: {stoikov_std_returns}, Sortino Ratio: {sortino(stoikov_returns, downside_std_stoikov_returns)}")
 
 
 def plot_financial_return(value, t):

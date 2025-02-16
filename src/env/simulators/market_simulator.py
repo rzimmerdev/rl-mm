@@ -122,6 +122,15 @@ class MarketSimulator:
         # else, return mean of last 5 midprices
         return np.mean(self.market_variables['midprice'][-5:])
 
+    def spread(self):
+        best_ask = self.lob.asks.bottom(
+        ).value.price if self.lob.asks.bottom() is not None else None
+        best_bid = self.lob.bids.top().value.price if self.lob.bids.top() is not None else None
+
+        if best_ask is not None and best_bid is not None:
+            return best_ask - best_bid
+        return self.spread_mean
+
     def _sample_orders(self, price):
         bid_size = self.event_size_distribution(self.event_size_mean)
         ask_size = self.event_size_distribution(self.event_size_mean)

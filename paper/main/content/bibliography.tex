@@ -74,10 +74,13 @@ Some references also used book levels as discrete action space variables.
 
 Finally, almost all reward structures used some form of PnL and end-of-day or running liquidation and inventory penalties,
 mostly due to the need to balance profitability and inventory risk~\cite{Sun2022, Gasperov2021}.
-However, the inclusion of additional explicit constraints or reward penalties, such as inventory and overnight risk penalties was rarely discussed or mentioned,
-even though being essential to ensure practical applicability and risk management in live trading scenarios~\cite{Jerome2022a, Selser2021a}.
+However, the inclusion of additional explicit constraints or reward penalties, such as inventory and overnight risk penalties was rarely discussed or mentioned~\citep{Jerome2022a, Selser2021a, Sun2022},
+even though being essential to ensure practical applicability and risk management in live trading scenarios.
 The tagged action space variables include a separate ``Inventory`` variable that refeers to portfolio strategies that output a target maximum inventory.
 For implementations that use specific quantities per order, no additional tags were used, as only one reference did not add quantities as part of the action space and instead used fixed quantities.
+
+Market simulations were almost exclusively used, with the LOB being implemented as a Red-Black tree,
+and the event prices following a single regime according to a Geometric Brownian Motion model~\cite{Gasperov2021, Sun2022}.
 
 \subsection{Algorithms and Performance Metrics}
 \label{subsec:algorithms-and-performance-metrics}
@@ -98,9 +101,6 @@ while still maintaining acceptable training times, with PPO and DQN (and some DD
         \end{subfigure}
     }
 \end{figure}
-
-While market makers that maintain overnight positions obtain a worse long-term sharpe ratio compared to strategies that at end-of-day have null inventories,
-the use of overnight position penalties was only mentioned in 3 of the references~\citep{Jerome2022a, Selser2021a, Sun2022}.
 
 \begin{figure}[H]
     \centering
@@ -125,4 +125,5 @@ Overall, the bibliographical review underscores the growing relevance and prefer
 particularly when combined with realistic state, action, and reward spaces.
 The insights gained from the state and action spaces, as well as the reward function guided our choice for the space variables used in this paper,
 as well as the design for our chosen neural network architecture,
-while still showing a gap in the literature regarding usage of restrictions in the RL framework, both as hard limits and incentives.
+while still showing a gap in the literature regarding simulations with varying market regimes
+and non-stationary environments, which we aim to address in our research.

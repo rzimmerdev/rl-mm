@@ -1,22 +1,20 @@
-\section{Realized Experiments and Result Discussion}
-\label{sec:realized-experiments-and-result-discussion}
+\section{Realized Experiments and Results}
+\label{sec:realized-experiments-and-results}
 
 \subsection{Experiment Setup}
 \label{subsec:experiment-setup}
 
-The experiments were conducted using a Red-black tree implementation for the limit order book, while new orders follow the event dynamics described in
-~\hyperref[subsec:market-model-description-and-environment-dynamics]{Section~\ref*{subsec:market-model-description-and-environment-dynamics}}.
-Both restricted agents were implemented through the Proximal Policy Optimization (PPO) algorithm, which is a model-free, on-policy algorithm that optimizes the policy directly.
 A max episode value of 10,000 episodes was used, with each episode consisting on average of 390 observations (or 1 event per corresponding market minute).
 Per gathered trajectory, 10 epochs were used for the policy improvement step.
-For comparison metrics, we used the Sharpe ratio, the average daily return, and the average daily volatility.
+For comparison metrics, we used the Sharpe ratio, the daily return, and the daily volatility,
+averaged over 50 episodes after training using the same simulator hyperparameters used for training.
 
 % hyperparam optimization
 % --gamma=0.9 --epsilon=0.25 --lambd=0.85 --entropy=0.0012 --lr_policy=3e-4 --lr_value=3e-4  --batch_size=256
-We optimized the hyperparameters using a simple grid search approach.
 We used the Adam optimizer with a learning rate of $3 \times 10^{-4}$ for both the policy and value networks.
 The discount factor $\gamma$ was set to 0.9, the GAE parameter $\lambda$ was set to 0.85, and the PPO clipping parameter $\epsilon$ was set to 0.25.
 The entropy coefficient was set to 0.0012, and the batch size set to 256 samples per episode/update.
+We optimized the hyperparameters using a simple grid search approach.
 
 \subsection{Experiment Results}
 \label{subsec:experiment-results}
@@ -28,7 +26,7 @@ The entropy coefficient was set to 0.0012, and the batch size set to 256 samples
 % average reward moving average x episode number
 
 % Table:
-% Cols: agent with restriction, agent without restriction, benchmark
+% Cols: rl-agent, benchmark agent
 % Training
 % Rows: Training time
 %       3:08:54, , -
@@ -38,23 +36,8 @@ The entropy coefficient was set to 0.0012, and the batch size set to 256 samples
 %       Mean processing time critic +- std per episode
 %       Mean financial return +- std
 
-% table:
-\begin{table}[H]
-    \centering
-    \small  % or \scriptsize
-    \begin{tabular}{|c|c|c|c|c|}
-        \hline
-        \textbf{Agent}               & \textbf{Mean Financial Return} & \textbf{Sharpe Ratio} & \textbf{Action Latency} & \textbf{Mean Inventory} \\
-        \hline
-        Restricted (Hard Limits)     & $0.0001 \pm 0.0001$            & $0.0001 \pm 0.0001$   & $0.0001 \pm 0.0001$ & $0.0001 \pm 0.0001$ \\
-        Restricted (Incentive-Based) & $0.0001 \pm 0.0001$            & $0.0001 \pm 0.0001$   & $0.0001 \pm 0.0001$ & $0.0001 \pm 0.0001$ \\
-        Unrestricted                 & $0.0001 \pm 0.0001$            & $0.0001 \pm 0.0001$   & $0.0001 \pm 0.0001$     & $0.0001 \pm 0.0001$     \\
-        \hline
-    \end{tabular}
-    \caption{Training Results}
-    \label{tab:training-results}
-\end{table}
-
+% Mean PnL: -1.174902750662374e-05, Std PnL: 4.761125180139532e-05, Sortino Ratio: -0.5046819237780464
+% Mean Stoikov PnL: -0.000423402308920138, Std Stoikov PnL: 0.0010584297592714442, Sortino Ratio: -0.6399344498955829
 
 % Test (after last episode or convergence)
 % Rows: Mean financial return +- std
@@ -62,18 +45,72 @@ The entropy coefficient was set to 0.0012, and the batch size set to 256 samples
 %       Agent action latency +- std
 %       Mean inventory at market close
 
+To evaluate the financial performance of the trained reinforcement learning agent, we analyzed key metrics such as
+financial return, return volatility, and the Sortino ratio.
+The results were averaged over 50 episodes after training.
+
+As shown in Table~\ref{tab:test-results}, the reinforcement learning agent exhibited a mean financial return of $-1.174 \times 10^{-5}$
+(annualized return of about $-0.3\%$.), an almost neutral performance under adverse market conditions,
+while the benchmark agent had a mean financial return of $-0.0004$ (annualized return of about $-10.5\%$),
+a clear underperformance under the same conditions.
+The return volatility for the RL-agent was lower at $4.7611 \times 10^{-5}$ (annualized volatility of about $1.2\%$),
+compared to $0.001$ for the benchmark agent (annualized volatility of about $25.2\%$), indicating more stable financial returns.
+Additionally, the Sortino ratio of the RL-agent was $-0.5046$, also outperforming the benchmark's ratio of $-0.6399$.
+
 \begin{table}[H]
     \centering
-    \small  % or \scriptsize
-    \begin{tabular}{|c|c|c|c|c|}
-        \hline
-        \textbf{Agent}               & \textbf{Mean Financial Return} & \textbf{Sharpe Ratio} & \textbf{Action Latency} & \textbf{Mean Inventory} \\
-        \hline
-        Restricted (Hard Limits)     & $0.0001 \pm 0.0001$            & $0.0001 \pm 0.0001$   & $0.0001 \pm 0.0001$ & $0.0001 \pm 0.0001$ \\
-        Restricted (Incentive-Based) & $0.0001 \pm 0.0001$            & $0.0001 \pm 0.0001$   & $0.0001 \pm 0.0001$ & $0.0001 \pm 0.0001$ \\
-        Unrestricted                 & $0.0001 \pm 0.0001$            & $0.0001 \pm 0.0001$   & $0.0001 \pm 0.0001$     & $0.0001 \pm 0.0001$     \\
-        \hline
-    \end{tabular}
-    \caption{Test Results}
-    \label{tab:test-results}
+    \begin{minipage}{0.42\textwidth}
+        \centering
+        \small
+        \begin{tabular}{|c|c|c|}
+            \hline
+            \textbf{Training}      & \textbf{Metric}                           \\
+            \hline
+            Training Time          & $3\text{h}08\text{m}54\text{s}$           \\
+            Time per Episode       & $0.8458 \pm 0.1044$ \text{ (s)}           \\
+            Processing Time Actor  & $0.0029 \pm 0.001 \text{ (s)}$            \\
+            Processing Time Critic & $0.0002 \pm 3 \times 10^{-5} \text{ (s)}$ \\
+            \hline
+        \end{tabular}
+        \caption{Test Results}
+        \label{tab:test-results}
+    \end{minipage}
+    \hspace{0.04\textwidth} % Adjust horizontal space between tables
+    \begin{minipage}{0.42\textwidth}
+        \vspace*{-\baselineskip}  % Adjusts vertical alignment to the top
+        \centering
+        \small
+        \begin{tabular}{|c|c|c|}
+            \hline
+            \textbf{Test}     & \textbf{RL-Agent}       & \textbf{Benchmark} \\
+            \hline
+            Financial Return  & $-1.174 \times 10^{-5}$ & $-0.0004$          \\
+            Return Volatility & $4.7611 \times 10^{-5}$ & $0.0010$           \\
+            Sortino Ratio     & $-0.5046$               & $-0.6399$          \\
+            \hline
+        \end{tabular}
+        \caption{Training Results}
+        \label{tab:training-results}
+    \end{minipage}
 \end{table}
+
+
+% reward.png and returns.png
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{images/reward}
+        \caption{Exponential moving average of the training reward per episode, with a linear trend line.}
+        \label{fig:average-reward-moving-average}
+    \end{minipage}
+    \hspace{0.04\textwidth} % Adjust horizontal space between figures
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{images/returns}
+        \caption{Financial return, averaged over 100 trajectories with a 1 standard deviation confidence interval.}
+        \label{fig:average-financial-return}
+    \end{minipage}
+\end{figure}
+

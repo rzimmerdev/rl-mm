@@ -146,6 +146,9 @@ erf is the error function, which serves as a measure of the spread of the normal
 
 And the optimal bid-ask spread pair is simply: $\text{bid} = \mu - \delta^*$ and $\text{ask} = \mu + \delta^*$.
 A fixed quantity of shares, $1$, as originally proposed by Avellaneda et al. (2008)~\cite{Avellaneda2008}, is used.
+The original paper uses a simpler market model, where the midprice follows a Brownian motion process,
+and was chosen as a benchmark for the agent's performance due to its simplicity and therefore we
+expect it to under-perform in a more complex environment with non-linear dynamics.
 
 % <escrever descricao passo a passo do por que:
 % - é off-policy: trajectory gathering
