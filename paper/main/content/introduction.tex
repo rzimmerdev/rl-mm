@@ -9,13 +9,13 @@ Correctly reducing inventory risk benefits not only individual market makers but
 due to the reduced spread required for an agent to obtain positive return.
 With the increase of computational power in data-driven trading systems,
 placing optimal bid and ask prices as a market maker is becoming an almost completely automatized task,
-but such a transition comes with additional caveats, such as $\text{negative, not-advantageous? or what}$ slippage,
-overnight inventory~\cite{Cartea2015, Avellaneda2008} and adverse market regimes~\cite{Cont2010, Bouchaud2018} and non-stationary conditions~\cite{Gasperov2021}.
+but such a transition comes with additional caveats, such as adverse slippage, market impact, market regimes~\cite{Cont2010, Bouchaud2018}
+and non-stationary conditions~\cite{Gasperov2021}.
 
 Recent research focusing on Reinforcement Learning (RL) shows promising results for optimizing placed bid-ask prices by market making strategies.
 Through the RL framework market makers can be defined as agents that learn by interacting with an environment,
 and adapt their decision-making policies through trial and error and a numerical outcome
-(also called the reward \footnote{Not to be confused with financial returns or rewards.}).
+(also called the reward\footnote{Not to be confused with financial returns or rewards.}).
 The primary objective of RL-based market making is to find the so-called optimal policy that maximizes cumulative rewards,
 which translates to choosing prices that incur in transactions with positive spreads while minimizing risk factors such as agent inventory or price volatility.
 The RL approach is based on the Bellman equation for state values or state-action pair values,
@@ -23,13 +23,16 @@ which recursively define the state-value of a policy as the expected return of d
 A common implementation of the RL approach is to continuously update the agent's policy based on the sampled environment information (also called the state) and episodic rewards,
 allowing the agents to dynamically change their price-choosing strategies according to changing market observations~\cite{Sutton2018}.
 
-
 The usual approach to RL-based market making is to use model-free algorithms, such as Proximal Policy Optimization (PPO) or Deep Q-Learning (DQN),
 and either use historical observed market messages to reconstruct the limit order book (LOB) environment,
 and thus disconsider market impact~\cite{Frey2023, Ganesh2019}, or use a stochastic model to simulate the LOB environment~\cite{Gasperov2021, Sun2022}.
 The former approach is computationally expensive and requires a large amount of data to train the agent,
 but usually results in more robust and generalizable policies, while the latter approach is computationally cheaper and faster to train,
 but might not generalize well to unseen market conditions.
+In financial markets with high-frequency data ticks long intervals of trading inactivity, inventory risk and market impact are not to be ignored,
+as agents dealing with large inventory positions can easily become exposed to significant price fluctuations, adverse market direction changes, and slippage.
+Disconsidering market impact can therefore lead to unwanted market exposition for the market making agent when used in real markets,
+and thus, result in undesired risk-taking behavior~\cite{Jerome2022, Selser2021}.
 
 In the context of this paper, we will focus on the implementation of a RL-based market making agent and
 analyze the impact of a simulator with configurable independent market dynamic processes on the agent's performance.
@@ -40,13 +43,10 @@ market dynamics, adverse market conditions and considering market impact.
 Our main contribution is a pragmatic implementation of a simulator-based RL agent in the context of market making,
 and a comparative analysis of the agent's performance under changing market conditions during the
 trading day, and the impact of market impact on the agent's decision-making policies.
-Finally, the impact on the financial returns of the RL agents under different market conditions will be benchmarked against a closed-expression optimal solution under a simplified market model,
+Finally, the impact on the financial returns of the RL agents under different market conditions will be benchmarked against a
+closed-expression optimal solution under a simplified market model,
 aiming to validate the usage of RL-based market making agents in markets with more complex regimes and non-stationary conditions.
 
-Unrestricted RL-based market making, however, can result in strategies with potentially high risk behavior.
-In financial markets with high-frequency data ticks long intervals of trading inactivity, inventory risk and market impact are not to be ignored,
-as agents accumulating large inventory positions become exposed to significant price fluctuations and adverse market direction changes, especially overnight after closing hours.
-Holding large inventories therefore result in unwanted market exposition for the market making agent, and thus, undesired risk.
 % Recent literature discusses the means of implementing restrictions in the RL framework to ensure stability and applicability towards real-world implementations.
 % what literature? no need for text, just the reference as to why unrestriction leads to risky behavior.
 

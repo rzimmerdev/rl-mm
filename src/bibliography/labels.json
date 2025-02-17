@@ -4,7 +4,8 @@
     "simulated": "Simulated (Model-Based)",
     "simulated_agent_based": "Simulated (Agent-Based)",
     "real_time": "Real-Time Data",
-    "non_data": "No Data Used"
+    "non_data": "Not Specified",
+    "simulated_fitted": "Simulated (Agent-Based)"
   },
   "StateSpace": {
     "lob": "Limit Order Book",

@@ -1,5 +1,23 @@
-\title{A Comparative Study of Constraint-Driven Reinforcement Learning Towards Managing Risk in Market Making}
-\author{Zimmer, R. and Costa, O.}
+\title{Reinforcement Learning-Based Market Making as a Stochastic Control on Non-Stationary Limit Order Book Dynamics}
+\author{
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \href{https://orcid.org/0009-0008-6064-9895}{\includegraphics[scale=0.06]{images/orcid} Rafael Zimmer}\\
+        \textit{Institute of Mathematics and Computer Sciences} \\
+        São Paulo, Brazil \\
+%        \texttt{rafael.zimmer@usp.br}
+        \href{mailto:rafael.zimmer@usp.br}{rafael.zimmer@usp.br}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \href{https://orcid.org/0000-0001-5989-7287}{\includegraphics[scale=0.06]{images/orcid} Oswaldo Luiz Do Valle Costa}\\
+        \textit{Escola Politécnica of the University of São Paulo} \\
+        São Paulo, Brazil \\
+        \href{mailto:oswaldo.costa@usp.br}{oswaldo.costa@usp.br}
+    \end{minipage}
+}
+
 \date{\today}
 
 \maketitle
@@ -7,18 +25,16 @@
 \begin{abstract}
     Reinforcement Learning has emerged as a promising framework for developing adaptive and data-driven strategies,
     enabling market makers to optimize decision-making policies based on interactions with the limit order book environment.
-    This paper explores the integration of risk management constraints into reinforcement learning-based market making to address challenges
-    such as inventory risk, adverse market movements, and overnight exposure.
-    We explore and compare two types of restrictions: 
-    hard limits, which enforce strict conditions like zero inventory at market close,
-    and incentive-based restrictions, which penalize risky behaviors via penalties in the reward structure.
-    These mechanisms aim to enhance stability and incorporate domain-specific knowledge into the RL framework.
+    This paper explores the integration of a reinforcement learning agent in a market-making context,
+    where the underlying market dynamics have been explicitly modeled to capture observed stylized facts of real markets,
+    including clustered order arrival times, non-stationary spreads and return drifts, stochastic order quantities and price volatility.
+    These mechanisms aim to enhance stability of the resulting control agent,
+    and serve to incorporate domain-specific knowledge into the agent policy learning process.
 
-    Our contributions include a practical implementation of a restricted agent based on the Proximal-Policy Optimization (PPO) algorithm,
-    alongside a comparative evaluation of the aforementioned restriction types.
-    An unrestricted agent under a simplified market model is used as a final benchmark,
-    and experimental results, conducted under synthetic-realistic market conditions, are discussed.
-    The incorporated restrictions are shown to demonstrate effectiveness in balancing profitability and risk management,
-    as evidenced by an analysis of the financial return analysis and risk metrics.
-    These findings allow for a path towards more robust and replicable approaches to the topic of dynamic risk management in market making.
+    Our contributions include a practical implementation of a market making agent based on the Proximal-Policy Optimization (PPO) algorithm,
+    alongside a comparative evaluation of the agent's performance under varying market conditions via a simulator-based environment.
+    As evidenced by our analysis of the financial return and risk metrics when compared to a closed-form optimal solution,
+    our results suggest that the reinforcement learning agent can effectively be used under non-stationary market conditions,
+    and that the proposed simulator-based environment can serve as a valuable tool for training and
+    pre-training reinforcement learning agents in market-making scenarios.
 \end{abstract}

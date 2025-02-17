@@ -34,6 +34,34 @@ The references were selected based on their relevance to the project and tagged 
     \item Finally, results were tagged by their benchmarks, that is, the strategies used for comparison.
 \end{itemize}
 
+\subsection{Type of Data}
+\label{subsec:type-of-data}
+
+The majority of the references used market simulations to train their agents,
+while the second most common were stationary processes including Geometric Brownian Motion and Poisson processes~\cite{Gasperov2021, Sun2022} for
+order arrival and price dynamics, while some used the Hawkes process for simulating order arrival times~\cite{Jerome2022, Selser2021}.
+
+Overall, the references showed a preference for using simulated data,
+as it allows for more control over the environment and the ability to test the agent under different market conditions.
+The third most common type were agent-based simulations, were generative agents are trained
+against observed market messages and used to simulate the LOB environment~\cite{Frey2023, Ganesh2019},
+trading off control over the market dynamics for replicating observed market flow.
+This approach, although extremely promising, reduces the amount of data available for training the agent
+under changing market regimes and scenarios where impact and slippage have a more prominent effect on the agent's performance.
+
+\begin{figure}[H]
+    \centering
+    % graph: images/state_space.png
+    \makebox[\textwidth][c]{%
+        \begin{subfigure}{.9\textwidth}
+            \centering
+            \includegraphics[width=\textwidth]{images/data}
+            \caption{Type of data used}
+            \label{fig:figure7}
+        \end{subfigure}
+    }
+\end{figure}
+
 \subsection{State, Action, and Reward Spaces}
 \label{subsec:state-action-and-reward-spaces}
 State-of-the-art references defined state spaces primarily based on market-level observations,
@@ -82,8 +110,8 @@ For implementations that use specific quantities per order, no additional tags w
 Market simulations were almost exclusively used, with the LOB being implemented as a Red-Black tree,
 and the event prices following a single regime according to a Geometric Brownian Motion model~\cite{Gasperov2021, Sun2022}.
 
-\subsection{Algorithms and Performance Metrics}
-\label{subsec:algorithms-and-performance-metrics}
+\subsection{Chosen Algorithms}
+\label{subsec:chosen-algorithms}
 Recent trends in reinforcement learning research emphasize mostly model-free approaches, particularly Deep Q-Learning and Actor-Critic methods,
 which leverage neural networks to approximate value functions or policies to deal with the high-dimensional nature of limit order books~\cite{Patel2018, Ganesh2019}.
 The literature showed that model-free approaches had strong adaptability capabilities towards changing market conditions
@@ -98,25 +126,6 @@ while still maintaining acceptable training times, with PPO and DQN (and some DD
             \includegraphics[width=\textwidth]{images/chosen_algorithms}
             \caption{Algorithms used as main research focus}
             \label{fig:figure4}
-        \end{subfigure}
-    }
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    % graph: images/state_space.png
-    \makebox[\textwidth][c]{%
-        \begin{subfigure}{.4\textwidth}
-            \centering
-            \includegraphics[width=\textwidth]{images/model_free}
-            \caption{Principal algorithm is model free}
-            \label{fig:figure5}
-        \end{subfigure}
-        \begin{subfigure}{.5\textwidth}
-            \centering
-            \includegraphics[width=\textwidth]{images/multi_agent}
-            \caption{Multiple agents used in training}
-            \label{fig:figure6}
         \end{subfigure}
     }
 \end{figure}
