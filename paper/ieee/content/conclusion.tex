@@ -1,0 +1,15 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+We have presented the design and implementation of a reinforcement learning agent aiming to show
+the effects of adverse market conditions and non-stationary environments on control agents for market-making.
+
+Our approach leverages online reinforcement learning by means of a simulator that models the dynamics of a limit order book (LOB)
+according to a set of stylized facts observed in real markets.
+The resulting model is a continuous-time Markov Decision Process (MDP) that captures the observed stylized fact of clustered order arrival times.
+
+The main contribution of this work to validate the use of complex market-making environments as
+pretraining environments for reinforcement learning agents, to be used before fine-tuning in real-world environments.
+We have shown through the results of our experiments that reinforcement learning agents can
+perform well under adverse market conditions, and that the use of non-stationary environments and fine-controlled dynamics
+can be used to model known stylized facts of real markets, and pre-train agents to perform well in real-world scenarios.

@@ -1,0 +1,51 @@
+\subsection{Market Model Description and Environment Dynamics}
+\label{subsec:market-model-description-and-environment-dynamics}
+Our approach to the problem of market making leverages \textbf{online reinforcement learning} by means of a simulator that models the dynamics of
+a limit order book (LOB) according to a set of stylized facts observed in real markets.
+For our model of the limit order book the timing of events follows a \textit{Hawkes process}
+to represent a continuous-time MDP that captures the observed stylized fact of clustered order arrival times.
+The Hawkes process is a \textit{self-exciting process}, where the intensity \( \lambda(t) \) depends on past events.
+Formally, the intensity \( \lambda(t) \) evolves according to the following equation:
+\begin{equation*}
+    \begin{aligned}
+        \lambda(t) = \mu + \sum_{t_i < t} \phi(t - t_i),\\
+        \phi(t - t_i) = \alpha e^{-\beta (t - t_i)},
+    \end{aligned}
+\end{equation*}
+
+where \( \mu > 0 \) is the baseline intensity, and \( \phi(t - t_i) \) is the \textit{kernel function} that governs the decay of influence from past events \( t_i \).
+A common choice for \( \phi \) is the exponential decay function, where \(\alpha\) controls the magnitude of the self-excitation and \(\beta\) controls the rate of decay.
+
+The bid and ask prices for each new order are modeled by two separate \textit{Geometric Brownian Motion} processes to capture the normally distributed returns observed in real markets.
+The underlying partial differential equation governing the ask and bid prices are given by:
+\begin{equation*}
+    \begin{aligned}
+        dX_{t}^{ask} &= (\mu_t + s_t) X_{t}^{mid} dt + \sigma dW_t,\\
+        dX_{t}^{bid} &= (\mu_t - s_t) X_{t}^{mid} dt + \sigma dW_t,
+    \end{aligned}
+    \label{eq:gbm}
+\end{equation*}
+where $\mu$ is the price drift, $s_t$ is the mean spread, and $\sigma$ the price volatility.
+The drift rate process follows a \textit{Ornstein-Uhlenbeck} process, which is a mean-reverting process,
+while the spread rate similarly follows a \textit{Cox-Ingersoll-Ross} process, accounting for non-negative spreads.
+
+Whenever a new limit order that narrows the bid-ask spread or a market order arrive the midprice is updated to reflect the top-of-book orders.
+The midprice $X_{t}^{mid}$ is therefore obtained by averaging the current top-of-book bid and ask prices:
+
+\[
+    X_{t}^{mid} = \frac{X_{t}^{ask} + X_{t}^{bid}}{2}
+\]
+and while there are no orders on both sides of the book, the midprice is either the last traded price,
+observed or an initial value set for the simulation, in the given order of priority.
+By analyzing the midprice process, we can make sure the returns are distributed according to $\mathcal{N}\left(\mu_t, \frac{\sigma^2}{2}\right)$,
+and are therefore normally distributed, assuring the model reflects a stylized fact of LOBs commonly observed in markets~\cite{Gueant2022}.
+
+Finally, the order quantities $q_t^{\text{ask}}$ and $q_t^{\text{bid}}$ are modeled as Poisson random variables, where the arrival rate $\lambda_q$ is a constant parameter.
+\[
+    q_t^{\text{ask}}, q_t^{\text{bid}} \sim \text{Poisson}(\lambda_q),
+\]
+
+Our simulator was implemented using the Red-black tree structure for the limit order book, while new orders follow the event dynamics described
+by the Geometric Brownian Motion and Poisson processes for order details.
+The individual market regime variables, specifically the spread, order arrival density and return drift,
+are sampled from the aforementioned set of pre-defined distributions, and inserted into the simulator at each event time step.

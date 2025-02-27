@@ -1,0 +1,42 @@
+\title{Reinforcement Learning-Based Market Making as a Stochastic Control on Non-Stationary Dynamics}
+
+\author{
+    \IEEEauthorblockN{\href{https://orcid.org/0009-0008-6064-9895}{1\textsuperscript{st} Rafael Zimmer \includegraphics[scale=0.06]{images/orcid}}}
+    \IEEEauthorblockA{
+        \textit{Institute of Mathematics and Computer Sciences} \\
+        São Paulo, Brazil \\
+        \href{mailto:rafael.zimmer@usp.br}{rafael.zimmer@usp.br}
+    }
+    \and
+    \IEEEauthorblockN{\href{https://orcid.org/0000-0001-5989-7287}{2\textsuperscript{nd} Oswaldo Luiz Do Valle Costa \includegraphics[scale=0.06]{images/orcid}}}
+    \IEEEauthorblockA{
+        \textit{Polytechnic School of the University of São Paulo} \\
+        São Paulo, Brazil \\
+        \href{mailto:oswaldo.costa@usp.br}{oswaldo.costa@usp.br}
+    }
+}
+
+\date{\today}
+
+\maketitle
+
+\begin{abstract}
+    Reinforcement Learning has emerged as a promising framework for developing adaptive and data-driven strategies,
+    enabling market makers to optimize decision-making policies based on interactions with the limit order book environment.
+    This paper explores the integration of a reinforcement learning agent in a market-making context,
+    where the underlying market dynamics have been explicitly modeled to capture observed stylized facts of real markets,
+    including clustered order arrival times, non-stationary spreads and return drifts, stochastic order quantities and price volatility.
+    These mechanisms aim to enhance stability of the resulting control agent,
+    and serve to incorporate domain-specific knowledge into the agent policy learning process.
+
+    Our contributions include a practical implementation of a market making agent based on the Proximal-Policy Optimization (PPO) algorithm,
+    alongside a comparative evaluation of the agent's performance under varying market conditions via a simulator-based environment.
+    As evidenced by our analysis of the financial return and risk metrics when compared to a closed-form optimal solution,
+    our results suggest that the policy gradient-based agents can effectively be used under non-stationary market conditions,
+    and that the proposed simulated environment can serve as a valuable tool for training and
+    pre-training reinforcement learning agents in market-making scenarios.
+\end{abstract}
+
+\begin{IEEEkeywords}
+    Reinforcement Learning, Market Making, Limit Order Book, Stochastic Control, Market Microstructure
+\end{IEEEkeywords}

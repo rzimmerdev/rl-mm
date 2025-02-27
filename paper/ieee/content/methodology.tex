@@ -1,0 +1,15 @@
+\section{Methodology}
+\label{sec:methodology}
+
+
+The market-making problem addressed in this work involves designing an optimal trading policy for an agent using reinforcement learning.
+The policy should be able to balance profit and risk, particularly inventory risk under the restriction of having zero inventory at market close,
+and interacts with the environment by quoting bid and ask prices and adjusting offered quantities.
+The environment dynamics are modeled by an underlying limit order book (LOB) and its behaviour will be described in the following sections.
+The agent's objective is to maximize cumulative rewards over time, while minimizing inventory risk and market impact costs.
+
+\input{content/methodology/env_spaces}
+
+\input{content/methodology/env_dynamics}
+
+\input{content/methodology/decision_process}
