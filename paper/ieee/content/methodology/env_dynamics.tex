@@ -16,7 +16,8 @@ Formally, the intensity \( \lambda(t) \) evolves according to the following equa
 where \( \mu > 0 \) is the baseline intensity, and \( \phi(t - t_i) \) is the \textit{kernel function} that governs the decay of influence from past events \( t_i \).
 A common choice for \( \phi \) is the exponential decay function, where \(\alpha\) controls the magnitude of the self-excitation and \(\beta\) controls the rate of decay.
 
-The bid and ask prices for each new order are modeled by two separate \textit{Geometric Brownian Motion} processes to capture the normally distributed returns observed in real markets.
+The bid and ask prices for each new order are modeled by two separate \textit{Geometric Brownian Motion} processes
+to capture the normally distributed returns observed in real markets.
 The underlying partial differential equation governing the ask and bid prices are given by:
 \begin{equation*}
     \begin{aligned}
@@ -27,25 +28,42 @@ The underlying partial differential equation governing the ask and bid prices ar
 \end{equation*}
 where $\mu$ is the price drift, $s_t$ is the mean spread, and $\sigma$ the price volatility.
 The drift rate process follows a \textit{Ornstein-Uhlenbeck} process, which is a mean-reverting process,
-while the spread rate similarly follows a \textit{Cox-Ingersoll-Ross} process, accounting for non-negative spreads.
+while the spread rate similarly follows a \textit{Cox-Ingersoll-Ross} process, which, given that the
+Feller condition $2\kappa_s \sigma_s^2 > 1$ is satisfied, ensures the spread remains positive:
 
+\begin{equation*}
+    \begin{aligned}
+        d\mu_t &= \kappa (\mu - \mu_t) dt + \eta dW_t,\\
+        ds_t &= \kappa_s (s - s_t ) dt + \sigma_s \sqrt{s_t} dW_t,
+    \end{aligned}
+    \label{eq:ou}
+\end{equation*}
+
+These two processes serve to model a market where return and spread regimes can vary over time, forcing the agent
+to choose prices accordingly.
 Whenever a new limit order that narrows the bid-ask spread or a market order arrive the midprice is updated to reflect the top-of-book orders.
 The midprice $X_{t}^{mid}$ is therefore obtained by averaging the current top-of-book bid and ask prices:
-
 \[
     X_{t}^{mid} = \frac{X_{t}^{ask} + X_{t}^{bid}}{2}
 \]
 and while there are no orders on both sides of the book, the midprice is either the last traded price,
 observed or an initial value set for the simulation, in the given order of priority.
-By analyzing the midprice process, we can make sure the returns are distributed according to $\mathcal{N}\left(\mu_t, \frac{\sigma^2}{2}\right)$,
-and are therefore normally distributed, assuring the model reflects a stylized fact of LOBs commonly observed in markets~\cite{Gueant2022}.
+By analyzing the midprice process, we can make sure the returns are normally distributed, with mean $\mu_t$ and volatility $\frac{\sigma^2}{2}$,
+assuring the model reflects a stylized fact of LOBs commonly observed in markets~\cite{Gueant2022}.
 
-Finally, the order quantities $q_t^{\text{ask}}$ and $q_t^{\text{bid}}$ are modeled as Poisson random variables, where the arrival rate $\lambda_q$ is a constant parameter.
-\[
-    q_t^{\text{ask}}, q_t^{\text{bid}} \sim \text{Poisson}(\lambda_q),
-\]
+To model the underlying price volatility, we use a simple \textit{GARCH(1,1)} process, where the volatility process evolves according to \autoref{eq:garch}.
+This choice is motivated by the fact that the GARCH(1,1) process is able to capture the clustering of volatility observed in real markets,
+and can be easily calibrated to match the observed volatility of the desired underlying asset to be modeled.
+\begin{equation}
+    \begin{aligned}
+        \sigma_t^2 = \omega + \alpha \epsilon_{t-1}^2 + \beta \sigma_{t-1}^2,
+    \end{aligned}
+    \label{eq:garch}
+\end{equation}
 
-Our simulator was implemented using the Red-black tree structure for the limit order book, while new orders follow the event dynamics described
-by the Geometric Brownian Motion and Poisson processes for order details.
+Finally, the order quantities  $q_t^{\text{ask}}, q_t^{\text{bid}} \sim \text{Poisson}(\lambda_q)$
+are modeled as Poisson random variables, where the arrival rate $\lambda_q$ is a constant parameter.
+Our simulator was implemented using a Red-black tree structure for the limit order book,
+while new orders follow the event dynamics described by the stochastic processes above.
 The individual market regime variables, specifically the spread, order arrival density and return drift,
 are sampled from the aforementioned set of pre-defined distributions, and inserted into the simulator at each event time step.

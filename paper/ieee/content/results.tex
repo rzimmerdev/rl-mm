@@ -6,15 +6,24 @@
 
 A max episode value of 10,000 episodes was used, with each episode consisting on average of 390 observations (or 1 event per corresponding market minute).
 Per gathered trajectory, 10 epochs were used for the policy improvement step.
-For comparison metrics, we used the Sharpe ratio, the daily return, and the daily volatility,
-averaged over 50 episodes after training using the same simulator hyperparameters used for training.
+For training, we used a single NVIDIA GeForce RTX 3090 GPU with 24GB of memory, and an AMD Ryzen 9 5950X CPU with 16 cores and 32 threads,
+and 32GB of DDR4 RAM.
 
 % hyperparam optimization
 % --gamma=0.9 --epsilon=0.25 --lambd=0.85 --entropy=0.0012 --lr_policy=3e-4 --lr_value=3e-4  --batch_size=256
 We used the Adam optimizer with a learning rate of $3 \times 10^{-4}$ for both the policy and value networks.
 The discount factor $\gamma$ was set to 0.9, the GAE parameter $\lambda$ was set to 0.85, and the PPO clipping parameter $\epsilon$ was set to 0.25.
-The entropy coefficient was set to 0.0012, and the batch size set to 256 samples per episode/update.
+The entropy coefficient was set to $1.2\times10^{-3}$, and the batch size set to 256 samples per episode/update.
 We optimized the hyperparameters using a simple grid search approach.
+
+For our market model, we chose the following parameters for each process:
+\begin{itemize}
+    \item The order arrival rate was set to $\lambda = 1$, with clustering parameters $\alpha = 0.1$ and $\beta = 0.1$.
+    \item Mean spread was set to $s = 0.1$ (10 market price ticks, in our case, 10 cents) and annualized price drift to $\mu = 0.02$ ($2\%$), respectively.
+    \item The price volatility parameters were set to $\omega = 0.5$, $\alpha = 0.1$, and $\beta = 0.1$,
+    where $\omega$ is the constant term, $\alpha$ the autoregressive term, and $\beta$ the moving average term.
+    \item The initial midprice was arbitrarily set to $100$.
+\end{itemize}
 
 \subsection{Experiment Results}
 \label{subsec:experiment-results}
@@ -45,17 +54,24 @@ We optimized the hyperparameters using a simple grid search approach.
 %       Agent action latency +- std
 %       Mean inventory at market close
 
-To evaluate the financial performance of the trained reinforcement learning agent, we analyzed key metrics such as
+To evaluate the financial performance of the trained reinforcement learning agent, we analyzed the agent's
 financial return, return volatility, and the Sortino ratio.
-The results were averaged over 50 episodes after training.
+The results were averaged over $10^2$ trajectories using the same simulator hyperparameters used for training.
 
 As shown in Table~\ref{tab:test-results}, the reinforcement learning agent exhibited a mean financial return of $-1.174 \times 10^{-5}$
 (annualized return of about $-0.3\%$.), an almost neutral performance under adverse market conditions,
 while the benchmark agent had a mean financial return of $-0.0004$ (annualized return of about $-10.5\%$),
-a clear underperformance under the same conditions.
-The return volatility for the RL-agent was lower at $4.7611 \times 10^{-5}$ (annualized volatility of about $1.2\%$),
-compared to $0.001$ for the benchmark agent (annualized volatility of about $25.2\%$), indicating more stable financial returns.
-Additionally, the Sortino ratio of the RL-agent was $-0.5046$, also outperforming the benchmark's ratio of $-0.6399$.
+a clear underperformance under the same conditions, but closely matching the expected performance.
+The return volatility for the RL-agent was also lower, with an annualized volatility of about $1.2\%$,
+compared to $25.2\%$ for the benchmark agent, indicating more stable financial returns.
+Both Sortino ratios showed a negative value, indicating a higher risk of negative returns compared to the risk-free rate,
+but the RL-agent ratio at $-0.5046$ still outperformed the benchmark's ratio of $-0.6399$.
+Observing the reward curve during training, we can see a steady increase in the reward over time, as shown in Figure~\ref{fig:average-reward-moving-average},
+indicating that the agent was learning to maximize its cumulative rewards over time, as expected.
+As necessary for real-world applications, the agent's processing time was also measured, with the actor network taking on average $0.0029$ seconds per episode,
+and the critic network taking $2.1 \times 10^{-4}$ seconds per episode, well within the acceptable range for medium-frequency trading.
+Further training could be performed if necessary to improve the agent's performance, but the results obtained were already considered satisfactory
+considering the fabricated adverse market conditions.
 
 \begin{table}
     \centering
@@ -63,12 +79,12 @@ Additionally, the Sortino ratio of the RL-agent was $-0.5046$, also outperformin
     \small
     \begin{tabular}{|c|c|c|}
         \hline
-        \textbf{Training}      & \textbf{Metric}                           \\
+        \textbf{Training}      & \textbf{Metric}                                     \\
         \hline
-        Training Time          & $3\text{h}08\text{m}54\text{s}$           \\
-        Time per Episode       & $0.8458 \pm 0.1044$ \text{ (s)}           \\
-        Processing Time Actor  & $0.0029 \pm 0.001 \text{ (s)}$            \\
-        Processing Time Critic & $0.0002 \pm 3 \times 10^{-5} \text{ (s)}$ \\
+        Training Time          & $3\text{h}08\text{m}54\text{s}$                     \\
+        Time per Episode       & $0.8458 \pm 0.1044$ \text{ (s)}                     \\
+        Processing Time Actor  & $0.0029 \pm 0.001 \text{ (s)}$                      \\
+        Processing Time Critic & $2.1\times10^{-4} \pm 3 \times 10^{-5} \text{ (s)}$ \\
         \hline
     \end{tabular}
     \caption{Test Results}
@@ -89,23 +105,28 @@ Additionally, the Sortino ratio of the RL-agent was $-0.5046$, also outperformin
     \label{tab:training-results}
 \end{table}
 
-
 % reward.png and returns.png
+
+Overall, the training process maintained a steadily increasing reward, as shown in Figure~\ref{fig:average-reward-moving-average},
+with the \textit{max\_iter} of $10^{4}$ episodes being reached in about 3 hours and 8 minutes.
+The financial return of the RL-agent, as shown in Figure~\ref{fig:average-financial-return}, was stable around zero,
+and even though we expected a slightly negative return due to the highly volatile market conditions and
+somewhat low positive drift, the close to neutral performance was still considered a positive outcome,
+especially when compared to the benchmark agent's performance.
 
 \begin{figure}
     \centering
-    \begin{minipage}{0.45\textwidth}
+    \begin{minipage}{\columnwidth}
         \centering
         \includegraphics[width=1\textwidth]{images/reward}
         \caption{Exponential moving average of the training reward per episode, with a linear trend line.}
         \label{fig:average-reward-moving-average}
     \end{minipage}
-    \hspace{0.04\textwidth} % Adjust horizontal space between figures
-    \begin{minipage}{0.45\textwidth}
+    \vspace{0.04\textwidth} % Adjust horizontal space between figures
+    \begin{minipage}{\columnwidth}
         \centering
         \includegraphics[width=1\textwidth]{images/returns}
         \caption{Financial return, averaged over 100 trajectories with a 1 standard deviation confidence interval.}
         \label{fig:average-financial-return}
     \end{minipage}
 \end{figure}
-

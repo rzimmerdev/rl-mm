@@ -4,8 +4,11 @@
 A bibliographical research was performed to determine the state of the art in the field of the project,
 both in terms of the models and algorithms used as well as the chosen state and action spaces which perform best
 with regard to simulating realistic, real-world market dynamics.
+The analysis performed guided our choice for the state and action spaces and reward function used in this paper ,
+and showed a gap in the literature regarding simulations with varying market regimes and non-stationary environments, which we aim to address in our research.
 The search was made using the Web of Science repository, covering the last 5 years, with the following search key:
 
+\small
 \begin{verbatim}
 (
     "reinforcement learning" OR
@@ -18,28 +21,18 @@ AND
 )
 \end{verbatim}
 
-Initially, 64 references were selected and deemed relevant to the project,
-with 23 of them being effectively used in our analysis, and 4 additional references being added to the list after the initial selection.
+Initially, 59 references were selected and deemed relevant to the project,
+with 23 of them being effectively used in our analysis, and 5 additional references being added to the list after the initial selection.
 The references were selected based on their relevance to the project and tagged according to the following groups
-(for each non-binary category, combinations of tags were allowed):
-
-\begin{itemize}
-    \item Data type (simulated, real-time connections, and others);
-    \item Chosen state space (vectors of bid-ask spreads, order imbalance, N-depth order books, and others);
-    \item Chosen action space (limit orders, market orders, and others);
-    \item Chosen Reward space (spread, volume, profit, and others);
-    \item Algorithms used (Q-Learning, Deep Q-Learning, Actor-Critic, or others);
-    \item Whether a multi-agent approach was used (dueling or market agents);
-    \item If a model-free environment was used (model-based or model-free);
-    \item Metrics used for comparison (Sharpe Ratio, PnL, and others).
-    \item Finally, results were tagged by their benchmarks, that is, the strategies used for comparison.
-\end{itemize}
+(for each non-binary category, combinations of tags were allowed).
+Data type; Chosen state space; Chosen action space; Chosen Reward space; Algorithms used; Multi-agent approach; Model-free environment; Metrics used for comparison;
+Finally, results were tagged by the benchmarks used, i.e., whether the agent was compared to a closed-form expression, a benchmark agent or a fixed strategy.
 
 \subsection{Data Type}
 \label{subsec:data-type}
-The majority of the references used market simulations to train their agents,
-while the second most common were stationary processes including Geometric Brownian Motion and Poisson processes~\cite{Gasperov2021, Sun2022} for
-order arrival and price dynamics, while some used the Hawkes process for simulating order arrival times~\cite{Jerome2022, Selser2021}.
+The majority of the references used historical data, while the second most common type was agent-based simulations,
+where generative agents are trained against observed market messages and used to simulate the LOB environment~\cite{Frey2023, Ganesh2019}
+trading off control over the market dynamics for replicating observed market flow.
 
 \begin{figure}
     \centering
@@ -48,85 +41,80 @@ order arrival and price dynamics, while some used the Hawkes process for simulat
     \label{fig:figure7}
 \end{figure}
 
-Overall, the references showed a preference for using simulated data,
-as it allows for more control over the environment and the ability to test the agent under different market conditions.
-The third most common type were agent-based simulations, were generative agents are trained
-against observed market messages and used to simulate the LOB environment~\cite{Frey2023, Ganesh2019},
-trading off control over the market dynamics for replicating observed market flow.
-This approach, although extremely promising, reduces the amount of data available for training the agent
-under changing market regimes and scenarios where impact and slippage have a more prominent effect on the agent's performance.
+The third most common were stationary processes including Geometric Brownian Motion and Poisson processes~\cite{Gasperov2021, Sun2022} for
+order arrival and price dynamics, while some used the Hawkes process for simulating order arrival times~\cite{Jerome2022, Selser2021}.
+Overall, the references shown in \autoref{fig:figure7} demonstrate a preference for historical data and model-based simulators,
+and although being extremely promising approaches, neither completely account for changing market regimes and scenarios where impact and
+slippage have a more prominent effect on the agent's performance, thus showing
+a gap in the literature on the use of fine-controlled non-stationary environments.
 
 \subsection{State, Action, and Reward Spaces}
 \label{subsec:spaces}
-State-of-the-art references defined state spaces primarily based on market-level observations,
-specifically top-of-book quotes and n-depth book levels which align well with the real-time data available to market-making agents~\cite{He2023, Bakshaev2020}.
+
+Most analyzed references defined state spaces primarily based on market-level observations, as shown in \autoref{fig:state}.
+specifically top-of-book quotes and N-depth book levels which align well with the real-time data available to market-making agents~\cite{He2023, Bakshaev2020}.
 Additionally, agent inventory was also a common feature, reflecting the importance of managing risk and liquidity in market-making strategies~\cite{Patel2018, Ganesh2019}.
-Action spaces included mostly only one pair of quotes, with some references allowing the choice of multiple bid-ask levels.
-Some references also used book levels as discrete action space variables.
+The tagged action spaces was mostly made up only one pair of quotes, with some references allowing the choice of multiple bid-ask levels.
+Some references also used book levels as discrete action space variables, displayed in \autoref{fig:action}.
+
+Finally, almost all reward structures, shown in \autoref{fig:reward},
+used some form of PnL and end-of-day or running liquidation and inventory penalties.
+The tagged action space variables also includes a separate ``Inventory'' variable that refers to portfolio strategies that output a target maximum inventory.
+For implementations that use specific quantities per order, no additional tags were used,
+as only 1 reference did not add quantities as part of the action space and instead used fixed quantities.
 
 \begin{figure}
     \centering
     % First row: Two side-by-side subfigures
-    \begin{subfigure}{1\columnwidth}
+    \begin{subfigure}{.9\columnwidth}
         \centering
         \includegraphics[width=\linewidth]{images/reward_space}
         \caption{Tagged reward space function variables}
-        \label{fig:figure3}
+        \label{fig:reward}
     \end{subfigure}
     \vspace{0.5em}
-    \begin{subfigure}{1\columnwidth}
+    \begin{subfigure}{.9\columnwidth}
         \centering
         \includegraphics[width=\linewidth]{images/action_space}
         \caption{Tagged action space variables}
-        \label{fig:figure2}
+        \label{fig:action}
     \end{subfigure}
     \vspace{0.5em} % Adjust vertical spacing
-    \begin{subfigure}{1\columnwidth}
+    \begin{subfigure}{.9\columnwidth}
         \centering
         \includegraphics[width=\linewidth]{images/state_space}
         \caption{Tagged state space variables}
-        \label{fig:figure1}
+        \label{fig:state}
     \end{subfigure}
 \end{figure}
 
-Finally, almost all reward structures used some form of PnL and end-of-day or running liquidation and inventory penalties, mostly due to the need to balance profitability and inventory risk~\cite{Sun2022, Gasperov2021}.
-However, the inclusion of additional explicit constraints or reward penalties, such as inventory and overnight risk penalties was rarely discussed or mentioned~\citep{Jerome2022a, Selser2021a, Sun2022},
-even though being essential to ensure practical applicability and risk management in live trading scenarios.
-The tagged action space variables include a separate ``Inventory`` variable that refers to portfolio strategies that output a target maximum inventory.
-For implementations that use specific quantities per order, no additional tags were used, as only one reference did not add quantities as part of the action space and instead used fixed quantities.
-Market simulations were almost exclusively used, with the LOB being implemented as a Red-Black tree,
-and the event prices following a single regime according to a Geometric Brownian Motion model~\cite{Gasperov2021, Sun2022}.
-
 \subsection{Chosen Algorithms}
 \label{subsec:chosen-algorithms}
-Recent trends in reinforcement learning research emphasize mostly model-free approaches, particularly Deep Q-Learning and Actor-Critic methods,
-which leverage neural networks to approximate value functions or policies to deal with the high-dimensional nature of limit order books~\cite{Patel2018, Ganesh2019}.
-The literature showed that model-free approaches had strong adaptability capabilities towards changing market conditions
-while still maintaining acceptable training times, with PPO and DQN (and some DDQN) being the best performers in terms of convergence and stability~\cite{Sun2022, Gasperov2021a}.
+Most references used Deep Q-Learning and Actor-Critic methods, leveraging neural networks for the optimal policy or state-value function estimation,
+due to the high-dimensional nature of limit order books~\cite{Patel2018, Ganesh2019}.
+The most used algorithms were PPO and DQN, as shown in \autoref{tab:table1},
+both being the best performers in terms of convergence and stability~\cite{Sun2022, Gasperov2021a} with some references using DDQN variants.
+The literature on model-free approaches overall demonstrated strong adaptability capabilities towards changing market conditions
+while still maintaining acceptable training times.
+Overall, the performed bibliographical review underscores the growing relevance and preference for reinforcement learning algorithms in the market-making domain,
+particularly when combined with realistic spatial and temporal state representations.
 
 % table:
 \begin{table}
     \centering
     \begin{tabular}{|c|c|}
         \hline
-        \textbf{Algorithm} & \textbf{References} \\
+        \textbf{Algorithm}           & \textbf{References} \\
         \hline
-        Closed-Form Expression & 8 \\
-        Deep (Double) Q-Learning & 6 \\
-        Proximal Policy Optimization & 2 \\
-        Q-Learning & 2 \\
-        SARSA & 1 \\
-        Vanilla Policy Gradient & 1 \\
-        SAC & 1 \\
+        Closed-Form Expression       & 8                   \\
+        Deep (Double) Q-Learning     & 6                   \\
+        Proximal Policy Optimization & 2                   \\
+        Q-Learning                   & 2                   \\
+        SARSA                        & 1                   \\
+        Vanilla Policy Gradient      & 1                   \\
+        SAC                          & 1                   \\
         \hline
     \end{tabular}
-    \caption{Most used algorithms in the references.}
+    \caption{Algorithms used in the references.}
     \label{tab:table1}
 \end{table}
-
-Overall, the bibliographical review underscores the growing relevance and preference for reinforcement learning algorithms in the market-making domain,
-particularly when combined with realistic spatial and temporal state representations.
-The insights gained from the state and action spaces, as well as the reward function guided our choice for the space variables used in this paper,
-as well as the design for our chosen neural network architecture,
-while still showing a gap in the literature regarding simulations with varying market regimes
-and non-stationary environments, which we aim to address in our research.

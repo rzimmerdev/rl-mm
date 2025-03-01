@@ -2,51 +2,39 @@
 \label{sec:introduction}
 
 Market making in financial markets involves continuously quoting buy and sell prices and dealing with supply and demand imbalances.
-Market makers are essential, as they help narrow bid-ask spreads, reduce price volatility, and maintain market stability,
-particularly in times of uncertainty by providing liquidity~\cite{Glosten1985, OHara1995}.
-Reducing inventory risk benefits not only individual market makers but all participants as a whole,
-as it helps to maintain a fair and efficient market~\cite{Glosten1985, OHara1995}.
-With the increase of computational power in data-driven trading systems,
-placing optimal bid and ask prices as a market maker is becoming an almost completely automatized task,
-but such a transition comes with additional caveats, such as adverse slippage, market impact, market regimes~\cite{Cont2010, Bouchaud2018}
+Market makers are essential, as they narrow the bid-ask spreads, reduce price volatility, and maintain market stability,
+particularly in times of uncertainty by providing liquidity, which helps to maintain a fair and efficient market~\cite{Glosten1985, OHara1995}.
+With the advent of electronic trading, placing optimal bid and ask prices as a market maker is becoming an almost completely automatized task,
+but such a transition comes with the hardships of dealing with additional caveats, including slippage, market impact, adverse market regimes~\cite{Cont2010, Bouchaud2018}
 and non-stationary conditions~\cite{Gasperov2021}.
 
-Recent research focusing on Reinforcement Learning (RL) shows promising results for optimizing placed bid-ask prices by market making strategies.
-The RL approach for market making uses agents that learn by interacting with an environment
-to adapt their decision-making policies through trial and error and a numerical outcome score
-(also called the reward\footnote{Not to be confused with financial returns.}).
-The primary objective of RL-based market making is to optimize the decision process to maximize cumulative rewards,
-which translates to choosing prices that incur in transactions with positive spreads while minimizing risk factors, such as agent inventory or price volatility.
+The Reinforcement Learning (RL) paradigm has shown promising results for optimizing market making strategies,
+where agents learn to adapt their quote placing policies through trial and error given a numerical outcome reward score\footnote{Not to be confused with financial returns.}.
 The RL approach is based on the Bellman equation for state values or state-action pair values,
 which recursively define the state-value of a policy as the expected return of discounted future rewards.
-A common solution to solving the Bellman equation numerically is to continuously sample environment information and
-use it to update the agent's policy based on the resulting episodic rewards,
-allowing the agents to dynamically change their price-choosing strategies according to changing market observations~\cite{Sutton2018}.
+State-of-the-art RL algorithms, such as Proximal Policy Optimization (PPO) and Deep Q-Learning (DQN),
+solve the Bellman equation by approximating the optimal policy using neural networks to learn either the policy, the value function~\cite{Sutton2018},
+or both~\cite{Schulman2015, Mnih2015}, aiming to allow the agent to its quoted prices based adaptively on the observed market conditions~\cite{He2023, Bakshaev2020}.
 
-The state-of-the-art in RL-based market making focuses on the implementation of agents that interact with a simulated environment,
-where model-free algorithms are used to learn the optimal policy for placing bid and ask prices.
-Using historical data to train the agent is computationally expensive and requires a large amount of data,
-as well as disconsidering market impact and inventory risk~\cite{Frey2023, Ganesh2019}.
-On the other hand, using a stochastic model to simulate the limit order book environment is computationally cheaper and faster to train~\cite{Gasperov2021, Sun2022},
-but might not generalize well to unseen market conditions.
-An additional approach to creating realistic environments is agent-based simulations,
+Using historical data to train RL agents is a common practice in the literature, but it has some limitations,
+as it is computationally expensive and requires a large amount of data,
+besides not including the effects of market impact and inventory risk~\cite{Frey2023, Ganesh2019} during the training process.
+An additional approach to creating realistic environments are agent-based simulations,
 where generative agents are trained against observed market messages and used to simulate the LOB environment~\cite{Frey2023, Ganesh2019},
-but this approach reduces the amount of data available for training the agent under changing market regimes and
-scenarios where impact and slippage have a more prominent effect on the agent's performance.
+but this approach has the disadvantage of trading off control over the market dynamics for replicating observed market flow,
+as well as limiting the agent's adaptability to unseen market regimes, which can lead to underfitting~\cite{Jerome2022, Selser2021}
+and suboptimal decision-making under scenarios where market impact and slippage have a more prominent effect on the agent's performance.
+On the other hand, using stochastic models to simulate the limit order book environment is computationally cheaper and faster to train~\cite{Gasperov2021, Sun2022},
+but might not generalize well to unseen market conditions.
 
-In financial markets with high-frequency data ticks long intervals of trading inactivity, inventory risk and market impact are not to be ignored,
-as agents dealing with large inventory positions can easily become exposed to significant price fluctuations, adverse market direction changes, and slippage.
-Disconsidering market impact or restricting the environment to a stationary regime can lead to the agent being underfitted to the real market conditions,
-and therefore adopting unecessarily risky behavior ~\cite{Jerome2022, Selser2021}.
-
-In the context of this paper, we will focus on the implementation of a RL-based market making agent and
-analyze the impact of a simulator with configurable independent market processes on the agent's performance.
+In the context of this paper, we implement a RL-based market making agent and test its robustness and generalization capabilities under non-stationary environments.
+The agent is trained on a crafted simulator that models the dynamics of a limit order book (LOB) according to a set of parameterizable stochastic processes.
 This approach aims to demonstrate the effects of non-stationary environments and adverse market conditions on
 a RL-based market making agent, and how the agent's decision-making policies are affected by market impact and inventory risk.
-
-Our main contribution is to provide a more realistic and flexible environment for the agent to learn from,
-and test the robustness and generalization capabilities of the RL paradigm under changing market conditions.
-A comparative analysis of the agent's performance under changing market conditions during the
-trading day, and the impact of market impact on the agent's decision-making policies is also presented.
-Finally, the financial returns of the RL agents will be benchmarked against a closed-expression optimal solution under a simplified market model,
+Our main contribution is to show the capability of RL-based market making agents to adapt to changing market conditions,
+and how using fine-controlled non-stationary environments can enhance the agent's performance under adverse market conditions
+and provide a more realistic training environment for RL agents in market-making scenarios.
+We also perform a comparative analysis of the agent's performance under changing market conditions during the
+trading day and benchmark it against a closed-expression optimal solution (under a simplified market model),
 aiming to validate the usage of RL-based market making agents in markets with more complex dynamics.
+

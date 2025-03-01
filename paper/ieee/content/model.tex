@@ -1,63 +1,50 @@
 \section{Implementation and Model Description}
 \label{sec:implementation-and-model-description}
 
-The chosen model architecture is an Actor-Critic model, with two separate neural networks for the Actor and Critic networks.
-The Actor network is the model that learns the policy, that is, the probability distribution of actions with the state as input.
-As input layers, we separated the state space into two separate tensors: the market features and the LOB data.
-The market features contain general high-level information on the market state, including the spread, volume,
-and preprocessed features, such as the 10, 15 and 30-period return moving averages and the relative-strength index.
-The LOB data contains raw order book data, specifically the N-best bid-ask price and quantity pairs.
-The chosen architecture passes the LOB data to a transformer encoder,
-which learns the attention mechanism to focus on the most relevant price level information.
-The market features pass parallelly through a dense layer, and the output of the transformer encoder is concatenated with the dense layer output,
-which is then passed through the final dense layers of the Actor network.
-The chosen model architecture for the Actor network is shown in \hyperref[fig:actor-architecture]{Figure~\ref{fig:actor-architecture}}.
+As previously stated in \autoref{sec:methodology}, the chosen model follows the Actor-Critic architecture,
+with the Actor network learning the policy and the Critic network learning the value function.
+For the actor network input, we separate the state space into two tensors: the market features and the LOB data.
+The market features contain general high-level information on the market state, including the microprice, 10, 15 and 30-period moving averages, agent inventory, and the Relative Strength Index (RSI) and Order Imbalance (OI) indicators.
+and the LOB data the N-best bid-ask price and volume pairs.
 
-\begin{figure}[H]
+We use a sequence of self-attention layers to capture the spatial dependencies between the different levels of the LOB,
+while the market features are passed through a dense layer and concatenated with the output of the self-attention layers,
+before being passed through the final dense layers as shown in \autoref{fig:actor-architecture}.
+We implement the Critic network as a simple feed-forward neural network with two hidden layers, of 128 and 64 units, respectively,
+with the same input tensors as the Actor network.
+
+\begin{figure}
     \centering
-    \includegraphics[width=0.9\columnwidth]{images/policy}
+    \includegraphics[width=.9\columnwidth]{images/policy}
     \caption{Actor Network Architecture}
     \label{fig:actor-architecture}
 \end{figure}
 
-We implement the Critic network as a simple feed-forward neural network with two hidden layers, of 128 and 64 units, respectively.
-We use the Generalized Advantage Estimation (GAE)~\cite{Schulman2015} to estimate the advantages of the actions taken by the Actor network,
-and the returns computed using the GAE are then used to calculate the loss scores for the Actor and Critic networks.
-To train our policy and value networks, we use the aforementioned Proximal Policy Optimization (PPO) algorithm,
-which is a model-free, on-policy approach to optimize the policy directly, using a clipped surrogate objective function to ensure stable training,
-as discussed in \hyperref[subsubsec:gpi]{Section~\ref{subsubsec:gpi}}, and follows the usual Generalized Policy Iteration (GPI) framework.
+To train our policy and value networks, we use the aforementioned Proximal Policy Optimization (PPO) algorithm\cite{Schulman2017},
+which is a model-free, on-policy approach to optimize the policy directly, as discussed in~\hyperref[subsubsec:gpi]{Subsection~\ref{subsubsec:gpi}}.
 Our training loop shown in \hyperref[alg:algorithm]{Algorithm~\ref{alg:algorithm}} consists of collecting trajectories,
-computing the Generalized Advantage Estimation (GAE) and returns,
-and updating the Actor and Critic networks according to the PPO algorithm~\cite{Schulman2017}.
+computing the Generalized Advantage Estimation (GAE), which is used instead of the usual returns $G_t$.
+The chosen approach can be classified as online reinforcement learning, where the agent learns from interactions with the environment,
+without the need for a pre-existing dataset, as opposed to offline reinforcement learning, where the agent learns from a static dataset.
+Additionally, we use a replay buffer to store the trajectories and sample mini-batches for training the policy and value networks.
+Since the replay buffer is discarded immediately after a small fixed number of epochs, the approach is closer to on-policy learning,
+as the data collected by the policy is the same as the data used for gradient updates.
 
 \begin{algorithm}
     \begin{algorithmic}[1]
         \Require Environment, PPO model, optimizer, number of episodes $num\_episodes$
         \For{each episode in range $num\_episodes$}
-            \State \textbf{Collect trajectories:}
-            \State \hspace{1em} Initialize the state: $\text{s} = \text{env.reset()}$
-            \State \hspace{1em} Initialize an empty trajectory buffer
-            \For{each timestep in the episode}
-                \State \hspace{1em} Select action $a \sim \pi_{\theta}(s)$
-                \State \hspace{1em} Observe reward $R_t$ and next state $s'$
-                \State \hspace{1em} Store transition $(s, a, r)$ in the trajectory buffer
-                \State \hspace{1em} Set $s \leftarrow s'$
-                \If{environment done}
-                    \State \hspace{1em} \textbf{end} episode
-                \EndIf
+            \State Reset environment and observe initial state $s$
+            \For{each timestep until episode ends}
+                \State Select action $a \sim \pi_{\theta}(s)$
+                \State Observe reward $R_t$ and next state $s'$
+                \State Store transition $(s, a, r)$ in the trajectory buffer
+                \State Set $s \leftarrow s'$
             \EndFor
-            \State \textbf{Compute GAE and Returns:}
-            \State \hspace{1em} Compute advantages and returns using GAE
-            \State \textbf{Update actor and critic parameters} $\boldsymbol{\theta}$ \textbf{and} $\boldsymbol{\phi}$:
+            \State \textbf{Compute GAE and Returns} // Policy evaluation
+            \State \textbf{Update parameters} $\boldsymbol{\theta}$ \textbf{and} $\boldsymbol{\phi}$ // Policy improvement
         \EndFor
     \end{algorithmic}
     \caption{Training Loop}
     \label{alg:algorithm}
 \end{algorithm}
-
-We train the model for a fixed number of episodes, and at the end of each episode, we update the model using the collected trajectories.
-
-%\begin{algorithmic}
-%
-%\end{algorithmic}
-
