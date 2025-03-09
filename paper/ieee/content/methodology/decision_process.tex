@@ -55,6 +55,7 @@ policy parameters $\theta$ and the value function parameters $\phi$, using a $\a
     \caption{Diagram of the Generalized Policy Iteration loop for the implemented agent.}
     \label{fig:gpi}
 \end{figure}
+
 In the context of \textbf{Proximal Policy Optimization (PPO)}
 the model is trained to improve its policy and value function by maximizing the expected return,
 according to a clipped surrogate objective function, which ensures that the policy does not deviate excessively from the previous policy,
@@ -102,12 +103,18 @@ as shown in \hyperref[alg:ppo]{Algorithm~\ref{alg:ppo}}.
     \caption{Actor-Critic with PPO Updates}
     \label{alg:ppo}
 \end{algorithm}
+
 Each pass updates both the policy parameters $\theta$ and the value function parameters $\phi$
 by applying the usual backward propagation pass for neural networks to minimize the loss function according to a chosen optimizer.
 A more detailed explanation of the PPO algorithm can be found in the original paper by Schulman et al. (2017)~\cite{Schulman2017}.
 Our implementation of the algorithm is a distributed-parallel version of the original version,
 where multiple learners interact with the environment in parallel and share the experience to update the policy and value function.
 Short of the V-trace algorithm, this approach is similar to the IMPALA algorithm~\cite{Espeholt2018}.
+Besides the proposed approach for simulating dynamic limit order book environments,
+we also implement a hybrid neural network for the agent's policy and value functions,
+composed of a sequence of self-attention layers to capture the spatial dependencies between the different levels of the LOB,
+concatenated with dense layers to process the market features, as discussed in~\autoref{sec:implementation-and-model-description}.
+
 \subsubsection{Benchmark Closed-Form Expression for Simplified Model}
 To ensure the agent's performance is able to capture the complexity of the environment, we use a benchmark closed-form expression
 to compare the agent's performance against.

@@ -16,11 +16,13 @@
 %    }
 %}
 
-\author{\IEEEauthorblockN{1\textsuperscript{st} Given Name Surname}
-\IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
-\textit{name of organization (of Aff.)}\\
-City, Country \\
-email address or ORCID}
+\author{
+    \IEEEauthorblockN{1\textsuperscript{st} Given Name Surname}
+    \IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
+    \   textit{name of organization (of Aff.)}\\
+    City, Country \\
+    email address or ORCID
+    }
 }
 
 \date{\today}
@@ -30,17 +32,21 @@ email address or ORCID}
 \begin{abstract}
     Reinforcement Learning has emerged as a promising framework for developing adaptive and data-driven strategies,
     enabling market makers to optimize decision-making policies based on interactions with the limit order book environment.
+    Historically, market-making strategies have been based on closed-form solutions or heuristic rules,
+    or trained on historical data, which may not capture the full complexity of changing market dynamics.
     This paper explores the integration of a reinforcement learning agent in a market-making context,
-    where the underlying market dynamics have been explicitly modeled to capture observed stylized facts of real markets,
+    where the underlying market dynamics have been explicitly modeled together to capture observed stylized facts of real markets,
     including clustered order arrival times, non-stationary spreads and return drifts, stochastic order quantities and price volatility.
     These mechanisms aim to enhance stability of the resulting control agent,
-    and serve to incorporate domain-specific knowledge into the agent policy learning process.
+    and serve to provide a more realistic training environment for reinforcement learning agents in market-making scenarios.
 
-    Our contributions include a practical implementation of a market making agent based on the Proximal-Policy Optimization (PPO) algorithm,
-    alongside a comparative evaluation of the agent's performance under varying market conditions via a simulator-based environment.
-    As evidenced by our analysis of the financial return and risk metrics when compared to a closed-form optimal solution,
-    our results suggest that the policy gradient-based agents can effectively be used under non-stationary market conditions,
-    and that the proposed simulated environment can serve as a valuable tool for training and
+    Our contributions include a simulator-based environment with fully parameterizable independently distributed non-stationary dynamics,
+    aimed to model the effects of adverse market conditions and common stylized facts observed in real markets.
+    We also implement a reinforcement learning agent based on the Proximal-Policy Optimization (PPO) algorithm and a
+    comparative evaluation of the agent's performance under varying market conditions, including varying spread regimes and return drifts.
+    We compare the metrics to a closed-form optimal solution under a simplified market model,
+    and our results suggest that policy gradient-based agents can effectively be used under non-stationary market conditions,
+    and show that the proposed simulated environment can serve as a valuable tool for training and
     pre-training reinforcement learning agents in market-making scenarios.
 \end{abstract}
 

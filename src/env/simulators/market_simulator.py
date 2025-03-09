@@ -36,9 +36,9 @@ class MarketSimulator:
         self.bid_process = GeometricBrownianMotion(bid_center, volatility)
         self.ask_process = GeometricBrownianMotion(ask_center, volatility)
 
-        self.risk_free_process = CoxIngersollRoss(
+        self.risk_free_process = OrnsteinUhlenbeck(
             risk_free_reversion, risk_free_mean, risk_free_std)
-        self.spread_process = OrnsteinUhlenbeck(
+        self.spread_process = CoxIngersollRoss(
             spread_reversion, spread_mean, spread_std)
 
         self.event_process = Hawkes(

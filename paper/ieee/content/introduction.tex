@@ -20,7 +20,7 @@ Using historical data to train RL agents is a common practice in the literature,
 as it is computationally expensive and requires a large amount of data,
 besides not including the effects of market impact and inventory risk~\cite{Frey2023, Ganesh2019} during the training process.
 An additional approach to creating realistic environments are agent-based simulations,
-where generative agents are trained against observed market messages and used to simulate the LOB environment~\cite{Frey2023, Ganesh2019},
+where generative agents are trained against observed market messages and used to simulate the limit order book environment~\cite{Frey2023, Ganesh2019},
 but this approach has the disadvantage of trading off control over the market dynamics for replicating observed market flow,
 as well as limiting the agent's adaptability to unseen market regimes, which can lead to underfitting~\cite{Jerome2022, Selser2021}
 and suboptimal decision-making under scenarios where market impact and slippage have a more prominent effect on the agent's performance.
@@ -31,7 +31,7 @@ In the context of this paper, we implement a RL-based market making agent and te
 The agent is trained on a crafted simulator that models the dynamics of a limit order book (LOB) according to a set of parameterizable stochastic processes.
 This approach aims to demonstrate the effects of non-stationary environments and adverse market conditions on
 a RL-based market making agent, and how the agent's decision-making policies are affected by market impact and inventory risk.
-Our main contribution is to show the capability of RL-based market making agents to adapt to changing market conditions,
+Our main contribution is implementing multiple non-stationary dynamics into a single limit order book simulator,
 and how using fine-controlled non-stationary environments can enhance the agent's performance under adverse market conditions
 and provide a more realistic training environment for RL agents in market-making scenarios.
 We also perform a comparative analysis of the agent's performance under changing market conditions during the

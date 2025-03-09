@@ -27,8 +27,8 @@ The underlying partial differential equation governing the ask and bid prices ar
     \label{eq:gbm}
 \end{equation*}
 where $\mu$ is the price drift, $s_t$ is the mean spread, and $\sigma$ the price volatility.
-The drift rate process follows a \textit{Ornstein-Uhlenbeck} process, which is a mean-reverting process,
-while the spread rate similarly follows a \textit{Cox-Ingersoll-Ross} process, which, given that the
+The drift rate process follows a mean-reverting \textit{Ornstein-Uhlenbeck} process~\cite{Ornstein1930},
+while the spread rate similarly follows a \textit{Cox-Ingersoll-Ross} process~\cite{Cox1985}, which, given that the
 Feller condition $2\kappa_s \sigma_s^2 > 1$ is satisfied, ensures the spread remains positive:
 
 \begin{equation*}

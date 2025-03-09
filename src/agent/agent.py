@@ -101,6 +101,9 @@ class PPOAgent:
 
         return trajectory
 
+    def __call__(self, *args, **kwargs):
+        return self.policy_network.act(*args, **kwargs)
+
     # def collect_trajectories(self, env, num_trajectories=4, rollout_length=2048):
     #     trajectories = [self._collect_trajectories(env, rollout_length) for _ in range(num_trajectories)]
     #     states = np.concatenate([trajectory.states for trajectory in trajectories])

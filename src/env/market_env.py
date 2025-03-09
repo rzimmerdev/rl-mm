@@ -49,8 +49,8 @@ class MarketEnv(gym.Env):
         self.duration = 1 / 252
 
         self.observation_space = spaces.Box(
-            low=np.array([-100, -100, -100, -100, 0, 0, -1e3, -1e3] + [0, 0] * 2 * self.n_levels, dtype=np.float32),
-            high=np.array([100, 100, 100, 100, 100, 1e3, 1e3, 1e3] + [1e4, 1e4] * 2 * self.n_levels, dtype=np.float32),
+            low=np.array([-100, -100, -100, -100, 0,   0,   -1e3, -1e3] + [0, 0] * 2 * self.n_levels, dtype=np.float32),
+            high=np.array([100,  100,  100,  100, 1,   1e3,  1e3,  1e3] + [1e2, 1e2] * 2 * self.n_levels, dtype=np.float32),
             dtype=np.float32,
         )
 
@@ -143,11 +143,11 @@ class MarketEnv(gym.Env):
 
     def _calculate_rsi(self):
         if len(self.quotes) < self.window:
-            return 50
+            return .5
         returns = np.diff(self.quotes)[-self.window:]
         up, down = returns.clip(min=0), -returns.clip(max=0)
         avg_up, avg_down = np.mean(up), np.mean(down)
-        return 100 if avg_down == 0 else 100 - 100 / (1 + avg_up / avg_down)
+        return 1 if avg_down == 0 else 1 - 1 / (1 + avg_up / avg_down)
 
     def _calculate_volatility(self):
         if len(self.quotes) < self.window:

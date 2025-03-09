@@ -2,9 +2,8 @@
 \label{subsec:formal-description-of-the-rl-environment}
 In modeling the environment, we initially utilize a continuous-time, continuous-state Markov Chain framework,
 and later transition to a discrete implementation to address computational space constraints.
-The specific case in which a Markov Chain also has an associated reward distribution $R$ for each state transition is called a Markov Reward Process
-and given that the agent's decisions also affect the transition probabilities due to market impact it is therefore called a Markov Decision Process (MDP) in control literature.
-A Markov Decision Process can generically be defined as a 4-tuple $ (\mathcal{S}, \mathcal{A}, \mathbb{P}, R) $, where:
+Specifically, we model the environment as a continuous-time Markov Decision Process (MDP),
+defined as a 4-tuple $ (\mathcal{S}, \mathcal{A}, \mathbb{P}, R) $, where:
 
 \begin{itemize}
     \item $\mathcal{S}$ is a set of states called the state space.
@@ -57,12 +56,14 @@ and serve as market state summaries for the agent to use:
     \label{eq:features}
 \end{equation}
 
-    where \( P_t^{\text{ask}} \) and \( P_t^{\text{bid}} \) represent the best ask and bid prices at time \( t \), and
-    \( Q_t^{\text{bid}} \) and \( Q_t^{\text{ask}} \) represent the total bid and ask quantities, respectively.
-    The \textit{Average Gain} and \textit{Average Loss} are computed over a rolling window (in our case, fixed 5 minute observation intervals),
-    and are defined as the average price increases and decreases during that window, respectively.
-    \( \text{OI}_t \in [-1, 1] \), with \( \text{OI}_t = 1 \) indicating complete dominance of bid orders, and \( \text{OI}_t = -1 \) indicating ask order dominance.
-    The RSI is bounded between 0 and 100, with values above 70 indicating overbought conditions and values below 30 indicating oversold conditions.
+where \( P_t^{\text{ask}} \) and \( P_t^{\text{bid}} \) represent the best ask and bid prices at time \( t \),
+and \( Q_t^{\text{bid}} \) and \( Q_t^{\text{ask}} \) represent the total bid and ask quantities, respectively.
+The \textit{Average Gain} and \textit{Average Loss} are computed over a rolling window (in our case, fixed 5 minute observation intervals),
+and are defined as the average price increases and decreases during that window, respectively.
+\( \text{OI}_t \in [-1, 1] \), with \( \text{OI}_t = 1 \) indicating complete dominance of bid orders, and \( \text{OI}_t = -1 \) indicating ask order dominance.
+The RSI is bounded between 0 and 100, with values above 70 indicating overbought conditions and values below 30 indicating oversold conditions.
+Overall, the chosen state space designed to capture the most relevant market features for the agent to make informed decisions is
+not a novel approach per-se, containing common indicators used in market-making literature~\cite{Gueant2022, Selser2021a, FalcesMarin2022}.
 
 \subsubsection{Chosen Action Space}
 

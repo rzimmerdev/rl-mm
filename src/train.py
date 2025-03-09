@@ -16,11 +16,11 @@ def config_reshape(action, size, low, high):
 def train(args):
     def training_function(config, report=None, checkpoint=False):
         n_levels = 10
-        env = MarketEnv(n_levels=n_levels, spread_mean=args.spread, volatility=args.volatility)
+        env = MarketEnv(n_levels=n_levels, spread_mean=args.spread, volatility=args.volatility * 6.5)
 
         precision = int(1e3)
         action_reshape = lambda action: config_reshape(action, precision, env.action_space.low,
-                                                       env.action_space.high / 2000)
+                                                       env.action_space.high / precision)
         state_dim = env.observation_space.shape[0]
         action_dim = [int(precision) for _ in range(env.action_space.shape[0])]
         agent = PPOAgent(
@@ -85,7 +85,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Train a PPO agent in a market environment.")
 
     parser.add_argument('--spread', type=float, default=0.1, help="Mean spread of the market.")
-    parser.add_argument('--volatility', type=float, default=0.6, help="Volatility of the market.")
+    parser.add_argument('--volatility', type=float, default=0.6, help="Annual volatility of the market.")
 
     parser.add_argument('--gamma', type=float, default=0.99, help="Discount factor for rewards.")
     parser.add_argument('--epsilon', type=float, default=0.2, help="Clipping parameter for PPO.")

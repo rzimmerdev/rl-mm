@@ -8,7 +8,7 @@ def layer_init(layer, std=np.sqrt(2), bias_const=0.0):
     """
     Layer initialization helper.
     """
-    nn.init.orthogonal_(layer.weight, gain=std)
+    nn.init.xavier_uniform_(layer.weight, gain=std)
     nn.init.constant_(layer.bias, bias_const)
     return layer
 
@@ -155,13 +155,13 @@ class MMPolicyNetwork(nn.Module):
         self.indicator_mlp = nn.Sequential(
             layer_init(nn.Linear(indicator_dim, hidden_dims_features[0])),
             nn.ReLU(),
-            nn.LayerNorm(hidden_dims_features[0]),
+            nn.LayerNorm(hidden_dims_features[0], eps=1e-6),
             nn.Dropout(p=dropout_prob),
             *[
                 nn.Sequential(
                     layer_init(nn.Linear(dim1, dim2)),
                     nn.ReLU(),
-                    nn.LayerNorm(dim2),
+                    nn.LayerNorm(dim2, eps=1e-6),
                     nn.Dropout(p=dropout_prob)
                 ) for dim1, dim2 in zip(hidden_dims_features[:-1], hidden_dims_features[1:])
             ]
@@ -171,13 +171,13 @@ class MMPolicyNetwork(nn.Module):
         self.fusion_mlp = nn.Sequential(
             layer_init(nn.Linear(hidden_dims_features[-1] * 2, hidden_dims[0])),
             nn.ReLU(),
-            nn.LayerNorm(hidden_dims[0]),
+            nn.LayerNorm(hidden_dims[0], eps=1e-6),
             nn.Dropout(p=dropout_prob),
             *[
                 nn.Sequential(
                     layer_init(nn.Linear(dim1, dim2)),
                     nn.ReLU(),
-                    nn.LayerNorm(dim2),
+                    nn.LayerNorm(dim2, eps=1e-6),
                     nn.Dropout(p=dropout_prob)
                 ) for dim1, dim2 in zip(hidden_dims[:-1], hidden_dims[1:])
             ]
@@ -200,7 +200,7 @@ class MMPolicyNetwork(nn.Module):
         indicators_out = self.indicator_mlp(indicators)
 
         # Process LOB features through Transformer
-        lob_embedded = self.lob_embedding(lob_features)
+        lob_embedded = self.lob_embedding(torch.tanh(lob_features))
         lob_out = self.lob_transformer(lob_embedded.unsqueeze(1)).squeeze(1)  # Transformer needs a seq dim
 
         # Concatenate outputs from both paths

@@ -16,12 +16,26 @@ def config_reshape(action, size, low, high):
     return low + (high - low) * action / size
 
 
+
+def returns(ppnl):
+    # get pct change returns
+    _pnl = np.array(ppnl) + 100
+    pct_change = np.diff(_pnl) / _pnl[:-1]
+    # remove nan and invalid values (inf, -inf)
+    pct_change = pct_change[~np.isnan(pct_change)]
+    pct_change = pct_change[~np.isinf(pct_change)]
+    return pct_change
+
+precision = int(1e3)
+
+
 def test():
+    num_simulations = 20
     n_levels = 10
-    env = MarketEnv(n_levels)
-    precision = int(1e3)
+    rf_mean = -0.02
+    env = MarketEnv(n_levels, risk_free_mean=rf_mean)
     action_reshape = lambda action: config_reshape(action, precision, env.action_space.low,
-                                                   env.action_space.high / 1000)
+                                                   env.action_space.high / precision)
     state_dim = env.observation_space.shape[0]
     action_dim = [int(precision) for _ in range(env.action_space.shape[0])]
     agent = PPOAgent(
@@ -103,7 +117,6 @@ def test():
 
     plt.show()
 
-    num_simulations = 100
     all_pnl = []
 
     times = {
@@ -113,58 +126,10 @@ def test():
     }
 
     test_stoikov = TestStoikov()
-    stoikov_pnl = []
 
-    all_returns = []
-    stoikov_returns = []
-
-    def returns(ppnl):
-        # get pct change returns
-        _pnl = np.array(ppnl) + 100
-        pct_change = np.diff(_pnl) / _pnl[:-1]
-        # remove nan and invalid values (inf, -inf)
-        pct_change = pct_change[~np.isnan(pct_change)]
-        pct_change = pct_change[~np.isinf(pct_change)]
-        return pct_change
-
-    for _ in range(num_simulations):
-        pnl = [0]
-        stoi_pnl = [0]
-
-        state, _ = env.reset()
-
-        start = time.time()
-
-        while not env.done:
-            actor = time.time()
-            action, log_prob, _ = agent.policy_network.act(
-                torch.tensor(state, dtype=torch.float32).cuda().unsqueeze(0))
-            times["actor"].append(time.time() - actor)
-
-            critic = time.time()
-            agent.value_network(torch.tensor(state, dtype=torch.float32).cuda().unsqueeze(0))
-            times["critic"].append(time.time() - critic)
-
-            action = action_reshape(agent.policy_network.get_action(action))
-
-            midprice = env.simulator.midprice()
-            spread = env.simulator.spread()
-
-            test_stoikov.observe(midprice, spread)
-
-            state, reward, done, trunc, _ = env.step(action)
-            pnl.append(np.sum(env.simulator.position()))
-            stoi_pnl.append(test_stoikov.pnl())
-
-
-        all_pnl.append(pnl)
-        stoikov_pnl.append(stoi_pnl)
-
-        all_returns.append(returns(pnl))
-        stoikov_returns.append(returns(stoi_pnl))
-
-        test_stoikov.reset()
-        times["episode"].append(time.time() - start - times["critic"][-1])
+    all_pnl, all_returns, times = run_agent_simulation(agent, env, num_simulations)
+    stoikov_pnl, stoikov_returns = run_stoikov_simulation(env, num_simulations, test_stoikov)
+    long_pnl, long_returns = run_long_only_simulation(env, num_simulations)
 
     for key, value in times.items():
         mean = np.mean(value)
@@ -200,14 +165,20 @@ def test():
     plt.show()
 
     # Assuming all_returns and stoikov_returns are lists of PnL data for each simulation
-    std_returns = np.mean([np.std(pnl) for pnl in all_returns]) / np.sqrt(num_simulations)
-    mean_returns = [np.mean(pnl) for pnl in all_returns]
+    all_returns = np.array([pnl[-1] for pnl in all_returns])
+    std_returns = np.std(all_returns)
+    mean_returns = np.mean(all_returns)
 
-    stoikov_std_returns = np.mean([np.std(pnl) for pnl in stoikov_returns]) / np.sqrt(num_simulations)
-    stoikov_returns = [np.mean(pnl) for pnl in stoikov_returns]
+    stoikov_returns = np.array([pnl[-1] for pnl in stoikov_returns])
+    stoikov_std_returns = np.std(stoikov_returns)
+    stoikov_mean_returns = np.mean(stoikov_returns)
+
+    long_returns = np.array([pnl[-1] for pnl in long_returns])
+    long_std_returns = np.std(long_returns)
+    long_mean_returns = np.mean(long_returns)
 
     # Risk-free rate for Sortino (adjusted for daily returns in a trading environment)
-    rf = 0.02 / 1 / 252 / 6.5 / 60
+    rf = rf_mean / 1 / 252 / 6.5 / 60
 
     # Function to calculate downside deviation
     def downside_deviation(pnls):
@@ -220,17 +191,85 @@ def test():
         return (mu - rf) / downside_std if downside_std != 0 else np.nan
 
     # Calculate downside deviation for each dataset
-    downside_std_returns = downside_deviation(mean_returns)
+    downside_std_returns = downside_deviation(all_returns)
     downside_std_stoikov_returns = downside_deviation(stoikov_returns)
-
-    mean_returns = np.mean(mean_returns)
-    stoikov_returns = np.mean(stoikov_returns)
+    downside_std_long_returns = downside_deviation(long_returns)
 
     # Print results using Sortino ratio
     print(
         f"Mean PnL: {mean_returns}, Std PnL: {std_returns}, Sortino Ratio: {sortino(mean_returns, downside_std_returns)}")
     print(
-        f"Mean Stoikov PnL: {stoikov_returns}, Std Stoikov PnL: {stoikov_std_returns}, Sortino Ratio: {sortino(stoikov_returns, downside_std_stoikov_returns)}")
+        f"Mean Stoikov PnL: {stoikov_mean_returns}, Std Stoikov PnL: {stoikov_std_returns}, Sortino Ratio: {sortino(stoikov_mean_returns, downside_std_stoikov_returns)}")
+    print(
+        f"Mean Long PnL: {long_mean_returns}, Std Long PnL: {long_std_returns}, Sortino Ratio: {sortino(long_mean_returns, downside_std_long_returns)}")
+
+
+def run_agent_simulation(agent, env, num_simulations):
+    all_pnl, all_returns = [], []
+    times = {"actor": [], "critic": [], "episode": []}
+
+    for _ in range(num_simulations):
+        _pnl = [0]
+        state, _ = env.reset()
+        start = time.time()
+
+        while not env.done:
+            actor = time.time()
+            action, log_prob, _ = agent.policy_network.act(
+                torch.tensor(state, dtype=torch.float32).cuda().unsqueeze(0))
+            times["actor"].append(time.time() - actor)
+
+            critic = time.time()
+            agent.value_network(torch.tensor(state, dtype=torch.float32).cuda().unsqueeze(0))
+            times["critic"].append(time.time() - critic)
+
+            action = agent.action_reshape(agent.policy_network.get_action(action))
+            state, reward, done, trunc, _ = env.step(action)
+
+            _pnl.append(np.sum(env.simulator.position()))
+
+        all_pnl.append(_pnl)
+        all_returns.append(returns(_pnl))
+        times["episode"].append(time.time() - start - times["critic"][-1])
+
+    return all_pnl, all_returns, times
+
+def run_stoikov_simulation(env, num_simulations, test_stoikov):
+    stoikov_pnl, stoikov_returns = [], []
+
+    for _ in range(num_simulations):
+        _stoi_pnl = [0]
+        state, _ = env.reset()
+
+        while not env.done:
+            midprice = env.simulator.midprice()
+            spread = env.simulator.spread()
+            test_stoikov.observe(midprice, spread)
+            state, reward, done, trunc, _ = env.step(None)  # No agent actions
+            _stoi_pnl.append(test_stoikov.pnl())
+
+        stoikov_pnl.append(_stoi_pnl)
+        stoikov_returns.append(returns(_stoi_pnl))
+        test_stoikov.reset()
+
+    return stoikov_pnl, stoikov_returns
+
+def run_long_only_simulation(env, num_simulations):
+    long_pnl, long_returns = [], []
+
+    for _ in range(num_simulations):
+        _long_pnl = [100]
+        state, _ = env.reset()
+
+        while not env.done:
+            midprice = env.simulator.midprice()
+            state, reward, done, trunc, _ = env.step(None)  # No agent actions
+            _long_pnl.append(midprice)
+
+        long_pnl.append(_long_pnl)
+        long_returns.append(returns(_long_pnl))
+
+    return long_pnl, long_returns
 
 
 def plot_financial_return(value, t):

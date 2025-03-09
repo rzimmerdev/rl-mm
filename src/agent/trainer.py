@@ -27,7 +27,8 @@ class RLTrainer:
         self.optimizer = optim.Adam(
             self.agent.parameters(),
             betas=(0.9, 0.999),
-            weight_decay=1e-5
+            weight_decay=1e-5,
+            amsgrad=True
         )
 
     def train(self, num_episodes=1000, report=None, checkpoint=False):
