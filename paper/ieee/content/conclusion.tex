@@ -2,15 +2,19 @@
 \label{sec:conclusion}
 We have presented the design and implementation of a reinforcement learning agent aiming to show
 the effects of adverse market conditions and non-stationary environments on control agents for market-making.
-Our approach leverages online reinforcement learning by means of a simulator that models the dynamics of a limit order book (LOB)
-according to a set of parameterizable stochastic processes configured to mimic observed stylized facts in real markets.
-The resulting model is a continuous-time Markov Decision Process (MDP) that captures the observed stylized fact of clustered order arrival times.
+As discussed in~\autoref{subsec:market-model-description-and-environment-dynamics},
+our approach for a environment models the dynamics of a limit order book (LOB)
+according to a set of parameterizable stochastic processes configured to mimic observed stylized facts in real markets
+The resulting market model replicates the dynamics of the midprice, spread, price volatility, and order arrival rate,
+as well as the impact of market orders on the agent's inventory and the market state, with non-stationary dynamics replicating changing market regimes and conditions.
 
-The main objective of this work to validate the use of complex market-making environments as
-pretraining environments for reinforcement learning agents, and to show that agents can perform well under adverse market conditions.
-We aimed to show that the use of non-stationary environments and fine-controlled dynamics can be used to model known stylized facts of real markets,
-and conducted experiments to validate the expected performance of the agents under these conditions.
+We successfully develop a non-stationary environment with fine-controlled dynamics
+and use it to evaluate the agent's performance under adverse market conditions, providing a more realistic training environment for RL agents in market-making scenarios.
+The proposed methodology was able to capture the effects of market impact and inventory risk on the trading agent's performance,
+and affected the resulting agent's decision-making policies, as shown in~\autoref{subsec:experiment-results}, thus allowing
+the resulting agent to adapt to changing market conditions and outperform simpler market-making strategies under adverse market regimes.
 
-Prospective future work on existing market model structures includes the extension of market dynamics within
-the training of world models, and the implementation of hybrid models that combine both model-based and model-free approaches
-to leverage the capability of RL agents to learn from non-stationary environments and adapt to known stylized facts of real markets.
+Prospective extensions of the presented work and future research on existing market model simulators include
+developing hybrid world models to combine both model-based and model-free approaches and leverage the capability of RL agents
+to learn from non-stationary environments and historical observations of real markets.
+Hybrid world models could further improve the capability of RL agents in adapting to changing market conditions.

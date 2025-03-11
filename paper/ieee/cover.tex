@@ -1,5 +1,3 @@
-\title{Reinforcement Learning-Based Market Making as a Stochastic Control on Non-Stationary Dynamics}
-
 %\author{
 %    \IEEEauthorblockN{\href{https://orcid.org/0009-0008-6064-9895}{1\textsuperscript{st} Rafael Zimmer \includegraphics[scale=0.06]{images/orcid}}}
 %    \IEEEauthorblockA{
@@ -15,6 +13,7 @@
 %        \href{mailto:oswaldo.costa@usp.br}{oswaldo.costa@usp.br}
 %    }
 %}
+\title{Reinforcement Learning-Based Market Making as a Stochastic Control on Non-Stationary Dynamics}
 
 \author{
     \IEEEauthorblockN{1\textsuperscript{st} Given Name Surname}
@@ -32,22 +31,18 @@
 \begin{abstract}
     Reinforcement Learning has emerged as a promising framework for developing adaptive and data-driven strategies,
     enabling market makers to optimize decision-making policies based on interactions with the limit order book environment.
-    Historically, market-making strategies have been based on closed-form solutions or heuristic rules,
-    or trained on historical data, which may not capture the full complexity of changing market dynamics.
+    Market-making strategies can be expressed as closed-form solutions or sets of heuristic rules,
+    and state-of-the-art approaches use machine learning techniques to train agents on historical data or against adversarial market agents,
+    but these approaches often rely on static environments or simplified market models, and may not capture the full complexity of changing market dynamics.
     This paper explores the integration of a reinforcement learning agent in a market-making context,
-    where the underlying market dynamics have been explicitly modeled together to capture observed stylized facts of real markets,
+    where the underlying market dynamics have been explicitly modeled as stochastic processes and combined to capture observed stylized facts of real markets,
     including clustered order arrival times, non-stationary spreads and return drifts, stochastic order quantities and price volatility.
-    These mechanisms aim to enhance stability of the resulting control agent,
-    and serve to provide a more realistic training environment for reinforcement learning agents in market-making scenarios.
 
-    Our contributions include a simulator-based environment with fully parameterizable independently distributed non-stationary dynamics,
-    aimed to model the effects of adverse market conditions and common stylized facts observed in real markets.
-    We also implement a reinforcement learning agent based on the Proximal-Policy Optimization (PPO) algorithm and a
-    comparative evaluation of the agent's performance under varying market conditions, including varying spread regimes and return drifts.
-    We compare the metrics to a closed-form optimal solution under a simplified market model,
-    and our results suggest that policy gradient-based agents can effectively be used under non-stationary market conditions,
-    and show that the proposed simulated environment can serve as a valuable tool for training and
-    pre-training reinforcement learning agents in market-making scenarios.
+    Our contributions include a limit order book simulator with fully parameterizable and independently distributed dynamics,
+    combined to model non-stationary market conditions and adverse market regimes.
+    We compare the performance of a custom reinforcement learning agent based on the Proximal-Policy Optimization (PPO) algorithm
+    against additional benchmarks under our proposed simulated environment.
+    The results obtained suggest complex stochastic environments can serve as a valuable tool for training RL agents under markets with non-stationary regimes.
 \end{abstract}
 
 \begin{IEEEkeywords}

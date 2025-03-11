@@ -4,8 +4,9 @@
 As previously stated in \autoref{sec:methodology}, the chosen model follows the Actor-Critic architecture,
 with the Actor network learning the policy and the Critic network learning the value function.
 For the actor network input, we separate the state space into two tensors: the market features and the LOB data.
-The market features contain general high-level information on the market state, including the microprice, 10, 15 and 30-period moving averages, agent inventory, and the Relative Strength Index (RSI) and Order Imbalance (OI) indicators.
-and the LOB data the N-best bid-ask price and volume pairs.
+The market features contain general high-level information, including the microprice, 10, 15 and 30-period moving averages,
+agent inventory, and the Relative Strength Index (RSI) and Order Imbalance (OI) indicators.
+The LOB data contains the ordered $N$th best bid-ask price and volume pairs.
 
 We use a sequence of self-attention layers to capture the spatial dependencies between the different levels of the LOB,
 while the market features are passed through a dense layer and concatenated with the output of the self-attention layers,
@@ -20,14 +21,14 @@ with the same input tensors as the Actor network.
     \label{fig:actor-architecture}
 \end{figure}
 
-To train our policy and value networks, we use the aforementioned Proximal Policy Optimization (PPO) algorithm\cite{Schulman2017},
+To train our policy and value networks, we use the aforementioned PPO algorithm\cite{Schulman2017},
 which is a model-free, on-policy approach to optimize the policy directly, as discussed in~\hyperref[subsubsec:gpi]{Subsection~\ref{subsubsec:gpi}}.
 Our training loop shown in \hyperref[alg:algorithm]{Algorithm~\ref{alg:algorithm}} consists of collecting trajectories,
 computing the Generalized Advantage Estimation (GAE), which is used instead of the usual returns $G_t$.
-The chosen approach can be classified as online reinforcement learning, where the agent learns from interactions with the environment,
+The chosen approach can be classified as \textbf{online reinforcement learning}, where the agent learns from interactions with the environment,
 without the need for a pre-existing dataset, as opposed to offline reinforcement learning, where the agent learns from a static dataset.
 Additionally, we use a replay buffer to store the trajectories and sample mini-batches for training the policy and value networks.
-Since the replay buffer is discarded immediately after a small fixed number of epochs, the approach is closer to on-policy learning,
+Since the replay buffer is discarded immediately after a small fixed number of epochs, the approach is closer to \textbf{on-policy learning},
 as the data collected by the policy is the same as the data used for gradient updates.
 
 \begin{algorithm}
