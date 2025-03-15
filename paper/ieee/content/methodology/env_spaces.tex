@@ -1,18 +1,18 @@
 \subsection{A Formal Description of the Environment}
 \label{subsec:formal-description-of-the-rl-environment}
-In modeling the environment, we initially utilize a continuous-time, continuous-state Markov Chain framework,
+In modeling the environment, we initially utilize a continuous-time, continuous-state Markov Chain,
 and later transition to a discrete implementation to address computational space constraints.
-Specifically, we model the environment as a continuous-time Markov Decision Process (MDP),
+Specifically, we model the environment as a Markov Decision Process (MDP),
 defined as a 4-tuple $ (\mathcal{S}, \mathcal{A}, \mathbb{P}, R) $, where:
 
 \begin{itemize}
-    \item $\mathcal{S}$ is a set of states called the state space.
-    \item $\mathcal{A}$ is a set of actions called the action space.
+    \item $\mathcal{S}$ is the set of states called the state space.
+    \item $\mathcal{A}$ is the set of actions called the action space.
     \item $\mathbb{P}: \mathcal{S} \times \mathcal{A} \times \mathcal{S} \to [0, 1]$ is the transition probability function for the MDP.
     \item $R: \mathcal{S} \times \mathcal{A} \times \mathcal{S}' \rightarrow \mathbb{R}$ is the reward function associated with each state transition.
 \end{itemize}
 
-Then, the agent's interaction with the environment is made through actions chosen from the action space $\mathcal{A}$ in response to observed states $s \in \mathcal{S}$,
+Then, the agent's interaction with the environment is made by chosing an action $a$ from the action space $\mathcal{A}$ in response to an observed state $s \in \mathcal{S}$,
 according to a policy $\pi (s, a)$.
 The agent's goal is to maximize cumulative rewards over time, which are obtained from the reward function $R$.
 The return $G_t = \int_{t}^{T} \gamma^{k-t} R_{k} dk$ is used to estimate the value of a state-action pair by summing the rewards obtained from time $t$ to the end of the episode
