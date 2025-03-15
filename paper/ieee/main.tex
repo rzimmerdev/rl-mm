@@ -1,5 +1,4 @@
-\documentclass[conference]{IEEEtran}
-
+\documentclass[letterpaper, conference]{IEEEtran}
 
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{algorithm}
@@ -21,7 +20,7 @@
 
 \usepackage[left=54pt, right=54pt, bottom=54pt]{geometry}
 
-\geometry{papersize={8.5in,11in}, top=72pt} % First-page top margin
+\geometry{papersize={8.5in,11in}, top=64pt} % First-page top margin
 \usepackage{fancyhdr}
 
 \pagestyle{fancy}
@@ -38,6 +37,7 @@
 \setlength{\belowdisplayshortskip}{.5cm}  % For short equations
 \pdfminorversion=4
 
+% override \thanks to show
 
 \begin{document}
     % cover
@@ -54,8 +54,6 @@
     \input{content/results}
 
     \input{content/conclusion}
-
-    \newpage
 
     \bibliographystyle{plain}
     \bibliography{references}
