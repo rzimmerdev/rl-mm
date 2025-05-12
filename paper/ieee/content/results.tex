@@ -101,17 +101,19 @@ considering the fabricated adverse market conditions.
 
 % reward.png and returns.png
 
-Overall, the training process maintained an increasing reward curve, as shown in Figure~\ref{fig:average-reward-moving-average},
-finishing in about 3 hours and 8 minutes.
+Overall, the training process maintained an increasing reward curve and finished in about 3 hours and 8 minutes.
 The financial return of the RL-agent, as shown in Figure~\ref{fig:average-financial-return}, was stable around zero,
 and even though we expected a slightly negative return due to the highly volatile market conditions and
-somewhat low drift, the close to neutral performance was still considered a positive outcome,
+somewhat low drift, the positive but close to neutral performance was still considered a favorable outcome,
 especially when compared to the benchmark agent's performance.
-The observed Sortino ratio of $0.7497$ further supports the agent's performance under adverse market conditions,
+The calculated Sortino ratio of $0.7497$ further supports the agent's performance under adverse market conditions,
 when compared to the benchmark agent scores of $0.4271$ and $-0.0079$ for the Stoikov and Long-Only strategies, respectively.
 
-We understood that the agent was able to adapt to the changing market dynamics and outperform simpler strategies,
-where the developed simulator provided a realistic environment for training under non-stationary market conditions.
+The agent demonstrated being capable of adapting to changing market dynamics and outperform simpler strategies,
+where the proposed simulator provided a realistic environment for training under non-stationary market conditions.
+We confirmed our initial hypothesis that stochastic dynamic environments can effectively be used to simulate
+a market environment with changing regimes, and that reinforcement learning agents can learn to adapt to these conditions,
+instead of using historical data with no market impact or sample-biased generative models for training.
 
 % Graphs:
 % average financial return + confidence interval (+- volatility) x episode number

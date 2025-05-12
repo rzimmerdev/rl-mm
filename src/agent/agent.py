@@ -104,23 +104,6 @@ class PPOAgent:
     def __call__(self, *args, **kwargs):
         return self.policy_network.act(*args, **kwargs)
 
-    # def collect_trajectories(self, env, num_trajectories=4, rollout_length=2048):
-    #     trajectories = [self._collect_trajectories(env, rollout_length) for _ in range(num_trajectories)]
-    #     states = np.concatenate([trajectory.states for trajectory in trajectories])
-    #     actions = np.concatenate([trajectory.actions for trajectory in trajectories])
-    #     log_probs = np.concatenate([trajectory.log_probs for trajectory in trajectories])
-    #     rewards = np.concatenate([trajectory.rewards for trajectory in trajectories])
-    #     dones = np.concatenate([trajectory.dones for trajectory in trajectories])
-    #
-    #     trajectories = ReplayBuffer()
-    #     trajectories.states = states
-    #     trajectories.actions = actions
-    #     trajectories.log_probs = log_probs
-    #     trajectories.rewards = rewards
-    #     trajectories.dones = dones
-    #
-    #     return trajectories
-
     def update(self, trajectories, optimizer, epochs=5):
         states = torch.tensor(np.array(trajectories.states), dtype=torch.float32).cuda()
         actions = torch.tensor(trajectories.actions).cuda()
