@@ -1,0 +1,22 @@
+\section{Conclusion}
+\label{sec:conclusion}
+We have presented the design and implementation of a reinforcement learning agent aiming to show
+the effects of adverse market conditions and non-stationary environments on control agents for market-making.
+As discussed in~\autoref{subsec:market-model-description-and-environment-dynamics},
+our approach for a environment models the dynamics of a limit order book (LOB)
+according to a set of parameterizable stochastic processes configured to mimic observed stylized facts in real markets
+The resulting market model replicates stylized facts for the midprice, spread, price volatility, and order arrival rate,
+as well as the impact of market orders on the agent's inventory, return standard deviation and end-of-day Profit and Loss score.
+
+The fine-controlled dynamics where the agent interacts with the environment allows us to model the effects of market impact and inventory risk on the agent's performance,
+and use it to evaluate the agent's performance under adverse market conditions, providing a more realistic training environment for RL agents in market-making scenarios.
+The proposed methodology was able to capture the effects of market impact and inventory risk on the trading agent's performance,
+and affected the resulting agent's decision-making policies, as shown in~\autoref{subsec:experiment-results},
+which we verified by comparing the agent's performance against simpler benchmark agents that
+do not account for these effects in their decision-making policies.
+
+Prospective extensions of the presented work and future research on existing market model simulators include
+developing hybrid world models to combine both model-based and model-free approaches and leverage the capability of RL agents
+to learn from non-stationary environments and historical observations of real markets.
+Hybrid world models could further improve the capability of RL agents in adapting to changing market conditions
+and could provide a more realistic training environment for market-making agents.

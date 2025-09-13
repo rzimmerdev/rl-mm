@@ -1,0 +1,136 @@
+\section{Experiments and Results}
+\label{sec:realized-experiments-and-results}
+
+\subsection{Experimental Setup}
+\label{subsec:experiment-setup}
+
+We trained the agent for a total of 10,000 episodes, with an average of 390 observations per episode --- or 1 event per market minute.
+For training, we used a single NVIDIA GeForce RTX 3090 GPU with 24GB of memory, and an AMD Ryzen 9 5950X CPU with 16 cores and 32 threads,
+and 32GB of DDR4 RAM.
+% hyperparam optimization
+% --gamma=0.9 --epsilon=0.25 --lambd=0.85 --entropy=0.0012 --lr_policy=3e-4 --lr_value=3e-4  --batch_size=256
+We used the Adam optimizer with a learning rate of $3 \times 10^{-4}$ for both the policy and value networks, with 64 epochs per trajectory.
+The discount factor $\gamma$ was set to 0.9, the GAE parameter $\lambda$ was set to 0.85, and the PPO clipping parameter $\epsilon$ was set to 0.25.
+The entropy coefficient was set to $1.2\times10^{-3}$, and the batch size set to 256 samples per episode/update.
+The hyperparameters were obtained through a grid search optimization process.
+
+For our market model, we chose the following parameters for each process, generating 390 samples before each episode to heat up the book:
+\begin{itemize}
+    \item The order arrival rate was set to $\lambda = 1$, with clustering parameters $\alpha = 0.1$ and $\beta = 0.1$ (yearly volume of about $100.000$ orders).
+    \item Mean spread was set to $s = 0.1$ (10 market price ticks, in our case, 10 cents) and annualized price drift to $\mu = -0.02$ ($-2\%$), respectively.
+    \item The price volatility parameters were set to $\omega = 0.5$, $\alpha = 0.1$, and $\beta = 0.1$,
+    where $\omega$ is the constant term, $\alpha$ the autoregressive term, and $\beta$ the moving average term.
+    \item The initial midprice was arbitrarily set to $100$.
+\end{itemize}
+
+\subsection{Results Obtained}
+\label{subsec:experiment-results}
+% Mean PnL: 5.2039879681725205e-05, Std PnL: 0.00011779373815224474, Sortino Ratio: 0.7496709802566629
+% Mean Stoikov PnL: 3.037995169342173e-05, Std Long PnL: 0.00017138676928237542, Sortino Ratio: 0.4270558433575976
+% Mean Long PnL: -2.2066831088720394e-05, Std Stoikov PnL: 0.00239564284655977, Sortino Ratio: -0.007940496017707974
+
+To evaluate the financial performance of the trained reinforcement learning agent, we analyzed the agent's
+financial return, return volatility, and the Sortino ratio.
+The results were averaged over $10^2$ trajectories using the same hyperparameters used for training.
+
+As shown in Table~\ref{tab:test-results}, the reinforcement learning agent exhibited a mean financial return of $5.203 \times 10^{-5}$
+(annualized return of about $+1.31\%$.), an almost neutral performance under adverse market conditions,
+while the benchmark agent had a mean financial return of $3.037 \times 10^{-5}$ (annualized return of about $+0.76\%$),
+underperforming under the same conditions, but closely matching the expected performance.
+For the simple long-only strategy, the mean financial return was $-2.206 \times 10^{-5}$ (annualized return of about $-0.56\%$),
+demonstrating how the agent's learned policies allowed the RL paradigm to outperform a simple long-only strategy under adverse market conditions.
+The Sortino ratio for the RL-agent was $0.7497$, outperforming both benchmark agents.
+Observing the reward curve during training, we can see a steady increase in the reward over time, as shown in Figure~\ref{fig:average-reward-moving-average},
+indicating that the agent was learning to maximize its cumulative rewards over time, as expected.
+
+The agent's processing time was also measured, as latency is a critical metric for real-world applications,
+with the actor network taking on average $2.90$ms per episode, and the critic network taking $0.21 \times 10^{-4}$ seconds per episode,
+well within the acceptable range for medium- and low-frequency trading.
+Further training could be performed if necessary to improve the agent's performance, but the results obtained were already considered satisfactory
+considering the fabricated adverse market conditions.
+
+\begin{table*}
+    \centering
+    \small
+
+    % Table:
+    % Cols: rl-agent, benchmark agent
+    % Training
+    % Rows: Training time
+    %       3:08:54, , -
+    %       Time per episode +- std
+    %       0.8458 \pm 0.1044
+    %       Mean processing time actor +- std per episode
+    %       Mean processing time critic +- std per episode
+    %       Mean financial return +- std
+    \begin{tabular}{|c|c|c|}
+        \hline
+        \textbf{Training}      & \textbf{Metric}                       \\
+        \hline
+        Training Time          & $\SI{112740000}{\milli\second}$       \\
+        Time per Episode       & $845.8 \pm \SI{104.4}{\milli\second}$ \\
+        Processing Time Actor  & $2.90 \pm \SI{1.0}{\milli\second}$    \\
+        Processing Time Critic & $0.21 \pm \SI{0.03}{\milli\second}$   \\
+        \hline
+    \end{tabular}
+    \caption{Test Results}
+    \label{tab:test-results}
+    \centering
+    \vspace{0.5cm}
+    \small
+    % Test (after last episode or convergence)
+    % Rows: Mean financial return +- std
+    %       Mean Sortino ratio
+
+    % Mean PnL: 3.2039879681725205e-05, Std PnL: 0.00011779373815224474, Sortino Ratio: 0.7496709802566629
+    % Mean Stoikov PnL: 5.037995169342173e-05, Std Long PnL: 0.00017138676928237542, Sortino Ratio: 0.4270558433575976
+    % Mean Long PnL: -2.2066831088720394e-05, Std Stoikov PnL: 0.00239564284655977, Sortino Ratio: -0.007940496017707974
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+        \textbf{Test} & \textbf{RL-Agent}      & \textbf{Stoikov}       & \textbf{Long-Only}      \\
+        \hline
+        Mean Return   & $5.203 \times 10^{-5}$ & $3.038 \times 10^{-5}$ & $-2.207 \times 10^{-5}$ \\
+        Volatility    & $1.178 \times 10^{-4}$ & $1.714 \times 10^{-4}$ & $2.396 \times 10^{-3}$  \\
+        Sortino Ratio & 0.7497                 & 0.4271                 & -0.0079                 \\
+        \hline
+    \end{tabular}
+    \caption{Training Results}
+    \label{tab:training-results}
+\end{table*}
+
+% reward.png and returns.png
+
+Overall, the training process maintained an increasing reward curve and finished in about 3 hours and 8 minutes.
+The financial return of the RL-agent, as shown in Figure~\ref{fig:average-financial-return}, was stable around zero,
+and even though we expected a slightly negative return due to the highly volatile market conditions and
+somewhat low drift, the positive but close to neutral performance was still considered a favorable outcome,
+especially when compared to the benchmark agent's performance.
+The calculated Sortino ratio of $0.7497$ further supports the agent's performance under adverse market conditions,
+when compared to the benchmark agent scores of $0.4271$ and $-0.0079$ for the Stoikov and Long-Only strategies, respectively.
+
+The agent demonstrated being capable of adapting to changing market dynamics and outperform simpler strategies,
+where the proposed simulator provided a realistic environment for training under non-stationary market conditions.
+We confirmed our initial hypothesis that stochastic dynamic environments can effectively be used to simulate
+a market environment with changing regimes, and that reinforcement learning agents can learn to adapt to these conditions,
+instead of using historical data with no market impact or sample-biased generative models for training.
+
+% Graphs:
+% average financial return + confidence interval (+- volatility) x episode number
+% average financial return (+- volatility) x current timestep (per 100x trajectories after training)
+% average reward moving average x episode number
+\begin{figure}[t]
+    \centering
+    \begin{minipage}{\columnwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{images/reward}
+        \caption{Exponential moving average of the training reward per episode, with a linear trend line.}
+        \label{fig:average-reward-moving-average}
+    \end{minipage}
+    \vspace{0.04\textwidth} % Adjust horizontal space between figures
+    \begin{minipage}{\columnwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{images/returns}
+        \caption{Financial return, averaged over 100 trajectories with a 1 standard deviation confidence interval.}
+        \label{fig:average-financial-return}
+    \end{minipage}
+\end{figure}

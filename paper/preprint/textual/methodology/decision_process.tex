@@ -1,0 +1,137 @@
+\subsection{Decision Process}
+\label{subsec:decision-process}
+
+In reinforcement learning, the Bellman equation is a fundamental recursive relationship that expresses the value of a
+state in terms of the immediate reward and the expected value of subsequent states.
+For a given policy $\pi$, the Bellman equation for the value function $V(s)$ with respect to the chosen reward function is:
+\begin{equation*}
+    \begin{aligned}
+        V^\pi(s) &= \sum_{a \in \mathcal{A}} \pi(a \mid s) \sum_{s' \in \mathcal{S}} P(s'_{t+1} \mid s_{t}, a) \left[ R_t + \gamma V^\pi(s'_{t+1}) \right]\\
+        V^\pi(s) &= \mathbb{E}_\pi \left[ R_t + \gamma V^\pi(s_{t+1}) \mid s_t = s \right]\\
+    \end{aligned}
+\end{equation*}
+
+where $V(s)$ is the value function, representing the expected return (cumulative discounted rewards) starting from state $s$,
+going to state $s'$ by taking action $a$ and continuing the episode, $R_t$ is the reward obtained from the action taken,
+and $\gamma$ is the discount factor, used to weigh the value favorably towards immediate rather than future rewards.
+The Bellman equation underpins the process of optimal policy derivation, where the goal is to find the optimal policy $\pi^*$,
+that is, the control for our action space $\mathcal{A}$ that maximizes the expected return,
+and can solved by maximizing for the value function:
+\begin{equation*}
+    \begin{aligned}
+        V^*(s) &= \max_a \mathbb{E} \left[ R_t + \gamma V^*(s_{t+1}) \mid s_t = s, a_t = a \right]\\
+        \pi^*(s) &= \arg \max_{a \in \mathcal{A}} \mathbb{E} \left[ R_t + \gamma V^*(s_{t+1}) \mid s_t = s, a_t = a \right]\\
+    \end{aligned}
+\end{equation*}
+The Bellman equation is used to recursively define state values in terms of immediate rewards and expected value of subsequent states,
+and for simpler environments, the equation can be solved directly by dynamic programming methods.
+Such methods, like value iteration or policy iteration, although effective, become computationally expensive and sometimes unfeasible for large state spaces,
+or require a model of the environment, which is not always available in practice.
+Neural networks have been successfully used to approximate both the value function or the optimal actions directly,
+demonstrating state-of-the-art results in various domains, including games, robotics, and finance
+~\cite{He2023, Bakshaev2020, Patel2018, Ganesh2019, Sun2022, Gasperov2021a}.
+Our simulation environment is complex enough that the state space is too large to store all possible state-action pairs,
+and since we assume no knowledge of the underlying dynamics of the environment when training the agent, a model-free approach is necessary.
+
+\subsubsection{Generalized Policy Iteration and Policy Gradient}
+\label{subsubsec:gpi}
+Generalized Policy Iteration algorithms are a family of algorithms that combines policy evaluation and policy improvement steps iteratively,
+so that the policy is updated based on the value function, and the value function is updated based on the policy.
+While simpler methods directly estimate state values or state-action values, such as Q-learning, more complex methods
+such as Actor-Critic algorithms, estimate both the policy and the value function.
+The critic estimates the value function $V^\pi$, or $A^{\pi} = Q^{\pi} - V^{\pi}$, if using the advantage function, while the actor learns the policy $\pi$.
+We use a \textbf{policy gradient} approach, where the agent optimizes the policy directly by maximizing the expected return,
+through consecutive gradient ascent steps on the policy parameters given episodes of experience.
+For policy gradient methods, the following equations express the gradient ascent step for the
+policy parameters $\theta$ and the value function parameters $\phi$, using a $\alpha$ learning rate and the gradient operator $\nabla$:
+\begin{gather*}
+    \nabla_{\theta} J(\theta) = \mathbb{E}_{\tau \sim \pi_{\theta}} \left[ \sum_{t=0}^{T} \nabla_{\theta} \log \pi_{\theta}(a_t \mid s_t) A^{\pi}(s_t, a_t) \right]\\
+    \nabla_{\phi} J(\phi) = \mathbb{E}_{\tau \sim \pi_{\theta}} \left[ \sum_{t=0}^{T} \nabla_{\phi} \left( V^{\pi}(s_t) - R_t \right)^2 \right]\\
+    \pi_{\theta} \leftarrow \pi_{\theta} + \alpha \nabla_{\theta} J(\theta), \phi \leftarrow \phi + \alpha \nabla_{\phi} J(\phi)
+\end{gather*}
+\begin{figure}
+    \centering
+    \includegraphics[width=1\columnwidth]{images/gpi}
+    \caption{Diagram of the Generalized Policy Iteration loop for the implemented agent.}
+    \label{fig:gpi}
+\end{figure}
+
+In the context of \textbf{Proximal Policy Optimization (PPO)}
+the model is trained to improve its policy and value function by maximizing the expected return,
+according to a clipped surrogate objective function, which ensures that the policy does not deviate excessively from the previous policy,
+promoting stability during training.
+For \textbf{PPO}, the loss function used for the policy gradient ascent is defined as:
+\begin{gather*}
+    L^{\text{actor}}(\theta) = \mathbb{E}_t \left[ \min \left( r_t(\theta) \hat{A}_t, \text{clip}(r_t(\theta), 1 - \epsilon, 1 + \epsilon) \hat{A}_t \right) \right],\\
+    \hat{A}_t = \sum_{l=0}^{\infty} (\gamma \lambda)^l \delta_{t+l}.
+\end{gather*}
+where \( r_t(\theta) \) is the probability ratio between the new and old policies and $\hat{A}_t$ is the advantage function.
+The critic loss is the mean square error between the predicted value $V(s_t)$ and the actual return $R_t$, defined as:
+\begin{gather*}
+    L^{\text{critic}} = \mathbb{E}_t \left[ \left( V(s_t) - R_t \right)^2 \right],\\
+\end{gather*}
+Algorithmically, this is implemented by gathering trajectories from the environment and estimating the expression above using finite differences
+as shown in \hyperref[alg:ppo]{Algorithm~\ref{alg:ppo}}.
+\begin{algorithm}
+    \begin{algorithmic}[1]
+        \Require Policy $\pi_\theta$, value function $V_\phi$, trajectories $\tau$, epochs $K$, batch size $B$
+        \State \textbf{Compute Advantage Estimation:}
+        \State $\hat{A}_t = \sum_{l=0}^{\infty} (\gamma \lambda)^l \delta_{t+l}$
+        \State \textbf{Compute Returns:} $R_t = \hat{A}_t + V(s_t)$
+        \State \textbf{Construct dataset} $\mathcal{D} = (s_t, a_t, \hat{A}_t, R_t, \log \pi_\theta(a_t | s_t))$
+        \For{epoch $k = 1$ to $K$}
+            \For{minibatch $(s, a, \hat{A}, R, \log \pi_{\theta_{\text{old}}}(a | s))$ in $\mathcal{D}$}
+                \State \textbf{Policy Update:}
+                \State Compute probability ratio:
+                \(
+                r_t(\theta) = \frac{\pi_\theta(a | s)}{\pi_{\theta_{\text{old}}}(a | s)}
+                \)
+                \State Compute loss separately for actor and critic:
+                \begin{equation*}
+                    \begin{aligned}
+                        L^{\text{actor}} &= \mathbb{E} \left[ \min(r_t(\theta) \hat{A}_t, \text{clip}(r_t(\theta), 1 - \epsilon, 1 + \epsilon) \hat{A}_t) \right]\\
+                        L^{\text{critic}} &= \mathbb{E} \left[ (R_t - V(s_t))^2 \right]\\
+                    \end{aligned}
+                \end{equation*}
+                \State Perform backpropagation and gradient update:
+                \[
+                    \theta \gets \theta + \alpha \nabla_\theta L^{\text{actor}}, \quad \phi \gets \phi + \alpha \nabla_\phi L^{\text{critic}}
+                \]
+            \EndFor
+        \EndFor
+    \end{algorithmic}
+    \caption{Actor-Critic with PPO Updates}
+    \label{alg:ppo}
+\end{algorithm}
+
+Each pass updates both the policy parameters $\theta$ and the value function parameters $\phi$
+by applying the usual backward propagation pass for neural networks to minimize the loss function according to a chosen optimizer.
+A more detailed explanation of the PPO algorithm can be found in the original paper by Schulman et al. (2017)~\cite{Schulman2017}.
+Our implementation of the algorithm is a distributed-parallel version of the original version,
+where multiple learners interact with the environment in parallel and share the experience to update the policy and value function.
+Short of the V-trace algorithm, this approach is similar to the IMPALA algorithm~\cite{Espeholt2018}.
+Besides the proposed approach for simulating dynamic limit order book environments,
+we also implement a hybrid neural network for the agent's policy and value functions,
+composed of a sequence of self-attention layers to capture the spatial dependencies between the different levels of the LOB,
+concatenated with dense layers to process the market features, as discussed in~\autoref{sec:implementation-and-model-description}.
+
+\subsubsection{Benchmark Closed-Form Expression for Simplified Model}
+To ensure the agent's performance is able to capture the complexity of the environment, we use a benchmark closed-form expression
+to compare the agent's performance against.
+We chose the closed-form expression for the optimal bid-ask spread pair as proposed by Avellaneda et al. (2008)~\cite{Avellaneda2008},
+which is given by the following expression:
+\begin{equation}
+    \begin{aligned}
+        \delta^* &= \frac{\sigma}{\sqrt{2}} \text{erf}^{-1} \left( \frac{1}{2} \left( 1 + \frac{\mu}{\sigma} \right) \right),\\
+        &\text{erf}(x) = \frac{2}{\sqrt{\pi}} \int_{0}^{x} e^{-t^2} dt.
+    \end{aligned}
+    \label{eq:avellaneda}
+\end{equation}
+where $\sigma$ is the volatility, $\mu$ is the mean spread, and $\text{erf}^{-1}$ is the inverse error function.
+The error function $\text{erf}(x)$ serves simply as a measure of the spread of the normal distribution.
+
+The closed-form expression is derived from a simple market model which assumes normally distributed non-mean reverting spreads,
+constant executed order size and exponentially distributed event time dynamics.
+As it depends on a simpler model for the market to be implemented, our expectations are that the agent will under-perform in a more complex environment.
+The optimal bid-ask spread pair according to \autoref{eq:avellaneda} is then given by $p_\text{bid} = \mu - \delta^*$ and $p_\text{ask} = \mu + \delta^*$.
+A fixed quantity of $1$ quoted share as originally proposed is used.
