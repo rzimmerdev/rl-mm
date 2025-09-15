@@ -1,0 +1,124 @@
+\subsection{A Formal Description of the Environment}
+\label{subsec:formal-description-of-the-rl-environment}
+In modeling the environment, we initially utilize a continuous-time, continuous-state Markov Chain,
+and later transition to a discrete implementation to address computational space constraints.
+Specifically, we model the environment as a Markov Decision Process (MDP),
+defined as a 4-tuple $ (\mathcal{S}, \mathcal{A}, \mathbb{P}, R) $, where:
+
+\begin{itemize}
+    \item $\mathcal{S}$ is the set of states called the state space.
+    \item $\mathcal{A}$ is the set of actions called the action space.
+    \item $\mathbb{P}: \mathcal{S} \times \mathcal{A} \times \mathcal{S} \to [0, 1]$ is the transition probability function for the MDP.
+    \item $R: \mathcal{S} \times \mathcal{A} \times \mathcal{S}' \rightarrow \mathbb{R}$ is the reward function associated with each state transition.
+\end{itemize}
+
+Then, the agent's interaction with the environment is made by chosing an action $a$ from the action space $\mathcal{A}$ in response to an observed state $s \in \mathcal{S}$,
+according to a policy $\pi (s, a)$.
+The agent's goal is to maximize cumulative rewards over time, which are obtained from the reward function $R$.
+The return $G_t = \int_{t}^{T} \gamma^{k-t} R_{k} dk$ is used to estimate the value of a state-action pair by summing the rewards obtained from time $t$ to the end of the episode
+(usually, as well as in our case, discounted by a factor $\gamma$ to favor immediate rewards),
+where $R_{t}$ is the observed reward at time $t$ and $T$ is the time of the episode's end.
+
+\subsubsection{Chosen State Space}
+We choose a state space that tries to best incorporate the historical events of the limit order book into a single observable state using
+market features deemed relevant and chosen through our initial bibliography research,
+as well as guided by the works of
+Gasparov et al. (2021)~\cite{Gasperov2021} and Gueant et al. (2017)~\cite{Gueant2017} on reinforcement learning for market-making.
+We used the agent's current inventory and a set of indicators for the currently observed market state:
+the Relative Strength Index (RSI); order imbalance (OI); and micro price (MP).
+Additionally, for a fixed number $D$ of LOB price levels the pair $(\delta^d, Q^d)$, where $\delta^d$ is the half-spread distance for the level $d \leq D$,
+and $Q^d$ the amount of orders posted at that level is added to the state as a set of tuples, for both the ask and bid sides of the book.
+The state space can therefore be represented by the following expression:
+\begin{equation*}
+    \begin{aligned}
+        s_{t} \in \mathcal{S} = \big\{ &\text{RSI}_t, \text{OI}_t, MP_{t}, \text{Inventory}_t, \\
+        & \text{MA}_{10, t}, \text{MA}_{15, t}, \text{MA}_{30, t}, \\
+        & (\delta_t^{d, ask}, Q_t^{d, ask})_{d=1}^{D}, \\
+        & (\delta_t^{d, bid}, Q_t^{d, bid})_{d=1}^{D} \big\}
+    \end{aligned}\label{eq:equation}
+\end{equation*}
+where $0 < t < T$, and $\text{MA}_{n, t}$ is the moving average of the price returns over the last $n$ time steps.
+The indicators for our chosen market simulation framework are defined individually by values directly obtained from the observed LOB,
+and serve as market state summaries for the agent to use:
+
+\begin{itemize}
+    \item \textbf{Order Imbalance (OI):} Measures the relative difference between buy and sell orders at a given time.
+    \item \textbf{Relative Strength Index (RSI):} Momentum indicator that compares the magnitude of recent gains to recent losses to evaluate overbought or oversold conditions.
+    \item \textbf{Micro Price (\( P_{\text{micro}} \)):} Weighted average of the best bid and ask prices, weighted by their respective quantities.
+\end{itemize}
+\begin{equation}
+    \begin{aligned}
+        \text{OI}_t &= \frac{Q_t^{\text{bid}} - Q_t^{\text{ask}}}{Q_t^{\text{bid}} + Q_t^{\text{ask}}}\\
+        \text{RSI}_t &= 100 - \frac{100}{1 + \frac{\text{Average Gain}}{\text{Average Loss}}}\\
+        \text{P}_{\text{micro}, t} &= \frac{P_t^{\text{ask}} Q_t^{\text{bid}} + P_t^{\text{bid}} Q_t^{\text{ask}}}{Q_t^{\text{bid}} + Q_t^{\text{ask}}}
+    \end{aligned}
+    \label{eq:features}
+\end{equation}
+
+where \( P_t^{\text{ask}} \) and \( P_t^{\text{bid}} \) represent the best ask and bid prices at time \( t \),
+and \( Q_t^{\text{bid}} \) and \( Q_t^{\text{ask}} \) represent the total bid and ask quantities, respectively.
+The \textit{Average Gain} and \textit{Average Loss} are computed over a rolling window (in our case, fixed 5 minute observation intervals),
+and are defined as the average price increases and decreases during that window, respectively.
+\( \text{OI}_t \in [-1, 1] \), with \( \text{OI}_t = 1 \) indicating complete dominance of bid orders, and \( \text{OI}_t = -1 \) indicating ask order dominance.
+The RSI is bounded between 0 and 100, with values above 70 indicating overbought conditions and values below 30 indicating oversold conditions.
+Overall, the chosen state space designed to capture the most relevant market features for the agent to make informed decisions is
+not a novel approach per-se, containing common indicators used in market-making literature~\cite{Gueant2022, Selser2021a, FalcesMarin2022}.
+
+\subsubsection{Chosen Action Space}
+
+The control, or agent, interacts with the environment choosing actions from the set of possible actions,
+such that $a \in \mathcal{A}$ in response to observed states $s \in \mathcal{S}$ according to a policy $\pi (s, a)$ which we will define shortly,
+and the end goal is to maximize cumulative rewards over time.
+The agent's chosen action impacts the evolution of the system's dynamics by inserting orders into the LOB that might move the observed midprice,
+to introduce features of market impact into our model.
+
+The action space $\mathcal{A}$ includes the decisions made by the agent at time $t$, specifically the desired bid and ask spreads pair
+$\delta^{\text{ask}}, \delta^{\text{bid}}$ and the corresponding posted order quantities $Q^{\text{ask}}, Q^{\text{bid}}$:
+$$
+\mathcal{A} = \left\{ (\delta^{\text{ask}}, \delta^{\text{bid}}, Q^{\text{ask}}, Q^{\text{bid}}), \forall \delta \in \mathbb{R}^+, \forall Q \in \mathbb{Z}\} \right.
+$$
+
+\subsubsection{Episodic Reward Function and Returns}
+
+The episode reward function $R_t \in \mathbb{R}$ reflects the agent's profit and inventory risk obtained during a specific time in the episode.
+It depends on the spread and executed quantities, as well as the inventory cost and was choosen according to the best performing reward structures taken from the literature review.
+For our model the utility chosen is based on a risk-aversion enforced utility function, specifically the \textit{constant absolute risk aversion (CARA)}~\cite{Arrow1965, Pratt1964}
+with the virtual running Profit and Loss (PnL) as input.
+It depends on the realized spread $\delta$ and the realized quantity $q$\footnote{Differs from the agent's posted order quantity $Q$, as $q$ is a stochastic variable dependent on the underlying market dynamics.},
+and is computed as follows, where the penalty for holding large inventory positions is discounted by a factor of \( \eta \) from the final score:
+\[
+\begin{aligned}
+    \text{Running PnL}_t &= \delta_t^{\text{ask}} q_t^{\text{ask}} - \delta_t^{\text{bid}} q_t^{\text{bid}} + \text{I}_t \cdot \Delta M_t, \\
+    \text{Penalty}_t &= \eta \left( \text{Inventory}_t \cdot \Delta M_t \right)^+,\\
+    \text{PnL}_t &\coloneqq \text{Running PnL}_t - \text{Penalty}_t
+\end{aligned}
+\]
+Finally, the reward function is defined as the negative of the exponential of the running PnL, a common choice for risk-averse utility functions according to literature~\cite{Gueant2022, Selser2021a, FalcesMarin2022}.
+The CARA utility function is defined as follows, where \( \gamma \) is the risk aversion parameter:
+\[
+    R_t = U(\text{PnL}_t) = -e^{-\gamma \cdot \text{PnL}_t},
+\]
+
+\subsection{State Transition Distribution}
+\label{subsec:state-transition-distribution}
+
+The previously mentioned transition probability density $P$ is given by a Stochastic Differential Equation expressed by the Kolmogorov
+forward equation for Markov Decission Processes:
+
+\begin{equation}
+    \label{eq:equation2}
+    \frac{\partial P(s', t | s, a)}{\partial t}  = \int_{\mathcal{S}} \mathcal{L}(x | s, a, t) P(s'| x, a, t) dx
+\end{equation}
+
+for all $s, s' \in \mathcal{S}$ and all times $t$ before market close $T$, that is, $t \le T$,
+where $a$ is choosen by our control agent according to a policy $\pi (s)$.
+$\mathcal{L}$ is the generator operator and governs the dynamics of the state transitions given the current time.
+
+In continuous-time and state MDPs, the state dynamics is reflected by $\mathcal{L}$, and modern approaches to optimal control
+solve analytically by obtaining a closed-form expression for the model's evolution equations, as originally tackled by
+Avellaneda et al. (2008)~\cite{Avellaneda2008} and Gueant et al. (2017)~\cite{Gueant2017}.
+or numerically by approximating its transition probabilities~\cite{Gueant2022, Selser2021a, FalcesMarin2022}.
+Closed-form expressions for $\mathcal{L}$ are obtainable for simple environment models, by usually disconsidering market impact,
+which is not the case for our proposed model, and solving for the generator operator is therefore outside the scope of this paper.
+We describe in~\autoref{sec:implementation-and-model-description} our chosen approach to model the state transition distribution,
+using the Proximal Policy Optimization (PPO) algorithm to approximate the optimal policy for the agent.

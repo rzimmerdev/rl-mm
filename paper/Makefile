@@ -4,7 +4,7 @@
 # ieee:
 #   	latexmk ieee/ieee.tex -pdf -output-directory=out/ -pvc -interaction=nonstopmode -f -cd
 OUTDIR ?= build
-LATEXMK = latexmk -f -pdf -output-directory=$(CURDIR)/$(OUTDIR) -pvc -interaction=nonstopmode -cd
+LATEXMK = latexmk -f -pdf -output-directory=$(CURDIR)/$(OUTDIR) -pvc -cd
 
 TARGET ?= preprint
 SRC = $(TARGET)/$(TARGET).tex

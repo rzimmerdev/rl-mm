@@ -1,29 +1,40 @@
-\documentclass{article}
+%% For submission and review of your manuscript please change the
+%% command to \documentclass[manuscript, screen, review]{jair}.
+\documentclass[manuscript]{jair}
 
-\usepackage{arxiv}
 
-\input{packages}
+\setcopyright{cc}
+\copyrightyear{2025}
+\acmDOI{xx.xxxx/jair.1.xxxxx}
+
+\JAIRAE{}
+\JAIRTrack{} % Insert JAIR Track Name only if part of a special track
+\acmVolume{0}
+\acmArticle{0}
+\acmMonth{0}
+\acmYear{2025}
+
+\RequirePackage[
+    datamodel=acmdatamodel,
+    style=acmauthoryear,
+    backend=biber,
+    giveninits=true
+]{biblatex}
+
+\renewcommand*{\bibopenbracket}{(}
+\renewcommand*{\bibclosebracket}{)}
+
+%% For managing citations, it is recommended to use bibliography
+%% files in BibTeX format.
+\addbibresource{references.bib}  % bibliography file.
+
+\include{packages}
 
 \newcommand{\Title}{Reinforcement Learning-Based Market Making as a Stochastic Control on Non-Stationary Limit Order Book Dynamics}
 
-\input{cover}
-
-\renewcommand{\undertitle}{}
-\renewcommand{\shorttitle}{}
-\renewcommand{\headeright}{}
-
-\hypersetup{
-pdftitle={Reinforcement Learning-Based Market Making as a Stochastic Control on Non-Stationary Limit Order Book Dynamics},
-pdfsubject={q-fin.TR, cs.AI},  % https://arxiv.org/category_taxonomy
-pdfauthor={Rafael Zimmer, Oswaldo L. V.~Costa},
-pdfkeywords={Reinforcement Learning, Market Making, Limit Order Book, Stochastic Control, Market Microstructure},
-}
-%%% check with `pdfinfo preprint.pdf`
-
 \begin{document}
-    \twocolumn[
-    \maketitle
-    \vspace{-3em}
+    \input{cover}
+
     \begin{abstract}
         Reinforcement Learning has emerged as a promising framework for developing adaptive and data-driven strategies,
         enabling market makers to optimize decision-making policies based on interactions with the limit order book environment.
@@ -39,9 +50,12 @@ pdfkeywords={Reinforcement Learning, Market Making, Limit Order Book, Stochastic
         and that the proposed simulator-based environment can serve as a valuable tool for training and
         pre-training reinforcement learning agents in market-making scenarios.
     \end{abstract}
-    \keywords{Reinforcement Learning \and Market Making \and Limit Order Book \and Stochastic Control \and Market Microstructure}
-    \vspace{2em}
-    ]
+
+%% To be updated by authors.
+%\received{20 February 2007}
+%\received[accepted]{5 June 2009}
+
+    \maketitle
 
     \input{textual/introduction}
 
@@ -55,12 +69,7 @@ pdfkeywords={Reinforcement Learning, Market Making, Limit Order Book, Stochastic
 
     \input{textual/conclusion}
 
-    \vspace{-1em}
-    \section*{Acknowledgments}
-    The author(s) gratefully acknowledge support from the São Paulo Research Foundation (FAPESP grant no. 2023/16028-3).
-
-
-    \bibliographystyle{plain}
-    \bibliography{references}
+    \printbibliography
 
 \end{document}
+\endinput

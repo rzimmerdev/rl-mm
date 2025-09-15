@@ -1,0 +1,37 @@
+\section{Introduction}
+\label{sec:introduction}
+
+Market making in financial markets can be defined as continuously quoting bid and ask prices to profit from thespread,
+and is an essential part of the market microstructure, as it helps to narrow bid-ask spreads, reduce volatility, and maintain market stability~\cite{Glosten1985, OHara1995}.
+This is particularly important in times of high uncertainty, as market makers provide liquidity, which helps to maintain a fair and efficient market price.
+With the advent of electronic trading, placing optimal bid and ask quotes as a market maker is becoming an almost completely automatized task,
+but such a transition requires dealing with additional caveats, including slippage, market impact, adverse market regimes~\cite{Cont2010, Bouchaud2018}
+and non-stationary conditions~\cite{Gasperov2021}.
+
+The Reinforcement Learning (RL) paradigm has shown promising results for optimizing market making strategies,
+where agents learn to adapt their policies through trial and error given a numerical outcome reward score\footnote{Not to be confused with financial returns.},
+which is used to evaluate the agent's performance in the environment~\cite{Sutton2018}.
+The RL approach is based on the Bellman equation for state values or state-action pair values,
+which recursively define the state-value of a policy as the expected return of discounted future rewards.
+State-of-the-art RL algorithms, such as Proximal Policy Optimization (PPO) and Soft Actor-Critic (SAC),
+solve the Bellman equation by approximating the optimal policy using neural networks to learn either the policy, the value function~\cite{Sutton2018},
+or both~\cite{Schulman2015, Mnih2015}, thus enabling the agent to learn the optimal actions according to observed market states~\cite{He2023, Bakshaev2020}.
+
+Using historical data to train RL agents is a common practice in the market making literature, but has some limitations
+due to being computationally expensive and requiring large amounts of data,
+besides not including the effects of market impact and inventory risk~\cite{Frey2023, Ganesh2019} on the agent's decision-making policies.
+An additional approach to creating realistic environments are agent-based simulations,
+where generative agents are first trained against observed market messages and then used to simulate order arrivals~\cite{Jerome2022, Selser2021}.
+This approach has the disadvantage of trading off fine-grained control over market dynamics for realism,
+as well as limiting the agent's adaptability to unseen market regimes, which can lead to underfitting~\cite{Jerome2022, Selser2021}
+and suboptimal decision-making under scenarios where market impact and slippage have a more prominent effect on the agent's performance.
+On the other hand, using stochastic models to simulate the limit order book environment is computationally cheaper and faster to train,
+but may not capture the full complexity of real market dynamics, due to simplified assumptions and static ~\cite{Sun2022}.
+
+In the context of this paper, we propose and discuss a methodology for integrating a reinforcement learning agent in a market-making context,
+where the underlying market dynamics are explicitly simulated using parameterizable stochastic processes combined carefully to capture observed stylized facts of real markets.
+Our main contribution is implementing multiple non-stationary dynamics into a single limit order book simulator,
+and how using fine-controlled non-stationary environments can enhance the resulting agent's performance under adverse market conditions
+and provide a more realistic training environment for RL agents in market-making scenarios, while still considering market impact and inventory risk.
+We then perform a comparative analysis of the agent's performance under changing market conditions during the
+trading day and benchmark it against the Avellaneda-Stoikov market making strategy~\cite{Avellaneda2008} optimal solution (under a simplified market model).
